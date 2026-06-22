@@ -1,0 +1,117 @@
+{
+  "generatedFrom": "data.js",
+  "types": [
+    {
+      "type": "species",
+      "file": "species.json",
+      "container": "object",
+      "entries": 1343,
+      "bytes": 780670
+    },
+    {
+      "type": "moves",
+      "file": "moves.json",
+      "container": "object",
+      "entries": 1003,
+      "bytes": 227498
+    },
+    {
+      "type": "tmMoves",
+      "file": "tmMoves.json",
+      "container": "object",
+      "entries": 128,
+      "bytes": 1656
+    },
+    {
+      "type": "tutorMoves",
+      "file": "tutorMoves.json",
+      "container": "object",
+      "entries": 128,
+      "bytes": 1539
+    },
+    {
+      "type": "types",
+      "file": "types.json",
+      "container": "object",
+      "entries": 18,
+      "bytes": 2058
+    },
+    {
+      "type": "abilities",
+      "file": "abilities.json",
+      "container": "object",
+      "entries": 255,
+      "bytes": 24353
+    },
+    {
+      "type": "items",
+      "file": "items.json",
+      "container": "object",
+      "entries": 749,
+      "bytes": 102940
+    },
+    {
+      "type": "areas",
+      "file": "areas.json",
+      "container": "array",
+      "entries": 221,
+      "bytes": 64809
+    },
+    {
+      "type": "trainers",
+      "file": "trainers.json",
+      "container": "object",
+      "entries": 464,
+      "bytes": 456396
+    },
+    {
+      "type": "natures",
+      "file": "natures.json",
+      "container": "object",
+      "entries": 25,
+      "bytes": 430
+    },
+    {
+      "type": "eggGroups",
+      "file": "eggGroups.json",
+      "container": "object",
+      "entries": 16,
+      "bytes": 287
+    },
+    {
+      "type": "splits",
+      "file": "splits.json",
+      "container": "object",
+      "entries": 3,
+      "bytes": 57
+    },
+    {
+      "type": "evolutions",
+      "file": "evolutions.json",
+      "container": "object",
+      "entries": 25,
+      "bytes": 1605
+    },
+    {
+      "type": "scaledLevels",
+      "file": "scaledLevels.json",
+      "container": "object",
+      "entries": 4,
+      "bytes": 54
+    },
+    {
+      "type": "caps",
+      "file": "caps.json",
+      "container": "object",
+      "entries": 18,
+      "bytes": 675
+    },
+    {
+      "type": "sprites",
+      "file": "sprites.json",
+      "container": "object",
+      "entries": 1353,
+      "bytes": 3001668
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "Brock": {"ID":0,"cap":[15,16]},
+  "Archer-1": {"ID":1,"cap":[22,23]},
+  "Misty": {"ID":2,"cap":[27,28]},
+  "Surge": {"ID":3,"cap":[34,36]},
+  "Erika": {"ID":4,"cap":[44,44]},
+  "Giovanni-1": {"ID":5,"cap":[47,47]},
+  "Archer-2": {"ID":6,"cap":[56,56]},
+  "Giovanni-2": {"ID":7,"cap":[57,57]},
+  "Sabrina": {"ID":8,"cap":[59,59]},
+  "Koga": {"ID":9,"cap":[68,68]},
+  "May": {"ID":10,"cap":[73,73]},
+  "Blaine": {"ID":11,"cap":[76,76]},
+  "Archer-3": {"ID":12,"cap":[79,79]},
+  "Giovanni-3": {"ID":13,"cap":[80,80]},
+  "Clair": {"ID":14,"cap":[81,81]},
+  "Brendan": {"ID":15,"cap":[82,82]},
+  "Elite-4": {"ID":16,"cap":[85,85]},
+  "Post-Game": {"ID":17,"cap":[100,100]}
+}
