@@ -1,0 +1,7 @@
+# Claude Code / local editor config (keep local perms out of the repo)
+.claude/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
