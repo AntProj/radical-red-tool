@@ -1,0 +1,2294 @@
+{
+ "info": [
+  {
+   "title": "General Restrictions",
+   "type": "list",
+   "items": [
+    "Weather / Terrain set by the AI's Pokémon is permanent.",
+    "Defog, Steel Roller, Ice Spinner and Splintered Stormshards do not remove terrain.",
+    "Electric Seed is unobtainable from wild Pokémon before beating Lt. Surge.",
+    "Misty Seed is unobtainable from wild Pokémon before beating Sabrina.",
+    "Psychic Seed is unobtainable from wild Pokémon before beating Koga.",
+    "Your follower Pokémon cannot pick up an Eject Button in Power Plant.",
+    "The first four Level Caps are different (see the Level Caps below).",
+    "The location of Charizardite Y and Charizardite X are swapped.",
+    "The location of Gardevoirite and Cameruptite are swapped.",
+    "Rapid Spin does not boost speed.",
+    "Moves that have a chance to Omniboost can't give boosts to the player.",
+    "Shedinja is unobtainable.",
+    "The player cannot find wild Pokémon with Egg Moves in Raid Dens or by searching with the DexNav.",
+    "Weakness Policy, Throat Spray, Air Balloon, Light Clay and Weather Rocks are unobtainable.",
+    "Booster Energy won't spawn in Cerulean Cave.",
+    "Psyshock TM is given by Sabrina and not found on Underground Path."
+   ]
+  },
+  {
+   "title": "Level Caps",
+   "type": "caps",
+   "items": [
+    {
+     "label": "Pre-Brock",
+     "cap": 16
+    },
+    {
+     "label": "Pre-Mt. Moon Archer",
+     "cap": 23
+    },
+    {
+     "label": "Pre-Misty",
+     "cap": 28
+    },
+    {
+     "label": "Pre-Lt. Surge",
+     "cap": 36
+    },
+    {
+     "label": "Pre-Erika",
+     "cap": 44
+    },
+    {
+     "label": "Pre-Game Corner Giovanni",
+     "cap": 47
+    },
+    {
+     "label": "Pre-Silph Co. Archer & Ariana",
+     "cap": 56
+    },
+    {
+     "label": "Pre-Giovanni Silph Co.",
+     "cap": 57
+    },
+    {
+     "label": "Pre-Sabrina",
+     "cap": 59
+    },
+    {
+     "label": "Pre-Koga",
+     "cap": 68
+    },
+    {
+     "label": "Pre-May",
+     "cap": 73
+    },
+    {
+     "label": "Pre-Blaine",
+     "cap": 76
+    },
+    {
+     "label": "Pre-Cerulean Cave Archer & Ariana",
+     "cap": 79
+    },
+    {
+     "label": "Pre-Cerulean Cave Giovanni",
+     "cap": 80
+    },
+    {
+     "label": "Pre-Clair",
+     "cap": 81
+    },
+    {
+     "label": "Pre-Brendan",
+     "cap": 82
+    },
+    {
+     "label": "Pre-Elite 4",
+     "cap": 85
+    },
+    {
+     "label": "Post Game",
+     "cap": 100
+    }
+   ]
+  },
+  {
+   "title": "Focus Sash & Choice Items",
+   "type": "list",
+   "items": [
+    "Show a Pokémon with 125+ base stat in the respective stat (Chuck asks for a Pokémon with strong attack, show a mon with 125+ base attack like Terrakion)."
+   ]
+  },
+  {
+   "title": "About This Data",
+   "type": "list",
+   "items": [
+    "All of the trainer info in this sheet should be 100% accurate, because it was either obtained via byte copying and using the Stat Scanner, or thanks to source code data.",
+    "Even if something looks VERY wrong, that's how it is in-game. Though, feel free to report text typos if you ever find those.",
+    "All of the opposing Pokémon's moves in this sheet are PP maxed.",
+    "Generally, if a Pokémon has Gyro Ball in its moveset or is part of a Trick Room team, you can safely assume it has zero speed IVs.",
+    "Rival's chosen starter determines what team he gets. If he has the Squirtle team, that means the player chose a Fire-type starter Pokémon.",
+    "Since Hardcore Mode auto-enables Minimal Grinding Mode, opponents don't have EVs. Except for one specific case which is the Ghost Marowak, having 252 HP EVs.",
+    "All speed stats are determined based on the point when you're expected to battle with the trainer at that specific juncture in the game."
+   ]
+  },
+  {
+   "title": "Ability Changes",
+   "type": "abilities",
+   "items": [
+    "Drought, Desolate Land → Sheer Force",
+    "Grassy Surge, Seed Sower → Self Sufficient",
+    "Sand Stream, Sand Spit → Sand Force",
+    "Drizzle, Primordial Sea → Adaptability",
+    "Defiant, Competitive → Clear Body",
+    "Misty Surge, Electric Surge → Telepathy",
+    "Moxie, Chilling Neigh, Grim Neigh, Soul-Heart, Beast Boost → Unnerve",
+    "Orichalcum Pulse → Protosynthesis",
+    "Hadron Engine → Quark Drive",
+    "Speed Boost → Infiltrator",
+    "Imposter → Limber",
+    "Magic Bounce → Magic Guard",
+    "Blazing Soul → Flash Fire",
+    "Triage → Natural Cure",
+    "Trace → Synchronize",
+    "Stamina → Inner Focus",
+    "Contrary → Bad Company",
+    "Psychic Surge → Dazzling",
+    "Snow Warning → Slush Rush",
+    "Toxic Debris → Corrosion",
+    "Anger Shell → Regenerator",
+    "Tyranitar → Intimidate",
+    "Mega Tyranitar → Intimidate",
+    "Mega Blaziken → Striker",
+    "Spinda Keeps Contrary",
+    "Gigalith → Solid Rock",
+    "Comfey Keeps Triage",
+    "Rillaboom → Intimidate",
+    "Espathra Keeps Speed Boost"
+   ]
+  }
+ ],
+ "categories": [
+  {
+   "name": "Kanto Leaders",
+   "bosses": [
+    {
+     "name": "Gym Leader Brock",
+     "trainerName": "Leader Brock",
+     "trainerId": 414,
+     "minLevel": 13,
+     "maxLevel": 16
+    },
+    {
+     "name": "Gym Leader Misty",
+     "trainerName": "Leader Misty",
+     "trainerId": 415,
+     "minLevel": 27,
+     "maxLevel": 28
+    },
+    {
+     "name": "Gym Leader Lt. Surge",
+     "trainerName": "Leader Lt. Surge",
+     "trainerId": 416,
+     "minLevel": 35,
+     "maxLevel": 36
+    },
+    {
+     "name": "Gym Leader Erika",
+     "trainerName": "Leader Erika",
+     "trainerId": 417,
+     "minLevel": 44,
+     "maxLevel": 44
+    },
+    {
+     "name": "Gym Leader Sabrina",
+     "trainerName": "Leader Sabrina",
+     "trainerId": 420,
+     "minLevel": 59,
+     "maxLevel": 59
+    },
+    {
+     "name": "Gym Leader Koga",
+     "trainerName": "Leader Koga",
+     "trainerId": 418,
+     "minLevel": 68,
+     "maxLevel": 68
+    },
+    {
+     "name": "Gym Leader Blaine",
+     "trainerName": "Leader Blaine",
+     "trainerId": 419,
+     "minLevel": 76,
+     "maxLevel": 76
+    },
+    {
+     "name": "Gym Leader Clair",
+     "trainerName": "Leader Clair",
+     "trainerId": 74,
+     "minLevel": 81,
+     "maxLevel": 81
+    }
+   ]
+  },
+  {
+   "name": "Kanto Rematch",
+   "bosses": [
+    {
+     "name": "Gym Leader Brock",
+     "trainerName": "Leader Brock",
+     "trainerId": 56,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Gym Leader Misty",
+     "trainerName": "Leader Misty",
+     "trainerId": 48,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Gym Leader Lt. Surge",
+     "trainerName": "Leader Lt. Surge",
+     "trainerId": 51,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Gym Leader Erika",
+     "trainerName": "Leader Erika",
+     "trainerId": 65,
+     "minLevel": 103,
+     "maxLevel": 103
+    }
+   ]
+  },
+  {
+   "name": "Johto Leaders",
+   "bosses": [
+    {
+     "name": "Pewter Museum Leader Falkner",
+     "trainerName": "Leader Falkner",
+     "trainerId": 45,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 25 Leader Bugsy",
+     "trainerName": "Leader Bugsy",
+     "trainerId": 8,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 25 Leader Bugsy",
+     "trainerName": "Leader Bugsy",
+     "trainerId": 8,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 11 Leader Whitney",
+     "trainerName": "Leader Whitney",
+     "trainerId": 49,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Lavender Town Leader Morty",
+     "trainerName": "Leader Morty",
+     "trainerId": 52,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Saffron Dojo Leader Chuck",
+     "trainerName": "Leader Chuck",
+     "trainerId": 317,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Seafoam Isl. Leader Pryce",
+     "trainerName": "Leader Pryce",
+     "trainerId": 58,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Seafoam Isl. Leader Pryce",
+     "trainerName": "Leader Pryce",
+     "trainerId": 59,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Seafoam Isl. Leader Pryce",
+     "trainerName": "Leader Pryce",
+     "trainerId": 58,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cinnabar Lab Leader Jasmine",
+     "trainerName": "Leader Jasmine",
+     "trainerId": 62,
+     "minLevel": 103,
+     "maxLevel": 103
+    }
+   ]
+  },
+  {
+   "name": "Rivals",
+   "bosses": [
+    {
+     "name": "Route 22 #1 Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 329,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 22 #1 Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 331,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 22 #1 Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 330,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Virid. Forest Brendan",
+     "trainerName": "PkMn Trainer Brendan",
+     "trainerId": 44,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulean City Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 332,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulean City Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 334,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulean City Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 333,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "S.S. Anne Brendan",
+     "trainerName": "PkMn Trainer Brendan",
+     "trainerId": 50,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Silph Co. Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 432,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Silph Co. Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 434,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Silph Co. Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 433,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Fuchsia City Brendan",
+     "trainerName": "PkMn Trainer Brendan",
+     "trainerId": 57,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cinnabar Isl. May",
+     "trainerName": "PkMn Trainer May",
+     "trainerId": 61,
+     "minLevel": 73,
+     "maxLevel": 73
+    },
+    {
+     "name": "Route 22 #2 Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 435,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 22 #2 Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 437,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 22 #2 Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 436,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 23 Brendan",
+     "trainerName": "PkMn Trainer Brendan",
+     "trainerId": 26,
+     "minLevel": 103,
+     "maxLevel": 103
+    }
+   ]
+  },
+  {
+   "name": "Team Rocket",
+   "bosses": [
+    {
+     "name": "Mt. Moon Archer",
+     "trainerName": "Rocket Admin Archer",
+     "trainerId": 46,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Nugg. Bridge Grunt",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 356,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Dig House Grunt",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 355,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Game Corner Guard",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 357,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Rocket Hide. Right Guard",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 367,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Rocket Hide. Giovanni",
+     "trainerName": "Boss Giovanni",
+     "trainerId": 348,
+     "minLevel": 47,
+     "maxLevel": 47
+    },
+    {
+     "name": "Pkmn Tower Grunt 1",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 369,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Grunt 2",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 370,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Grunt 3",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 371,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Silph Co. Ariana & Archer",
+     "trainerName": "Rocket Admin Archer",
+     "trainerId": 53,
+     "minLevel": 55,
+     "maxLevel": 56
+    },
+    {
+     "name": "Partner Brendan",
+     "trainerName": "PkMn Trainer Brendan",
+     "trainerId": 55,
+     "minLevel": 55,
+     "maxLevel": 55
+    },
+    {
+     "name": "Silph Co. Giovanni",
+     "trainerName": "Boss Giovanni",
+     "trainerId": 349,
+     "minLevel": 57,
+     "maxLevel": 57
+    },
+    {
+     "name": "Cerulea. Cave Grunt 1",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 72,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulea. Cave Grunt 2",
+     "trainerName": "Team Rocket Grunt",
+     "trainerId": 70,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulea. Cave Archer",
+     "trainerName": "Rocket Admin Archer",
+     "trainerId": 67,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulea. Cave Ariana",
+     "trainerName": "Rocket Admin Ariana",
+     "trainerId": 68,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulea. Cave Giovanni",
+     "trainerName": "Boss Giovanni",
+     "trainerId": 69,
+     "minLevel": 80,
+     "maxLevel": 80
+    },
+    {
+     "name": "Partner Lance",
+     "trainerName": "Champion Lance",
+     "trainerId": 39,
+     "minLevel": 82,
+     "maxLevel": 83
+    }
+   ]
+  },
+  {
+   "name": "Mini Bosses",
+   "bosses": [
+    {
+     "name": "Virid. Forest Lass Anne",
+     "trainerName": "Lass Anne",
+     "trainerId": 4,
+     "minLevel": 102,
+     "maxLevel": 104
+    },
+    {
+     "name": "Virid. Forest Ace Trainer Nelle",
+     "trainerName": "Ace Trainer Nelle",
+     "trainerId": 21,
+     "minLevel": 102,
+     "maxLevel": 102
+    },
+    {
+     "name": "Virid. Forest Bug Catcher Sammy",
+     "trainerName": "Bug Catcher Sammy",
+     "trainerId": 104,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 3 Lass Sally",
+     "trainerName": "Lass Sally",
+     "trainerId": 117,
+     "minLevel": 101,
+     "maxLevel": 102
+    },
+    {
+     "name": "Mt. Moon Super Nerd Miguel",
+     "trainerName": "Super Nerd Miguel",
+     "trainerId": 170,
+     "minLevel": 101,
+     "maxLevel": 102
+    },
+    {
+     "name": "Nugg. Bridge Bug Catcher Cale",
+     "trainerName": "Bug Catcher Cale",
+     "trainerId": 110,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Nugg. Bridge Lass Ali",
+     "trainerName": "Lass Ali",
+     "trainerId": 123,
+     "minLevel": 101,
+     "maxLevel": 102
+    },
+    {
+     "name": "Nugg. Bridge Youngster Timmy",
+     "trainerName": "Youngster Timmy",
+     "trainerId": 92,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Nugg. Bridge Lass Reli",
+     "trainerName": "Lass Reli",
+     "trainerId": 122,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Nugg. Bridge Camper Ethan",
+     "trainerName": "Camper Ethan",
+     "trainerId": 144,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 6 Camper Jeff",
+     "trainerName": "Camper Jeff",
+     "trainerId": 146,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "S.S. Anne Lass Ann & Gentleman Brooks",
+     "trainerName": "Gentleman Brooks",
+     "trainerId": 482,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "S.S. Anne Sailor Edmond & Sailor Trevor",
+     "trainerName": "Sailor Trevor",
+     "trainerId": 135,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Vermillion Gym Gentleman Tucker",
+     "trainerName": "Gentleman Tucker",
+     "trainerId": 423,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 9 Picnicker Alicia",
+     "trainerName": "Picnicker Alicia",
+     "trainerId": 154,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 9 Picnicker Caitlin",
+     "trainerName": "Picnicker Caitlin",
+     "trainerId": 155,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Rock Tunnel Picnicker Dana",
+     "trainerName": "Picnicker Dana",
+     "trainerId": 474,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 10 Poke Maniac Herman",
+     "trainerName": "Pokemaniac Herman",
+     "trainerId": 163,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 8 Super Nerd Aidan",
+     "trainerName": "Super Nerd Aidan",
+     "trainerId": 171,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Celadon Gym Ace Trainer Mary",
+     "trainerName": "Ace Trainer Mary",
+     "trainerId": 402,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Channeler Ruth",
+     "trainerName": "Channeler Ruth",
+     "trainerId": 448,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 12 Rocker Luca",
+     "trainerName": "Rocker Luca",
+     "trainerId": 285,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 12 Camper Justin",
+     "trainerName": "Camper Justin",
+     "trainerId": 477,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 12 Fisherman Andrew",
+     "trainerName": "Fisherman Andrew",
+     "trainerId": 233,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 13 Bird Keeper Sebastian",
+     "trainerName": "Bird Keeper Sebastian",
+     "trainerId": 300,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 13 Picnicker Susie",
+     "trainerName": "Picnicker Susie",
+     "trainerId": 467,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 13 Picnicker Alma",
+     "trainerName": "Picnicker Alma",
+     "trainerId": 466,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 13 Beauty Lola & Beauty Sheila",
+     "trainerName": "Beauty Sheila",
+     "trainerId": 269,
+     "minLevel": 101,
+     "maxLevel": 102
+    },
+    {
+     "name": "Route 13 Bird Keeper Perry",
+     "trainerName": "Bird Keeper Perry",
+     "trainerId": 301,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 13 Biker Jared",
+     "trainerName": "Biker Jared",
+     "trainerId": 195,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 13 Bird Keeper Robert",
+     "trainerName": "Bird Keeper Robert",
+     "trainerId": 302,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 16 Biker Lao",
+     "trainerName": "Biker Lao",
+     "trainerId": 199,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 16 Cue Ball Koji",
+     "trainerName": "Cue Ball Koji",
+     "trainerId": 249,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 16 Cue Ball Luke",
+     "trainerName": "Cue Ball Luke",
+     "trainerId": 250,
+     "minLevel": 101,
+     "maxLevel": 102
+    },
+    {
+     "name": "Route 16 Biker Ruben",
+     "trainerName": "Biker Ruben",
+     "trainerId": 202,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 16 Cue Ball Camron",
+     "trainerName": "Cue Ball Camron",
+     "trainerId": 251,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 16 Biker Hideo",
+     "trainerName": "Biker Hideo",
+     "trainerId": 201,
+     "minLevel": 1,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 18 Biker William",
+     "trainerName": "Biker William",
+     "trainerId": 206,
+     "minLevel": 101,
+     "maxLevel": 104
+    },
+    {
+     "name": "Route 18 Bird Keeper Jacob",
+     "trainerName": "Bird Keeper Jacob",
+     "trainerId": 309,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 18 Dragon Tamer Ramiro",
+     "trainerName": "Dragon Tamer Ramiro",
+     "trainerId": 308,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Route 18 Ace Trainer Wilton",
+     "trainerName": "Ace Trainer Wilton",
+     "trainerId": 307,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Fuchsia Gym Juggler Kayden",
+     "trainerName": "Juggler Kayden",
+     "trainerId": 292,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkm Mansion Scientist Ted",
+     "trainerName": "Scientist Ted",
+     "trainerId": 335,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mansion Burglar Lewis",
+     "trainerName": "Burglar Lewis",
+     "trainerId": 219,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cinnabar Gym Ace Trainer Derek",
+     "trainerName": "Ace Trainer Derek",
+     "trainerId": 179,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cinnabar Gym Ace Trainer Lucy",
+     "trainerName": "Ace Trainer Lucy",
+     "trainerId": 215,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cinnabar Gym Ace Trainer Zac",
+     "trainerName": "Ace Trainer Zac",
+     "trainerId": 180,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Ace Trainer Naomi",
+     "trainerName": "Ace Trainer Naomi",
+     "trainerId": 406,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Ace Trainer Rolando",
+     "trainerName": "Ace Trainer Rolando",
+     "trainerId": 396,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Ace Trainer George",
+     "trainerName": "Ace Trainer George",
+     "trainerId": 393,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Ace Trainer Caroline",
+     "trainerName": "Ace Trainer Caroline",
+     "trainerId": 403,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Ace Trainer Colby",
+     "trainerName": "Ace Trainer Colby",
+     "trainerId": 394,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Ace Trainer Alexa",
+     "trainerName": "Ace Trainer Alexa",
+     "trainerId": 404,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Victory Road Cool Couple Ray & Tyra",
+     "trainerName": "Cool Couple Ray & Tyra",
+     "trainerId": 485,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Indigo Plat. Creator Soupercell",
+     "trainerName": "Dumbass Creator",
+     "trainerId": 24,
+     "minLevel": 250,
+     "maxLevel": 250
+    }
+   ]
+  },
+  {
+   "name": "Optional Bosses",
+   "bosses": [
+    {
+     "name": "Route 8 Ace Trainer Cole",
+     "trainerName": "PkMn Trainer Cole",
+     "trainerId": 18,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Saffron City Dumass Kid",
+     "trainerName": "Dumbass Kid",
+     "trainerId": 25,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Celadon Hotel Beauty Sam",
+     "trainerName": "PkMn Trainer Sam",
+     "trainerId": 16,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Celadon Hotel Beauty Shelly",
+     "trainerName": "PkMn Trainer Shelly",
+     "trainerId": 17,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Route 15 Ace Trainer Haley",
+     "trainerName": "PkMn Trainer Haley",
+     "trainerId": 15,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Power Plant Dumass Jojo Fan",
+     "trainerName": "Dumbass Jojo Fan",
+     "trainerId": 66,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulea. Cave Black Belt Ketchup",
+     "trainerName": "PkMn Trainer Ketchup",
+     "trainerId": 20,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cerulea. Cave Black Belt Ketchup",
+     "trainerName": "PkMn Trainer Ketchup",
+     "trainerId": 19,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mansion F4 Burglar Max",
+     "trainerName": "Burglar Max",
+     "trainerId": 454,
+     "minLevel": 101,
+     "maxLevel": 101
+    },
+    {
+     "name": "Mansion F4 Burglar Anson",
+     "trainerName": "Burglar Anson",
+     "trainerId": 455,
+     "minLevel": 101,
+     "maxLevel": 101
+    }
+   ]
+  },
+  {
+   "name": "Indigo League",
+   "bosses": [
+    {
+     "name": "Elite Four Lorelei",
+     "trainerName": "Elite Four Lorelei",
+     "trainerId": 78,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Lorelei",
+     "trainerName": "Elite Four Lorelei",
+     "trainerId": 77,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Bruno",
+     "trainerName": "Elite Four Bruno",
+     "trainerId": 80,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Bruno",
+     "trainerName": "Elite Four Bruno",
+     "trainerId": 81,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Agatha",
+     "trainerName": "Elite Four Agatha",
+     "trainerId": 83,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Agatha",
+     "trainerName": "Elite Four Agatha",
+     "trainerId": 83,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Lance",
+     "trainerName": "Elite Four Lance",
+     "trainerId": 86,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Elite Four Lance",
+     "trainerName": "Elite Four Lance",
+     "trainerId": 86,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Champion Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 332,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Champion Rival",
+     "trainerName": "Champion Blue",
+     "trainerId": 440,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Champion Rival",
+     "trainerName": "Rival Blue",
+     "trainerId": 332,
+     "minLevel": 101,
+     "maxLevel": 103
+    }
+   ]
+  },
+  {
+   "name": "Postgame",
+   "bosses": [
+    {
+     "name": "Oak'S Lab Professor Oak",
+     "trainerName": "Professor Oak",
+     "trainerId": 200,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Oak'S Lab Professor Oak",
+     "trainerName": "Professor Oak",
+     "trainerId": 210,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Gym Leader Clair",
+     "trainerName": "Leader Clair",
+     "trainerId": 38,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Gym Leader Misty",
+     "trainerName": "Leader Misty",
+     "trainerId": 32,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Rock Tunnel Leader Falkner",
+     "trainerName": "Leader Falkner",
+     "trainerId": 43,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Saffron City Dumass Gian",
+     "trainerName": "Dumbass Gian",
+     "trainerId": 35,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Seafoam Isl. Secret Room Leader Pryce",
+     "trainerName": "Leader Pryce",
+     "trainerId": 79,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Gauntlet 1 Tester Runan",
+     "trainerName": "Ace Trainer Runan",
+     "trainerId": 124,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Gauntlet 2 Ace Trainer Samantha",
+     "trainerName": "Ace Trainer Samantha",
+     "trainerId": 82,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Gauntlet 3 Tester Symes",
+     "trainerName": "Ace Trainer Symes",
+     "trainerId": 113,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Pkmn Tower Gauntlet Boss Leader Morty",
+     "trainerName": "Leader Morty",
+     "trainerId": 28,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "One Island Dumass Jojo Fan",
+     "trainerName": "Dumbass Jojo Fan",
+     "trainerId": 40,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Treasure Bea. Swimmer Amara",
+     "trainerName": "SwimmerF Amara",
+     "trainerId": 546,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Treasure Bea. Swimmer Abigail",
+     "trainerName": "SwimmerF Abigail",
+     "trainerId": 548,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Red",
+     "trainerName": "PkMn Trainer Red",
+     "trainerId": 3,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Picnicker Claire",
+     "trainerName": "Picnicker Claire",
+     "trainerId": 556,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Crush Girl Tanya",
+     "trainerName": "Crush Girl Tanya",
+     "trainerId": 552,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Camper Bryce",
+     "trainerName": "Camper Bryce",
+     "trainerId": 555,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Swimmer Garrett",
+     "trainerName": "SwimmerM Garrett",
+     "trainerId": 550,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Crush Kin Mik & Kia",
+     "trainerName": "Crush Kin Mik & Kia",
+     "trainerId": 557,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Black Belt Shea",
+     "trainerName": "Black Belt Shea",
+     "trainerId": 553,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Black Belt Hugh",
+     "trainerName": "Black Belt Hugh",
+     "trainerId": 554,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Crush Girl Sharon",
+     "trainerName": "Crush Girl Sharon",
+     "trainerId": 518,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Swimmer Finn",
+     "trainerName": "SwimmerM Finn",
+     "trainerId": 549,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Swimmer Maria",
+     "trainerName": "SwimmerF Maria",
+     "trainerId": 547,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Fisherman Tommy",
+     "trainerName": "Fisherman Tommy",
+     "trainerId": 551,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Kindle Road Leader Bugsy",
+     "trainerName": "Leader Bugsy",
+     "trainerId": 75,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mt. Ember Ranger Beth",
+     "trainerName": "PkMn Ranger Beth",
+     "trainerId": 597,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mt. Ember Gatekeeper Logan",
+     "trainerName": "Gatekeeper Logan",
+     "trainerId": 595,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mt. Ember Crush Girl Jocelyn",
+     "trainerName": "Crush Girl Jocelyn",
+     "trainerId": 592,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mt. Ember Ariana",
+     "trainerName": "Rocket Admin Ariana",
+     "trainerId": 41,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Mt. Ember Archer",
+     "trainerName": "Rocket Admin Archer",
+     "trainerId": 42,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Two Island Whitney",
+     "trainerName": "Leader Whitney",
+     "trainerId": 76,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Joyful Game Corner Ace Trainer Andrew",
+     "trainerName": "Ace Trainer Andrew",
+     "trainerId": 2,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Cape Brink Channeler Rachel",
+     "trainerName": "Channeler Rachel",
+     "trainerId": 147,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Three Island Goon 1",
+     "trainerName": "Biker Goon",
+     "trainerId": 527,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Three Island Goon 2",
+     "trainerName": "Biker Goon",
+     "trainerId": 528,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Three Island Goon 3",
+     "trainerName": "Biker Goon",
+     "trainerId": 528,
+     "minLevel": 101,
+     "maxLevel": 103
+    },
+    {
+     "name": "Three Island Gang Boss",
+     "trainerName": "Boss Giovanni",
+     "trainerId": 69,
+     "minLevel": 80,
+     "maxLevel": 80
+    },
+    {
+     "name": "Bond Bridge Twins Joy & Meg",
+     "trainerName": "Twins Joy & Meg",
+     "trainerId": 560,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Bond Bridge Aroma Lady Violet",
+     "trainerName": "Aroma Lady Violet",
+     "trainerId": 558,
+     "minLevel": 102,
+     "maxLevel": 103
+    },
+    {
+     "name": "Bond Bridge Tuber Alexis",
+     "trainerName": "Tuber Alexis",
+     "trainerId": 559,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Bond Bridge Swimmer Tisha",
+     "trainerName": "SwimmerF Tisha",
+     "trainerId": 561,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Bond Bridge Tuber Amira",
+     "trainerName": "Tuber Amira",
+     "trainerId": 519,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Bond Bridge Aroma Lady Nikki",
+     "trainerName": "Aroma Lady Nikki",
+     "trainerId": 523,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Berry Forest Gauntlet 1 Ace Trainer Barry",
+     "trainerName": "Ace Trainer Barry",
+     "trainerId": 88,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Berry Forest Gauntlet 2 Ace Trainer Sharon",
+     "trainerName": "Ace Trainer Sharon",
+     "trainerId": 174,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Berry Forest Gauntlet 3 Ace Trainer Nick",
+     "trainerName": "Ace Trainer Nick",
+     "trainerId": 85,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Berry Forest Gauntlet 4 Ace Trainer Janny",
+     "trainerName": "Ace Trainer Janny",
+     "trainerId": 175,
+     "minLevel": 103,
+     "maxLevel": 103
+    },
+    {
+     "name": "Berry Forest Gatekeeper Owen",
+     "trainerName": "Gatekeeper Owen",
+     "trainerId": 176,
+     "minLevel": 103,
+     "maxLevel": 103
+    }
+   ]
+  }
+ ],
+ "trainerOrder": [
+  {
+   "name": "RIVAL",
+   "cap": "16",
+   "optional": true,
+   "location": "ROUTE 22",
+   "trainerId": 326
+  },
+  {
+   "name": "BRENDAN",
+   "cap": "16",
+   "optional": false,
+   "location": "VIRIDIAN FOREST",
+   "trainerId": 55
+  },
+  {
+   "name": "LASS ANNE",
+   "cap": "16",
+   "optional": false,
+   "location": "VIRIDIAN FOREST",
+   "trainerId": 4
+  },
+  {
+   "name": "ACE NELLE",
+   "cap": "16+",
+   "optional": true,
+   "location": "VIRIDIAN FOREST",
+   "trainerId": 21
+  },
+  {
+   "name": "CATCHER SAMMY",
+   "cap": "16",
+   "optional": false,
+   "location": "VIRIDIAN FOREST",
+   "trainerId": 104
+  },
+  {
+   "name": "FALKNER",
+   "cap": "16",
+   "optional": false,
+   "location": "PEWTER CITY",
+   "trainerId": 43
+  },
+  {
+   "name": "BROCK",
+   "cap": "16",
+   "optional": false,
+   "location": "PEWTER CITY",
+   "trainerId": 414
+  },
+  {
+   "name": "LASS SALLY",
+   "cap": "23",
+   "optional": false,
+   "location": "ROUTE 3",
+   "trainerId": 117
+  },
+  {
+   "name": "SUPER NERD MIGUEL",
+   "cap": "23",
+   "optional": false,
+   "location": "MT. MOON",
+   "trainerId": 170
+  },
+  {
+   "name": "ARCHER",
+   "cap": "23",
+   "optional": false,
+   "location": "MT. MOON",
+   "trainerId": 53
+  },
+  {
+   "name": "RIVAL",
+   "cap": "28/36",
+   "optional": false,
+   "location": "CERULEAN CITY",
+   "trainerId": 326
+  },
+  {
+   "name": "CATCHER CALE",
+   "cap": "28/36",
+   "optional": false,
+   "location": "NUGGET BRIDGE",
+   "trainerId": 110
+  },
+  {
+   "name": "LASS ALI",
+   "cap": "28/36",
+   "optional": false,
+   "location": "NUGGET BRIDGE",
+   "trainerId": 123
+  },
+  {
+   "name": "YOUNGSTER TIMMY",
+   "cap": "28/36",
+   "optional": false,
+   "location": "NUGGET BRIDGE",
+   "trainerId": 92
+  },
+  {
+   "name": "LASS RELLI",
+   "cap": "28/36",
+   "optional": false,
+   "location": "NUGGET BRIDGE",
+   "trainerId": null
+  },
+  {
+   "name": "CAMPER ETHAN",
+   "cap": "28/36",
+   "optional": false,
+   "location": "NUGGET BRIDGE",
+   "trainerId": 144
+  },
+  {
+   "name": "GRUNT",
+   "cap": "28/36",
+   "optional": false,
+   "location": "NUGGET BRIDGE",
+   "trainerId": 368
+  },
+  {
+   "name": "BUGSY",
+   "cap": "28+",
+   "optional": true,
+   "location": "ROUTE 25",
+   "trainerId": 8
+  },
+  {
+   "name": "MISTY",
+   "cap": "28",
+   "optional": false,
+   "location": "CERULEAN CITY",
+   "trainerId": 415
+  },
+  {
+   "name": "GRUNT",
+   "cap": "28/36",
+   "optional": false,
+   "location": "DIG HOUSE",
+   "trainerId": 368
+  },
+  {
+   "name": "CAMPER JEFF",
+   "cap": "28/36",
+   "optional": false,
+   "location": "ROUTE 6",
+   "trainerId": 146
+  },
+  {
+   "name": "ANN & BROOKS",
+   "cap": "28/36",
+   "optional": false,
+   "location": "S.S. ANNE",
+   "trainerId": 126
+  },
+  {
+   "name": "EDMOND & TREVOR",
+   "cap": "28/36",
+   "optional": false,
+   "location": "S.S. ANNE",
+   "trainerId": 134
+  },
+  {
+   "name": "BRENDAN",
+   "cap": "28/36",
+   "optional": false,
+   "location": "S.S. ANNE",
+   "trainerId": 55
+  },
+  {
+   "name": "WHITNEY",
+   "cap": "28+",
+   "optional": true,
+   "location": "ROUTE 11",
+   "trainerId": 49
+  },
+  {
+   "name": "GENTLEMAN TUCKER",
+   "cap": "36",
+   "optional": false,
+   "location": "VERMILLION CITY GYM",
+   "trainerId": 423
+  },
+  {
+   "name": "LT. SURGE",
+   "cap": "36",
+   "optional": false,
+   "location": "VERMILLION CITY",
+   "trainerId": 416
+  },
+  {
+   "name": "PICNICKER ALICIA",
+   "cap": "36/44",
+   "optional": false,
+   "location": "ROUTE 9",
+   "trainerId": 154
+  },
+  {
+   "name": "PICNICKER CAITLIN",
+   "cap": "36/44",
+   "optional": false,
+   "location": "ROUTE 9",
+   "trainerId": 155
+  },
+  {
+   "name": "PICNICKER DANA",
+   "cap": "36/44",
+   "optional": false,
+   "location": "ROCK TUNNEL",
+   "trainerId": 474
+  },
+  {
+   "name": "MANIAC HERMAN",
+   "cap": "36/44",
+   "optional": false,
+   "location": "ROUTE 10",
+   "trainerId": 163
+  },
+  {
+   "name": "MORTY",
+   "cap": "36+",
+   "optional": true,
+   "location": "LAVENDER TOWN",
+   "trainerId": 28
+  },
+  {
+   "name": "SUPER NERD AIDAN",
+   "cap": "36/44",
+   "optional": false,
+   "location": "ROUTE 8",
+   "trainerId": 171
+  },
+  {
+   "name": "ACE MARY",
+   "cap": "36/44",
+   "optional": false,
+   "location": "CELADON CITY GYM",
+   "trainerId": 402
+  },
+  {
+   "name": "ERIKA",
+   "cap": "44",
+   "optional": false,
+   "location": "CELADON CITY",
+   "trainerId": 417
+  },
+  {
+   "name": "GUARD",
+   "cap": "47",
+   "optional": false,
+   "location": "GAME CORNER",
+   "trainerId": 373
+  },
+  {
+   "name": "LEFT GUARD",
+   "cap": "47",
+   "optional": false,
+   "location": "ROCKET HIDEOUT",
+   "trainerId": 373
+  },
+  {
+   "name": "RIGHT GUARD",
+   "cap": "47",
+   "optional": false,
+   "location": "ROCKET HIDEOUT",
+   "trainerId": 373
+  },
+  {
+   "name": "GIOVANNI",
+   "cap": "47",
+   "optional": false,
+   "location": "ROCKET HIDEOUT",
+   "trainerId": 348
+  },
+  {
+   "name": "CHANNELER RUTH",
+   "cap": "36+",
+   "optional": false,
+   "location": "POKEMON TOWER",
+   "trainerId": 448
+  },
+  {
+   "name": "GHOST",
+   "cap": "56",
+   "optional": false,
+   "location": "POKEMON TOWER",
+   "trainerId": 2001
+  },
+  {
+   "name": "GRUNT 1",
+   "cap": "56",
+   "optional": false,
+   "location": "POKEMON TOWER",
+   "trainerId": 381
+  },
+  {
+   "name": "GRUNT 2",
+   "cap": "56",
+   "optional": false,
+   "location": "POKEMON TOWER",
+   "trainerId": 381
+  },
+  {
+   "name": "GRUNT 3",
+   "cap": "56",
+   "optional": false,
+   "location": "POKEMON TOWER",
+   "trainerId": 381
+  },
+  {
+   "name": "RIVAL",
+   "cap": "56",
+   "optional": false,
+   "location": "SILPH CO.",
+   "trainerId": 329
+  },
+  {
+   "name": "ARIANA & ARCHER",
+   "cap": "56",
+   "optional": false,
+   "location": "SILPH CO.",
+   "trainerId": 53
+  },
+  {
+   "name": "GIOVANNI",
+   "cap": "57",
+   "optional": false,
+   "location": "SILPH CO.",
+   "trainerId": 349
+  },
+  {
+   "name": "ACE COLE",
+   "cap": "59+",
+   "optional": true,
+   "location": "ROUTE 8",
+   "trainerId": 18
+  },
+  {
+   "name": "BEAUTY SAM",
+   "cap": "59+",
+   "optional": true,
+   "location": "CELADON CITY HOTEL",
+   "trainerId": 16
+  },
+  {
+   "name": "BEAUTY SHELLY",
+   "cap": "59+",
+   "optional": true,
+   "location": "CELADON CITY HOTEL",
+   "trainerId": 17
+  },
+  {
+   "name": "CHUCK",
+   "cap": "36+",
+   "optional": true,
+   "location": "SAFFRON CITY",
+   "trainerId": 317
+  },
+  {
+   "name": "SABRINA",
+   "cap": "59",
+   "optional": false,
+   "location": "SAFFRON CITY",
+   "trainerId": 420
+  },
+  {
+   "name": "DUMASS KID",
+   "cap": "59+",
+   "optional": true,
+   "location": "SAFFRON CITY",
+   "trainerId": 25
+  },
+  {
+   "name": "ROCKER LUCA",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 12",
+   "trainerId": 285
+  },
+  {
+   "name": "CAMPER JUSTIN",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 12",
+   "trainerId": 477
+  },
+  {
+   "name": "FISHERMAN ANDREW",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 12",
+   "trainerId": 233
+  },
+  {
+   "name": "BIRD KE. SEBASTIAN",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 300
+  },
+  {
+   "name": "PICNICKER SUSIE",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 467
+  },
+  {
+   "name": "PICNICKER ALMA",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 466
+  },
+  {
+   "name": "LOLA & SHEILA",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 268
+  },
+  {
+   "name": "BIRD KEEPER PERRY",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 301
+  },
+  {
+   "name": "BIKER JARED",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 195
+  },
+  {
+   "name": "BIRD KEEPER ROBERT",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 13",
+   "trainerId": 302
+  },
+  {
+   "name": "ACE HALEY",
+   "cap": "68",
+   "optional": true,
+   "location": "ROUTE 15",
+   "trainerId": 15
+  },
+  {
+   "name": "BIKER LAO",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 16",
+   "trainerId": 199
+  },
+  {
+   "name": "CUE BALL KOJI",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 16",
+   "trainerId": 249
+  },
+  {
+   "name": "CUE BALL LUKE",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 16",
+   "trainerId": 250
+  },
+  {
+   "name": "BIKER RUBEN",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 16",
+   "trainerId": 202
+  },
+  {
+   "name": "CUE BALL CAMRON",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 16",
+   "trainerId": 251
+  },
+  {
+   "name": "BIKER HIDEO",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 16",
+   "trainerId": 201
+  },
+  {
+   "name": "BIKER WILLIAM",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 18",
+   "trainerId": 206
+  },
+  {
+   "name": "BIRD KEEPER JACOB",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 18",
+   "trainerId": 309
+  },
+  {
+   "name": "TAMER RAMIRO",
+   "cap": "68",
+   "optional": true,
+   "location": "ROUTE 18",
+   "trainerId": 308
+  },
+  {
+   "name": "ACE WILTON",
+   "cap": "68",
+   "optional": false,
+   "location": "ROUTE 18",
+   "trainerId": 307
+  },
+  {
+   "name": "BRENDAN",
+   "cap": "68",
+   "optional": false,
+   "location": "SAFARI ZONE",
+   "trainerId": 55
+  },
+  {
+   "name": "BROCK (REMATCH)",
+   "cap": "59/68",
+   "optional": false,
+   "location": "PEWTER CITY",
+   "trainerId": 56
+  },
+  {
+   "name": "MISTY (REMATCH)",
+   "cap": "59/68",
+   "optional": false,
+   "location": "CERULEAN CITY",
+   "trainerId": 32
+  },
+  {
+   "name": "LT. SURGE (REMATCH)",
+   "cap": "59/68",
+   "optional": false,
+   "location": "VERMILLION CITY",
+   "trainerId": 416
+  },
+  {
+   "name": "ERIKA (REMATCH)",
+   "cap": "68",
+   "optional": true,
+   "location": "CELADON CITY",
+   "trainerId": 417
+  },
+  {
+   "name": "JUGGLER KAYDEN",
+   "cap": "68",
+   "optional": false,
+   "location": "FUCHSIA CITY GYM",
+   "trainerId": 292
+  },
+  {
+   "name": "KOGA",
+   "cap": "68",
+   "optional": false,
+   "location": "FUCHSIA CITY",
+   "trainerId": 418
+  },
+  {
+   "name": "DUMASS JOJO FAN",
+   "cap": "73+",
+   "optional": true,
+   "location": "POWER PLANT",
+   "trainerId": 40
+  },
+  {
+   "name": "PRYCE",
+   "cap": "73+",
+   "optional": true,
+   "location": "SEAFOAM ISLANDS",
+   "trainerId": 58
+  },
+  {
+   "name": "MAY",
+   "cap": "73",
+   "optional": false,
+   "location": "CINNABAR ISLAND",
+   "trainerId": 61
+  },
+  {
+   "name": "JASMINE",
+   "cap": "73+",
+   "optional": true,
+   "location": "CINNABAR ISLAND LAB",
+   "trainerId": 62
+  },
+  {
+   "name": "SCIENTIST TED",
+   "cap": "73+",
+   "optional": true,
+   "location": "POKEMON MANSION",
+   "trainerId": 335
+  },
+  {
+   "name": "BURGLAR LEWIS",
+   "cap": "73",
+   "optional": false,
+   "location": "POKEMON MANSION",
+   "trainerId": 219
+  },
+  {
+   "name": "ACE DEREK",
+   "cap": "76",
+   "optional": false,
+   "location": "CINNABAR ISLAND GYM",
+   "trainerId": 179
+  },
+  {
+   "name": "ACE LUCY",
+   "cap": "76",
+   "optional": false,
+   "location": "CINNABAR ISLAND GYM",
+   "trainerId": 215
+  },
+  {
+   "name": "ACE ZAC",
+   "cap": "76",
+   "optional": false,
+   "location": "CINNABAR ISLAND GYM",
+   "trainerId": 180
+  },
+  {
+   "name": "BLAINE",
+   "cap": "76",
+   "optional": false,
+   "location": "CINNABAR ISLAND",
+   "trainerId": 419
+  },
+  {
+   "name": "GRUNT 1",
+   "cap": "79",
+   "optional": false,
+   "location": "CERULEAN CAVE",
+   "trainerId": 71
+  },
+  {
+   "name": "GRUNT 2",
+   "cap": "79",
+   "optional": false,
+   "location": "CERULEAN CAVE",
+   "trainerId": 71
+  },
+  {
+   "name": "ARCHER",
+   "cap": "79",
+   "optional": false,
+   "location": "CERULEAN CAVE",
+   "trainerId": 53
+  },
+  {
+   "name": "ARIANA",
+   "cap": "79",
+   "optional": false,
+   "location": "CERULEAN CAVE",
+   "trainerId": 54
+  },
+  {
+   "name": "GIOVANNI",
+   "cap": "80",
+   "optional": false,
+   "location": "CERULEAN CAVE",
+   "trainerId": 69
+  },
+  {
+   "name": "BLACK BELT KETCHUP",
+   "cap": "81+",
+   "optional": true,
+   "location": "CERULEAN CAVE",
+   "trainerId": 325
+  },
+  {
+   "name": "CLAIR",
+   "cap": "81",
+   "optional": false,
+   "location": "VIRIDIAN CITY",
+   "trainerId": 74
+  },
+  {
+   "name": "BURGLAR MAX",
+   "cap": "82+",
+   "optional": true,
+   "location": "POKEMON MANSION 4F",
+   "trainerId": 454
+  },
+  {
+   "name": "BURGLAR ANSON",
+   "cap": "82+",
+   "optional": true,
+   "location": "POKEMON MANSION 4F",
+   "trainerId": 455
+  },
+  {
+   "name": "RIVAL",
+   "cap": "82",
+   "optional": false,
+   "location": "ROUTE 22",
+   "trainerId": 329
+  },
+  {
+   "name": "BRENDAN",
+   "cap": "82",
+   "optional": false,
+   "location": "ROUTE 23",
+   "trainerId": 26
+  },
+  {
+   "name": "ACE NAOMI",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 406
+  },
+  {
+   "name": "ACE ROLANDO",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 396
+  },
+  {
+   "name": "ACE GEORGE",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 393
+  },
+  {
+   "name": "ACE CAROLINE",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 403
+  },
+  {
+   "name": "ACE COLBY",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 394
+  },
+  {
+   "name": "ACE ALEXA",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 404
+  },
+  {
+   "name": "RAY & TYRA",
+   "cap": "85",
+   "optional": false,
+   "location": "VICTORY ROAD",
+   "trainerId": 485
+  },
+  {
+   "name": "DUMASS CREATOR",
+   "cap": "85",
+   "optional": false,
+   "location": "INDIGO PLATEAU",
+   "trainerId": 24
+  },
+  {
+   "name": "LORELEI",
+   "cap": "85",
+   "optional": false,
+   "location": "ELITE FOUR",
+   "trainerId": 77
+  },
+  {
+   "name": "BRUNO",
+   "cap": "85",
+   "optional": false,
+   "location": "ELITE FOUR",
+   "trainerId": 80
+  },
+  {
+   "name": "AGATHA",
+   "cap": "85",
+   "optional": false,
+   "location": "ELITE FOUR",
+   "trainerId": 83
+  },
+  {
+   "name": "LANCE",
+   "cap": "85",
+   "optional": false,
+   "location": "ELITE FOUR",
+   "trainerId": 39
+  },
+  {
+   "name": "RIVAL",
+   "cap": "85",
+   "optional": false,
+   "location": "CHAMPION",
+   "trainerId": 329
+  }
+ ]
+}

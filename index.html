@@ -4,22 +4,59 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radical Red Pokédex</title>
-<meta name="description" content="A Pokédex for the Pokémon Radical Red romhack.">
+<meta name="description" content="A Pokédex, location guide, and Hardcore boss reference for the Pokémon Radical Red romhack.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="app" hidden>
-  <aside id="sidebar">
-    <header id="sidebar-head">
-      <h1>Radical Red<span>Pokédex</span></h1>
-      <input id="search" type="search" placeholder="Search name, #number, or type…" autocomplete="off" spellcheck="false">
-      <div id="result-count"></div>
-    </header>
-    <ul id="list" role="listbox" aria-label="Pokémon list"></ul>
-  </aside>
-  <main id="detail" tabindex="0" aria-live="polite">
-    <div id="detail-content"></div>
-  </main>
+  <header id="topbar">
+    <div class="brand">Radical Red<span>Pokédex</span></div>
+    <nav id="tabs">
+      <button data-mode="pokemon" class="active">Pokémon</button>
+      <button data-mode="areas">Areas</button>
+      <button data-mode="hardcore">Hardcore</button>
+    </nav>
+    <button id="split-btn" title="Open a second pane side-by-side">⊟ Split</button>
+    <nav id="tabs-right" hidden>
+      <span class="tabs-label">▕ right:</span>
+      <button data-rmode="pokemon">Pokémon</button>
+      <button data-rmode="areas">Areas</button>
+      <button data-rmode="hardcore">Hardcore</button>
+    </nav>
+  </header>
+
+  <div id="views">
+    <!-- POKÉMON: two-pane (list + detail) -->
+    <section id="view-pokemon" class="view">
+      <aside id="pk-sidebar">
+        <div class="side-head">
+          <input id="pk-search" type="search" placeholder="Search name, #number, or type…" autocomplete="off" spellcheck="false">
+          <div id="pk-filters"></div>
+          <div id="pk-count" class="count"></div>
+        </div>
+        <ul id="pk-list" role="listbox" aria-label="Pokémon list"></ul>
+      </aside>
+      <main id="pk-detail" tabindex="0"><div id="pk-detail-content"></div></main>
+    </section>
+
+    <!-- AREAS: full width -->
+    <section id="view-areas" class="view fullview" hidden>
+      <div id="ar-body"></div>
+    </section>
+
+    <!-- HARDCORE: full width -->
+    <section id="view-hardcore" class="view fullview" hidden>
+      <div id="hc-body"></div>
+    </section>
+  </div>
+</div>
+
+<div id="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <button class="modal-x" data-close aria-label="Close">×</button>
+    <div id="modal-content"></div>
+  </div>
 </div>
 
 <div id="loading">
