@@ -39,6 +39,7 @@ const areaFilters = { methods: new Set(), time: null, cats: new Set() };
 let hcSub = 'order', activeBoss = null, bossSearch = '', bossBackTo = 'bosses';
 const bossCat = new Set();
 let playerHighest = 100;   // resolves scaled boss levels (codes 101–104) relative to your top mon
+let bossSprite = {};       // trainerId -> trainer sprite URL (from the Hardcore sheet's =IMAGE cells)
 
 /* ---------------- Loading ---------------- */
 const FILES = ['species', 'sprites', 'types', 'abilities', 'moves', 'items', 'evolutions',
@@ -524,8 +525,11 @@ function infoHtml() {
   return '<div class="page-head"><h1>Hardcore Mode — Info &amp; Restrictions</h1></div>' + body;
 }
 function trainerSprite(t) {
-  // Trainer sprites not yet sourced — placeholder (swap for <img> when available).
-  return '<div class="tr-ph" title="' + esc(t.name) + '">🧑‍🎤</div>';
+  const url = bossSprite[t.ID];
+  return url
+    ? '<img class="tr-img" src="' + esc(url) + '" alt="' + esc(t.name) + '" referrerpolicy="no-referrer" ' +
+      'onerror="this.outerHTML=\'<div class=&quot;tr-ph&quot;>🧑‍🎤</div>\'">'
+    : '<div class="tr-ph" title="' + esc(t.name) + '">🧑‍🎤</div>';
 }
 function showBoss(id) {
   const t = DATA.trainers[id];
@@ -738,6 +742,8 @@ async function start() {
   try { await loadAll(); } catch (err) { fail(err); return; }
   try { const h = parseInt(localStorage.getItem('rr_highest'), 10); if (h) playerHighest = h; } catch (_) {}
   buildEntries(); buildAreaIndex();
+  bossSprite = {};
+  for (const cat of (DATA.hardcore.categories || [])) for (const b of cat.bosses) if (b.sprite) bossSprite[b.trainerId] = b.sprite;
   renderPkFilters(); renderPkList();
   init();
   if (!applyHash()) { setMode('pokemon', true); selectSpecies(ENTRIES[0].ID, true); }

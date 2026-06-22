@@ -66,9 +66,9 @@ def resolve_species(name, idx):
 def get(row, i):
     return row[i] if i < len(row) and row[i] is not None else None
 
-def extract_bosses(ws, species_idx):
+def extract_bosses(ws, species_idx, ws_f=None):
     bosses = []
-    for row in ws.iter_rows(values_only=True):
+    for ridx, row in enumerate(ws.iter_rows(values_only=True)):
         name = get(row, NAME_COL)
         if not name or not isinstance(name, str):
             continue
@@ -81,7 +81,15 @@ def extract_bosses(ws, species_idx):
         ids = [i for i in ids if i]
         if len(ids) < 2:                # real boss row: species cols resolve to species
             continue
-        bosses.append({'name': nm, 'species_names': sp_names, 'species_ids': ids})
+        # trainer sprite = the =IMAGE("url") in the cell directly above the name (same column)
+        sprite = ''
+        if ws_f is not None and ridx >= 1:
+            fv = ws_f.cell(row=ridx, column=NAME_COL + 1).value  # name is iter row ridx -> 1-indexed ridx+1; cell above = row ridx
+            if isinstance(fv, str):
+                m = re.search(r'IMAGE\("([^"]+)"', fv)
+                if m:
+                    sprite = m.group(1)
+        bosses.append({'name': nm, 'species_names': sp_names, 'species_ids': ids, 'sprite': sprite})
     return bosses
 
 def proper_name(boss_name):
@@ -254,7 +262,8 @@ def build_info(ws):
 def main():
     f = glob.glob(os.path.join('C:/Users/anten/Downloads', '*Hardcore*Radical Red*.xlsx'))[0]
     print('reading', os.path.basename(f).encode('ascii', 'replace').decode())
-    wb = openpyxl.load_workbook(f, read_only=True, data_only=True)
+    wb = openpyxl.load_workbook(f, data_only=True)
+    wb_f = openpyxl.load_workbook(f, data_only=False)  # formulas, for the =IMAGE() sprite URLs
 
     species = load_json('species.json')
     trainers = load_json('trainers.json')
@@ -265,7 +274,7 @@ def main():
     for sh in SHEETS:
         if sh not in wb.sheetnames:
             continue
-        bosses_raw = extract_bosses(wb[sh], sidx)
+        bosses_raw = extract_bosses(wb[sh], sidx, wb_f[sh])
         out = []
         for b in bosses_raw:
             total += 1
@@ -276,8 +285,8 @@ def main():
             matched += 1
             tr = trainers[str(tid)]
             lvls = [m['level'] for m in tr['hardcore']]
-            out.append({'name': b['name'].title(), 'trainerName': tr['name'],
-                        'trainerId': tid, 'minLevel': min(lvls), 'maxLevel': max(lvls)})
+            out.append({'name': b['name'].title(), 'trainerName': tr['name'], 'trainerId': tid,
+                        'minLevel': min(lvls), 'maxLevel': max(lvls), 'sprite': b.get('sprite', '')})
         if out:
             categories.append({'name': sh, 'bosses': out})
         print('  %-16s %d bosses' % (sh, len(out)))
