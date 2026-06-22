@@ -15,6 +15,7 @@
       <button data-mode="pokemon" class="active">Pokémon</button>
       <button data-mode="areas">Areas</button>
       <button data-mode="hardcore">Hardcore</button>
+      <button data-mode="calc">Calc</button>
     </nav>
     <button id="split-btn" title="Open a second pane side-by-side">⊟ Split</button>
     <nav id="tabs-right" hidden>
@@ -22,6 +23,7 @@
       <button data-rmode="pokemon">Pokémon</button>
       <button data-rmode="areas">Areas</button>
       <button data-rmode="hardcore">Hardcore</button>
+      <button data-rmode="calc">Calc</button>
     </nav>
   </header>
 
@@ -47,6 +49,11 @@
     <!-- HARDCORE: full width -->
     <section id="view-hardcore" class="view fullview" hidden>
       <div id="hc-body"></div>
+    </section>
+
+    <!-- CALC: embedded Radical Red damage calculator -->
+    <section id="view-calc" class="view" hidden>
+      <iframe id="calc-frame" title="Radical Red Damage Calculator" data-src="calc/index.html"></iframe>
     </section>
   </div>
 </div>

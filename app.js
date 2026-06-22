@@ -612,10 +612,15 @@ function bossMonCard(m) {
 }
 
 /* ================= Navigation ================= */
-const SECTIONS = ['pokemon', 'areas', 'hardcore'];
+const SECTIONS = ['pokemon', 'areas', 'hardcore', 'calc'];
+function ensureCalc() {
+  const f = document.getElementById('calc-frame');
+  if (f && !f.src && f.dataset.src) f.src = f.dataset.src;  // lazy-load the ~8 MB calc on first open
+}
 function renderSection(sec) {
   if (sec === 'areas') { if (areaView === 'detail' && activeAreaIdx != null) showArea(activeAreaIdx); else showAreaIndex(); }
   else if (sec === 'hardcore') { renderHardcore(); if (hcSub === 'bosses') renderBossGrid(); }
+  else if (sec === 'calc') ensureCalc();
   // pokemon view persists (list + detail already rendered)
 }
 function updateViews() {
@@ -636,7 +641,7 @@ function setMode(m, fromHash) {
   updateViews();
   renderSection(m);
   if (splitMode && rightMode) renderSection(rightMode);
-  if (!fromHash) setHash(m === 'pokemon' ? (activeId ? String(activeId) : '') : m === 'areas' ? 'areas' : hcSub);
+  if (!fromHash) setHash(m === 'pokemon' ? (activeId ? String(activeId) : '') : m === 'areas' ? 'areas' : m === 'calc' ? 'calc' : hcSub);
 }
 function setRightMode(sec) { if (sec === mode) return; rightMode = sec; updateViews(); renderSection(sec); }
 function toggleSplit() {
@@ -658,6 +663,7 @@ function applyHash() {
   if (h === 'areas') { setMode('areas', true); showAreaIndex(); return true; }
   if (h[0] === 'a' && /^a\d+$/.test(h)) { goArea(Number(h.slice(1))); return true; }
   if (h.startsWith('boss') && DATA.trainers[h.slice(4)]) { goBoss(Number(h.slice(4))); return true; }
+  if (h === 'calc') { setMode('calc', true); return true; }
   if (h === 'order' || h === 'bosses' || h === 'info') { setMode('hardcore', true); hcSub = h; renderHardcore(); if (h === 'bosses') renderBossGrid(); return true; }
   const id = Number(h);
   if (id && DATA.species[id]) { setMode('pokemon', true); selectSpecies(id, true); return true; }
