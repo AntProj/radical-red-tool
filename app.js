@@ -471,7 +471,8 @@ function areaItemRow(id) {
   const it = DATA.items[id];
   if (!it) return '<div class="acat-row no-link"><span class="acat-iicon"></span><span class="acat-name">#' + id + '</span></div>';
   const tm = tmMove(it.name);
-  if (tm) return areaMoveRow(tm.ID, { icon: itemIcon(id, 'acat-iimg', 'acat-iicon'), label: tm.name, tag: it.name, noStats: true });
+  if (tm) return '<div class="acat-row no-link">' + itemIcon(id, 'acat-iimg', 'acat-iicon') +
+    '<span class="acat-name">' + esc(tm.name) + '</span><span class="acat-tmtag">' + esc(it.name) + '</span></div>';
   return '<div class="acat-row no-link">' + itemIcon(id, 'acat-iimg', 'acat-iicon') + '<span class="acat-name">' + esc(it.name) + '</span></div>';
 }
 function areaCategoriesHtml(a) {
