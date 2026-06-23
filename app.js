@@ -419,8 +419,8 @@ function passesAreaFilter(a) {
 function showAreaIndex() {
   document.getElementById('ar-body').innerHTML =
     '<div class="page"><div class="page-head"><h1>Areas</h1><p class="page-sub">Wild encounters, fishing, and items for every location. Click an area to expand its encounter tables by category.</p></div>' +
-    '<input id="ar-search" class="page-search" type="search" placeholder="Search areas…" autocomplete="off" value="' + esc(areaSearch) + '">' +
-    '<div id="ar-filters"></div><div id="ar-count" class="count"></div><div id="ar-grid" class="to-list"></div></div>';
+    '<div class="ar-sticky"><input id="ar-search" class="page-search" type="search" placeholder="Search areas…" autocomplete="off" value="' + esc(areaSearch) + '">' +
+    '<div id="ar-filters"></div><div id="ar-count" class="count"></div></div><div id="ar-grid" class="to-list"></div></div>';
   renderAreaFilters(); renderAreaGrid();
 }
 function renderAreaFilters() {
