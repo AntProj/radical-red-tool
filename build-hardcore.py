@@ -66,9 +66,32 @@ def resolve_species(name, idx):
 def get(row, i):
     return row[i] if i < len(row) and row[i] is not None else None
 
+def parse_field(text):
+    """A boss 'BATTLE EFFECT' string -> {label, weather?, terrain?, trickRoom?} for the damage calc."""
+    if not text:
+        return None
+    u = text.upper()
+    f = {'label': ' '.join(str(text).split())}
+    has = lambda p: re.search(r'\b' + p + r'\b', u) is not None   # word-boundary (so TERRAIN != RAIN)
+    if 'DESOLATE LAND' in u: f['weather'] = 'Harsh Sunshine'
+    elif 'PRIMORDIAL SEA' in u: f['weather'] = 'Heavy Rain'
+    elif 'DELTA STREAM' in u: f['weather'] = 'Strong Winds'
+    elif has('SANDSTORM'): f['weather'] = 'Sand'
+    elif has('SNOW'): f['weather'] = 'Snow'
+    elif has('HAIL'): f['weather'] = 'Hail'
+    elif has('RAIN'): f['weather'] = 'Rain'
+    elif has('SUN'): f['weather'] = 'Sun'
+    if 'ELECTRIC TERRAIN' in u: f['terrain'] = 'Electric'
+    elif 'GRASSY TERRAIN' in u: f['terrain'] = 'Grassy'
+    elif 'MISTY TERRAIN' in u: f['terrain'] = 'Misty'
+    elif 'PSYCHIC TERRAIN' in u: f['terrain'] = 'Psychic'
+    if 'TRICK ROOM' in u: f['trickRoom'] = True
+    return f
+
 def extract_bosses(ws, species_idx, ws_f=None):
     bosses = []
-    for ridx, row in enumerate(ws.iter_rows(values_only=True)):
+    rows_list = list(ws.iter_rows(values_only=True))
+    for ridx, row in enumerate(rows_list):
         name = get(row, NAME_COL)
         if not name or not isinstance(name, str):
             continue
@@ -89,7 +112,17 @@ def extract_bosses(ws, species_idx, ws_f=None):
                 m = re.search(r'IMAGE\("([^"]+)"', fv)
                 if m:
                     sprite = m.group(1)
-        bosses.append({'name': nm, 'species_names': sp_names, 'species_ids': ids, 'sprite': sprite, 'row': ridx + 1})
+        # battle effect ("BATTLE EFFECT: PERMANENT X") sits a couple rows above the boss block
+        field_txt = None
+        start = max(ridx - 5, bosses[-1]['row'] if bosses else 0)
+        for up in range(start, ridx):
+            for cell in rows_list[up]:
+                if isinstance(cell, str) and 'BATTLE EFFECT' in cell.upper():
+                    m = re.search(r'BATTLE EFFECT:\s*(?:PERMANENT\s+)?(.+)', cell, re.I)
+                    if m:
+                        field_txt = m.group(1).strip()
+        bosses.append({'name': nm, 'species_names': sp_names, 'species_ids': ids, 'sprite': sprite,
+                       'row': ridx + 1, 'field': parse_field(field_txt)})
     return bosses
 
 def proper_name(boss_name):
@@ -306,7 +339,8 @@ def main():
             tr = trainers[str(tid)]
             lvls = [m['level'] for m in tr['hardcore']]
             out.append({'name': b['name'].title(), 'trainerName': tr['name'], 'trainerId': tid,
-                        'minLevel': min(lvls), 'maxLevel': max(lvls), 'sprite': b.get('sprite', '')})
+                        'minLevel': min(lvls), 'maxLevel': max(lvls), 'sprite': b.get('sprite', ''),
+                        'field': b.get('field')})
             loc_map.setdefault(sh, []).append((b['row'], tid))
         if out:
             categories.append({'name': sh, 'bosses': out})

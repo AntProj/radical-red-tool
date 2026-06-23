@@ -166,7 +166,11 @@
      "trainerId": 414,
      "minLevel": 13,
      "maxLevel": 16,
-     "sprite": "https://i.ibb.co/v10Rh61/Brock.png"
+     "sprite": "https://i.ibb.co/v10Rh61/Brock.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Gym Leader Misty",
@@ -174,7 +178,11 @@
      "trainerId": 415,
      "minLevel": 27,
      "maxLevel": 28,
-     "sprite": "https://i.ibb.co/mh2zYn4/Misty.png"
+     "sprite": "https://i.ibb.co/mh2zYn4/Misty.png",
+     "field": {
+      "label": "RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Gym Leader Lt. Surge",
@@ -182,7 +190,11 @@
      "trainerId": 416,
      "minLevel": 35,
      "maxLevel": 36,
-     "sprite": "https://i.ibb.co/w6kjj5K/Surge.png"
+     "sprite": "https://i.ibb.co/w6kjj5K/Surge.png",
+     "field": {
+      "label": "ELECTRIC TERRAIN",
+      "terrain": "Electric"
+     }
     },
     {
      "name": "Gym Leader Erika",
@@ -190,7 +202,11 @@
      "trainerId": 417,
      "minLevel": 44,
      "maxLevel": 44,
-     "sprite": "https://i.ibb.co/z204J6T/Erika.png"
+     "sprite": "https://i.ibb.co/z204J6T/Erika.png",
+     "field": {
+      "label": "GRASSY TERRAIN",
+      "terrain": "Grassy"
+     }
     },
     {
      "name": "Gym Leader Sabrina",
@@ -198,7 +214,11 @@
      "trainerId": 420,
      "minLevel": 59,
      "maxLevel": 59,
-     "sprite": "https://i.ibb.co/m8V4wv5/Sabrina.png"
+     "sprite": "https://i.ibb.co/m8V4wv5/Sabrina.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT TRICK ROOM",
+      "trickRoom": true
+     }
     },
     {
      "name": "Gym Leader Koga",
@@ -206,7 +226,10 @@
      "trainerId": 418,
      "minLevel": 68,
      "maxLevel": 68,
-     "sprite": "https://i.ibb.co/3THVf4D/Koga.png"
+     "sprite": "https://i.ibb.co/3THVf4D/Koga.png",
+     "field": {
+      "label": "TAILWIND"
+     }
     },
     {
      "name": "Gym Leader Blaine",
@@ -214,7 +237,11 @@
      "trainerId": 419,
      "minLevel": 76,
      "maxLevel": 76,
-     "sprite": "https://i.ibb.co/zQPJrBn/Blaine.png"
+     "sprite": "https://i.ibb.co/zQPJrBn/Blaine.png",
+     "field": {
+      "label": "DESOLATE LAND",
+      "weather": "Harsh Sunshine"
+     }
     },
     {
      "name": "Gym Leader Clair",
@@ -222,7 +249,10 @@
      "trainerId": 74,
      "minLevel": 81,
      "maxLevel": 81,
-     "sprite": "https://i.ibb.co/yFkD5QH/Clair.png"
+     "sprite": "https://i.ibb.co/yFkD5QH/Clair.png",
+     "field": {
+      "label": "UNABLE TO USE FAIRY TYPES + CAN'T REMOVE HAZARDS"
+     }
     }
    ]
   },
@@ -235,7 +265,11 @@
      "trainerId": 56,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/v10Rh61/Brock.png"
+     "sprite": "https://i.ibb.co/v10Rh61/Brock.png",
+     "field": {
+      "label": "SANDSTORM + SUPER EFFECTIVE MOVES DEAL 33% LESS TO BROCK",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Gym Leader Misty",
@@ -243,7 +277,11 @@
      "trainerId": 48,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/mh2zYn4/Misty.png"
+     "sprite": "https://i.ibb.co/mh2zYn4/Misty.png",
+     "field": {
+      "label": "RAIN + PALAFIN IS PRE-TRANSFORMED",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Gym Leader Lt. Surge",
@@ -251,7 +289,11 @@
      "trainerId": 51,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/w6kjj5K/Surge.png"
+     "sprite": "https://i.ibb.co/w6kjj5K/Surge.png",
+     "field": {
+      "label": "ELECTRIC TERRAIN & MAGNET RISE",
+      "terrain": "Electric"
+     }
     },
     {
      "name": "Gym Leader Erika",
@@ -259,7 +301,11 @@
      "trainerId": 65,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/z204J6T/Erika.png"
+     "sprite": "https://i.ibb.co/z204J6T/Erika.png",
+     "field": {
+      "label": "GRASSY TERRAIN + ERIKA'S GRASS TYPE MOVES DEAL 75% MORE DAMAGE IF-",
+      "terrain": "Grassy"
+     }
     }
    ]
   },
@@ -272,7 +318,8 @@
      "trainerId": 45,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/gMdPsRL/Falkner.png"
+     "sprite": "https://i.ibb.co/gMdPsRL/Falkner.png",
+     "field": null
     },
     {
      "name": "Route 25 Leader Bugsy",
@@ -280,7 +327,11 @@
      "trainerId": 8,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/Lrh0bjy/Bugsy.png"
+     "sprite": "https://i.ibb.co/Lrh0bjy/Bugsy.png",
+     "field": {
+      "label": "RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Route 25 Leader Bugsy",
@@ -288,7 +339,11 @@
      "trainerId": 8,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/Lrh0bjy/Bugsy.png"
+     "sprite": "https://i.ibb.co/Lrh0bjy/Bugsy.png",
+     "field": {
+      "label": "RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Route 11 Leader Whitney",
@@ -296,7 +351,10 @@
      "trainerId": 49,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/JtgmCkX/Whitney.png"
+     "sprite": "https://i.ibb.co/JtgmCkX/Whitney.png",
+     "field": {
+      "label": "SWELLOW IS PRE-BURNED"
+     }
     },
     {
      "name": "Lavender Town Leader Morty",
@@ -304,7 +362,8 @@
      "trainerId": 52,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/h9K4sWf/Morty.png"
+     "sprite": "https://i.ibb.co/h9K4sWf/Morty.png",
+     "field": null
     },
     {
      "name": "Saffron Dojo Leader Chuck",
@@ -312,7 +371,10 @@
      "trainerId": 317,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/8rG6Bgc/Chuck.png"
+     "sprite": "https://i.ibb.co/8rG6Bgc/Chuck.png",
+     "field": {
+      "label": "CHUCK'S POKEMON HAVE ENDURE STATUS IF ABOVE 75% OF MAX HP"
+     }
     },
     {
      "name": "Seafoam Isl. Leader Pryce",
@@ -320,7 +382,11 @@
      "trainerId": 58,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png"
+     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png",
+     "field": {
+      "label": "SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Seafoam Isl. Leader Pryce",
@@ -328,7 +394,11 @@
      "trainerId": 59,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png"
+     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png",
+     "field": {
+      "label": "SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Seafoam Isl. Leader Pryce",
@@ -336,7 +406,11 @@
      "trainerId": 58,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png"
+     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png",
+     "field": {
+      "label": "SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Cinnabar Lab Leader Jasmine",
@@ -344,7 +418,10 @@
      "trainerId": 62,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/gSJKyHq/Jasmine.png"
+     "sprite": "https://i.ibb.co/gSJKyHq/Jasmine.png",
+     "field": {
+      "label": "JASMINE IS IMMUNE TO FIRE TYPE ATTACKS"
+     }
     }
    ]
   },
@@ -357,7 +434,8 @@
      "trainerId": 329,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Route 22 #1 Rival",
@@ -365,7 +443,8 @@
      "trainerId": 331,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Route 22 #1 Rival",
@@ -373,7 +452,8 @@
      "trainerId": 330,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Virid. Forest Brendan",
@@ -381,7 +461,8 @@
      "trainerId": 44,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png"
+     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png",
+     "field": null
     },
     {
      "name": "Cerulean City Rival",
@@ -389,7 +470,8 @@
      "trainerId": 332,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Cerulean City Rival",
@@ -397,7 +479,8 @@
      "trainerId": 334,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Cerulean City Rival",
@@ -405,7 +488,8 @@
      "trainerId": 333,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "S.S. Anne Brendan",
@@ -413,7 +497,8 @@
      "trainerId": 50,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png"
+     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png",
+     "field": null
     },
     {
      "name": "Silph Co. Rival",
@@ -421,7 +506,8 @@
      "trainerId": 432,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Silph Co. Rival",
@@ -429,7 +515,8 @@
      "trainerId": 434,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Silph Co. Rival",
@@ -437,7 +524,8 @@
      "trainerId": 433,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Fuchsia City Brendan",
@@ -445,7 +533,8 @@
      "trainerId": 57,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png"
+     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png",
+     "field": null
     },
     {
      "name": "Cinnabar Isl. May",
@@ -453,7 +542,10 @@
      "trainerId": 61,
      "minLevel": 73,
      "maxLevel": 73,
-     "sprite": "https://i.ibb.co/5Y4g02T/May.png"
+     "sprite": "https://i.ibb.co/5Y4g02T/May.png",
+     "field": {
+      "label": "MAGMA STORM (FIRE TYPES ARE IMMUNE)"
+     }
     },
     {
      "name": "Route 22 #2 Rival",
@@ -461,7 +553,11 @@
      "trainerId": 435,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": {
+      "label": "RAIN + RIVAL HAS SERENE GRACE EFFECT",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Route 22 #2 Rival",
@@ -469,7 +565,10 @@
      "trainerId": 437,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": {
+      "label": "MAGMA STORM (FIRE TYPES ARE IMMUNE)"
+     }
     },
     {
      "name": "Route 22 #2 Rival",
@@ -477,7 +576,10 @@
      "trainerId": 436,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": {
+      "label": "SWAMP (PLAYER'S POKEMON SPEED STAT IS QUARTERED)"
+     }
     },
     {
      "name": "Route 23 Brendan",
@@ -485,7 +587,10 @@
      "trainerId": 26,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png"
+     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png",
+     "field": {
+      "label": "SWAMP (PLAYER'S POKEMON SPEED STAT IS QUARTERED)"
+     }
     }
    ]
   },
@@ -498,7 +603,8 @@
      "trainerId": 46,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/xhnkr2Z/Archer.png"
+     "sprite": "https://i.ibb.co/xhnkr2Z/Archer.png",
+     "field": null
     },
     {
      "name": "Nugg. Bridge Grunt",
@@ -506,7 +612,8 @@
      "trainerId": 356,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": null
     },
     {
      "name": "Dig House Grunt",
@@ -514,7 +621,8 @@
      "trainerId": 355,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": null
     },
     {
      "name": "Game Corner Guard",
@@ -522,7 +630,10 @@
      "trainerId": 357,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Rocket Hide. Right Guard",
@@ -530,7 +641,10 @@
      "trainerId": 367,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Rocket Hide. Giovanni",
@@ -538,7 +652,8 @@
      "trainerId": 348,
      "minLevel": 47,
      "maxLevel": 47,
-     "sprite": "https://i.ibb.co/dcBy1qG/Giovanni.png"
+     "sprite": "https://i.ibb.co/dcBy1qG/Giovanni.png",
+     "field": null
     },
     {
      "name": "Pkmn Tower Grunt 1",
@@ -546,7 +661,8 @@
      "trainerId": 369,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": null
     },
     {
      "name": "Pkmn Tower Grunt 2",
@@ -554,7 +670,8 @@
      "trainerId": 370,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": null
     },
     {
      "name": "Pkmn Tower Grunt 3",
@@ -562,7 +679,8 @@
      "trainerId": 371,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": null
     },
     {
      "name": "Silph Co. Ariana & Archer",
@@ -570,7 +688,10 @@
      "trainerId": 53,
      "minLevel": 55,
      "maxLevel": 56,
-     "sprite": "https://i.ibb.co/Ryc6bMZ/Archer-Ariana.png"
+     "sprite": "https://i.ibb.co/Ryc6bMZ/Archer-Ariana.png",
+     "field": {
+      "label": "DOUBLES WITH PARTNER BRENDAN"
+     }
     },
     {
      "name": "Partner Brendan",
@@ -578,7 +699,8 @@
      "trainerId": 55,
      "minLevel": 55,
      "maxLevel": 55,
-     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png"
+     "sprite": "https://i.ibb.co/rpm30sn/Brendan.png",
+     "field": null
     },
     {
      "name": "Silph Co. Giovanni",
@@ -586,7 +708,11 @@
      "trainerId": 349,
      "minLevel": 57,
      "maxLevel": 57,
-     "sprite": "https://i.ibb.co/dcBy1qG/Giovanni.png"
+     "sprite": "https://i.ibb.co/dcBy1qG/Giovanni.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Cerulea. Cave Grunt 1",
@@ -594,7 +720,8 @@
      "trainerId": 72,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": null
     },
     {
      "name": "Cerulea. Cave Grunt 2",
@@ -602,7 +729,10 @@
      "trainerId": 70,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png"
+     "sprite": "https://i.ibb.co/kJrTDW3/Grunt.png",
+     "field": {
+      "label": "URSARING IS PRE-BURNED"
+     }
     },
     {
      "name": "Cerulea. Cave Archer",
@@ -610,7 +740,8 @@
      "trainerId": 67,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/xhnkr2Z/Archer.png"
+     "sprite": "https://i.ibb.co/xhnkr2Z/Archer.png",
+     "field": null
     },
     {
      "name": "Cerulea. Cave Ariana",
@@ -618,7 +749,8 @@
      "trainerId": 68,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qgT6ZFT/Ariana.png"
+     "sprite": "https://i.ibb.co/qgT6ZFT/Ariana.png",
+     "field": null
     },
     {
      "name": "Cerulea. Cave Giovanni",
@@ -626,7 +758,11 @@
      "trainerId": 69,
      "minLevel": 80,
      "maxLevel": 80,
-     "sprite": "https://i.ibb.co/dcBy1qG/Giovanni.png"
+     "sprite": "https://i.ibb.co/dcBy1qG/Giovanni.png",
+     "field": {
+      "label": "DOUBLES WITH PARTNER LANCE + PERMANENT PSYCHIC TERRAIN + MEWTWO MEGA",
+      "terrain": "Psychic"
+     }
     },
     {
      "name": "Partner Lance",
@@ -634,7 +770,8 @@
      "trainerId": 39,
      "minLevel": 82,
      "maxLevel": 83,
-     "sprite": "https://i.ibb.co/q7H43Kp/Lance.png"
+     "sprite": "https://i.ibb.co/q7H43Kp/Lance.png",
+     "field": null
     }
    ]
   },
@@ -647,7 +784,8 @@
      "trainerId": 4,
      "minLevel": 102,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/8sm893K/Lass.png"
+     "sprite": "https://i.ibb.co/8sm893K/Lass.png",
+     "field": null
     },
     {
      "name": "Virid. Forest Ace Trainer Nelle",
@@ -655,7 +793,8 @@
      "trainerId": 21,
      "minLevel": 102,
      "maxLevel": 102,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Virid. Forest Bug Catcher Sammy",
@@ -663,7 +802,8 @@
      "trainerId": 104,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/cw6n81f/Bug-Catcher.png"
+     "sprite": "https://i.ibb.co/cw6n81f/Bug-Catcher.png",
+     "field": null
     },
     {
      "name": "Route 3 Lass Sally",
@@ -671,7 +811,8 @@
      "trainerId": 117,
      "minLevel": 101,
      "maxLevel": 102,
-     "sprite": "https://i.ibb.co/8sm893K/Lass.png"
+     "sprite": "https://i.ibb.co/8sm893K/Lass.png",
+     "field": null
     },
     {
      "name": "Mt. Moon Super Nerd Miguel",
@@ -679,7 +820,10 @@
      "trainerId": 170,
      "minLevel": 101,
      "maxLevel": 102,
-     "sprite": "https://i.ibb.co/vsXQ7g7/Super-Nerd.png"
+     "sprite": "https://i.ibb.co/vsXQ7g7/Super-Nerd.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Nugg. Bridge Bug Catcher Cale",
@@ -687,7 +831,10 @@
      "trainerId": 110,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/cw6n81f/Bug-Catcher.png"
+     "sprite": "https://i.ibb.co/cw6n81f/Bug-Catcher.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Nugg. Bridge Lass Ali",
@@ -695,7 +842,10 @@
      "trainerId": 123,
      "minLevel": 101,
      "maxLevel": 102,
-     "sprite": "https://i.ibb.co/8sm893K/Lass.png"
+     "sprite": "https://i.ibb.co/8sm893K/Lass.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Nugg. Bridge Youngster Timmy",
@@ -703,7 +853,10 @@
      "trainerId": 92,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/6nGd7Gm/Youngster.png"
+     "sprite": "https://i.ibb.co/6nGd7Gm/Youngster.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Nugg. Bridge Lass Reli",
@@ -711,7 +864,8 @@
      "trainerId": 122,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/8sm893K/Lass.png"
+     "sprite": "https://i.ibb.co/8sm893K/Lass.png",
+     "field": null
     },
     {
      "name": "Nugg. Bridge Camper Ethan",
@@ -719,7 +873,8 @@
      "trainerId": 144,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png"
+     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png",
+     "field": null
     },
     {
      "name": "Route 6 Camper Jeff",
@@ -727,7 +882,10 @@
      "trainerId": 146,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png"
+     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "S.S. Anne Lass Ann & Gentleman Brooks",
@@ -735,7 +893,10 @@
      "trainerId": 482,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/mGsbFtG/Lass-Gentleman.png"
+     "sprite": "https://i.ibb.co/mGsbFtG/Lass-Gentleman.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "S.S. Anne Sailor Edmond & Sailor Trevor",
@@ -743,7 +904,10 @@
      "trainerId": 135,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/vj4rHpy/Sailors.png"
+     "sprite": "https://i.ibb.co/vj4rHpy/Sailors.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Vermillion Gym Gentleman Tucker",
@@ -751,7 +915,8 @@
      "trainerId": 423,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/HxxTWRJ/Gentleman.png"
+     "sprite": "https://i.ibb.co/HxxTWRJ/Gentleman.png",
+     "field": null
     },
     {
      "name": "Route 9 Picnicker Alicia",
@@ -759,7 +924,8 @@
      "trainerId": 154,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png"
+     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png",
+     "field": null
     },
     {
      "name": "Route 9 Picnicker Caitlin",
@@ -767,7 +933,8 @@
      "trainerId": 155,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png"
+     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png",
+     "field": null
     },
     {
      "name": "Rock Tunnel Picnicker Dana",
@@ -775,7 +942,8 @@
      "trainerId": 474,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png"
+     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png",
+     "field": null
     },
     {
      "name": "Route 10 Poke Maniac Herman",
@@ -783,7 +951,10 @@
      "trainerId": 163,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/zx5YWZc/Poke-Maniac.png"
+     "sprite": "https://i.ibb.co/zx5YWZc/Poke-Maniac.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Route 8 Super Nerd Aidan",
@@ -791,7 +962,10 @@
      "trainerId": 171,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/vsXQ7g7/Super-Nerd.png"
+     "sprite": "https://i.ibb.co/vsXQ7g7/Super-Nerd.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Celadon Gym Ace Trainer Mary",
@@ -799,7 +973,10 @@
      "trainerId": 402,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Pkmn Tower Channeler Ruth",
@@ -807,7 +984,10 @@
      "trainerId": 448,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/DDVMpxR/Channeler.png"
+     "sprite": "https://i.ibb.co/DDVMpxR/Channeler.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Route 12 Rocker Luca",
@@ -815,7 +995,11 @@
      "trainerId": 285,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/3hYCYv8/Rocker.png"
+     "sprite": "https://i.ibb.co/3hYCYv8/Rocker.png",
+     "field": {
+      "label": "SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Route 12 Camper Justin",
@@ -823,7 +1007,11 @@
      "trainerId": 477,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png"
+     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png",
+     "field": {
+      "label": "SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Route 12 Fisherman Andrew",
@@ -831,7 +1019,11 @@
      "trainerId": 233,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/QpKd0mc/Fisherman.png"
+     "sprite": "https://i.ibb.co/QpKd0mc/Fisherman.png",
+     "field": {
+      "label": "SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Route 13 Bird Keeper Sebastian",
@@ -839,7 +1031,11 @@
      "trainerId": 300,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png"
+     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png",
+     "field": {
+      "label": "SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 13 Picnicker Susie",
@@ -847,7 +1043,11 @@
      "trainerId": 467,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png"
+     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png",
+     "field": {
+      "label": "SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 13 Picnicker Alma",
@@ -855,7 +1055,11 @@
      "trainerId": 466,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png"
+     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png",
+     "field": {
+      "label": "SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 13 Beauty Lola & Beauty Sheila",
@@ -863,7 +1067,11 @@
      "trainerId": 269,
      "minLevel": 101,
      "maxLevel": 102,
-     "sprite": "https://i.ibb.co/KLN8KG6/Beautys.png"
+     "sprite": "https://i.ibb.co/KLN8KG6/Beautys.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 13 Bird Keeper Perry",
@@ -871,7 +1079,11 @@
      "trainerId": 301,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png"
+     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png",
+     "field": {
+      "label": "SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 13 Biker Jared",
@@ -879,7 +1091,11 @@
      "trainerId": 195,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": {
+      "label": "SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 13 Bird Keeper Robert",
@@ -887,7 +1103,11 @@
      "trainerId": 302,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png"
+     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png",
+     "field": {
+      "label": "SUN",
+      "weather": "Sun"
+     }
     },
     {
      "name": "Route 16 Biker Lao",
@@ -895,7 +1115,11 @@
      "trainerId": 199,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Route 16 Cue Ball Koji",
@@ -903,7 +1127,11 @@
      "trainerId": 249,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png"
+     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Route 16 Cue Ball Luke",
@@ -911,7 +1139,11 @@
      "trainerId": 250,
      "minLevel": 101,
      "maxLevel": 102,
-     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png"
+     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Route 16 Biker Ruben",
@@ -919,7 +1151,11 @@
      "trainerId": 202,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Route 16 Cue Ball Camron",
@@ -927,7 +1163,11 @@
      "trainerId": 251,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png"
+     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Route 16 Biker Hideo",
@@ -935,7 +1175,11 @@
      "trainerId": 201,
      "minLevel": 1,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": {
+      "label": "SANDSTORM",
+      "weather": "Sand"
+     }
     },
     {
      "name": "Route 18 Biker William",
@@ -943,7 +1187,11 @@
      "trainerId": 206,
      "minLevel": 101,
      "maxLevel": 104,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": {
+      "label": "RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Route 18 Bird Keeper Jacob",
@@ -951,7 +1199,11 @@
      "trainerId": 309,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png"
+     "sprite": "https://i.ibb.co/26GFSbd/Bird-Keeper.png",
+     "field": {
+      "label": "RAIN + CRAMORANT STARTS IN GORGING FORM",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Route 18 Dragon Tamer Ramiro",
@@ -959,7 +1211,11 @@
      "trainerId": 308,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/31XckWH/Dragon-Tamer.png"
+     "sprite": "https://i.ibb.co/31XckWH/Dragon-Tamer.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Route 18 Ace Trainer Wilton",
@@ -967,7 +1223,11 @@
      "trainerId": 307,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": {
+      "label": "RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Fuchsia Gym Juggler Kayden",
@@ -975,7 +1235,8 @@
      "trainerId": 292,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/1mP8Wps/Juggler.png"
+     "sprite": "https://i.ibb.co/1mP8Wps/Juggler.png",
+     "field": null
     },
     {
      "name": "Pkm Mansion Scientist Ted",
@@ -983,7 +1244,8 @@
      "trainerId": 335,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/gZ60Dh8/Scientist.png"
+     "sprite": "https://i.ibb.co/gZ60Dh8/Scientist.png",
+     "field": null
     },
     {
      "name": "Mansion Burglar Lewis",
@@ -991,7 +1253,10 @@
      "trainerId": 219,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/r4MDjgq/Burglar.png"
+     "sprite": "https://i.ibb.co/r4MDjgq/Burglar.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Cinnabar Gym Ace Trainer Derek",
@@ -999,7 +1264,11 @@
      "trainerId": 179,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": {
+      "label": "DESOLATE LAND",
+      "weather": "Harsh Sunshine"
+     }
     },
     {
      "name": "Cinnabar Gym Ace Trainer Lucy",
@@ -1007,7 +1276,11 @@
      "trainerId": 215,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": {
+      "label": "DESOLATE LAND",
+      "weather": "Harsh Sunshine"
+     }
     },
     {
      "name": "Cinnabar Gym Ace Trainer Zac",
@@ -1015,7 +1288,11 @@
      "trainerId": 180,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT DESOLATE LAND",
+      "weather": "Harsh Sunshine"
+     }
     },
     {
      "name": "Victory Road Ace Trainer Naomi",
@@ -1023,7 +1300,8 @@
      "trainerId": 406,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Victory Road Ace Trainer Rolando",
@@ -1031,7 +1309,8 @@
      "trainerId": 396,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Victory Road Ace Trainer George",
@@ -1039,7 +1318,8 @@
      "trainerId": 393,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Victory Road Ace Trainer Caroline",
@@ -1047,7 +1327,8 @@
      "trainerId": 403,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Victory Road Ace Trainer Colby",
@@ -1055,7 +1336,8 @@
      "trainerId": 394,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Victory Road Ace Trainer Alexa",
@@ -1063,7 +1345,8 @@
      "trainerId": 404,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Victory Road Cool Couple Ray & Tyra",
@@ -1071,7 +1354,10 @@
      "trainerId": 485,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rwBLd0y/Ace-Trainers.png"
+     "sprite": "https://i.ibb.co/rwBLd0y/Ace-Trainers.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Indigo Plat. Creator Soupercell",
@@ -1079,7 +1365,8 @@
      "trainerId": 24,
      "minLevel": 250,
      "maxLevel": 250,
-     "sprite": "https://i.ibb.co/31XckWH/Dragon-Tamer.png"
+     "sprite": "https://i.ibb.co/31XckWH/Dragon-Tamer.png",
+     "field": null
     }
    ]
   },
@@ -1092,7 +1379,8 @@
      "trainerId": 18,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Saffron City Dumass Kid",
@@ -1100,7 +1388,11 @@
      "trainerId": 25,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TTVpygz/Kid.png"
+     "sprite": "https://i.ibb.co/TTVpygz/Kid.png",
+     "field": {
+      "label": "RAIN",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Celadon Hotel Beauty Sam",
@@ -1108,7 +1400,8 @@
      "trainerId": 16,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/bN4WBzT/Beauty.png"
+     "sprite": "https://i.ibb.co/bN4WBzT/Beauty.png",
+     "field": null
     },
     {
      "name": "Celadon Hotel Beauty Shelly",
@@ -1116,7 +1409,8 @@
      "trainerId": 17,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/bN4WBzT/Beauty.png"
+     "sprite": "https://i.ibb.co/bN4WBzT/Beauty.png",
+     "field": null
     },
     {
      "name": "Route 15 Ace Trainer Haley",
@@ -1124,7 +1418,8 @@
      "trainerId": 15,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Power Plant Dumass Jojo Fan",
@@ -1132,7 +1427,8 @@
      "trainerId": 66,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/ZTK3dwM/Jojo-Fan.png"
+     "sprite": "https://i.ibb.co/ZTK3dwM/Jojo-Fan.png",
+     "field": null
     },
     {
      "name": "Cerulea. Cave Black Belt Ketchup",
@@ -1140,7 +1436,10 @@
      "trainerId": 20,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png"
+     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png",
+     "field": {
+      "label": "TAILWIND"
+     }
     },
     {
      "name": "Cerulea. Cave Black Belt Ketchup",
@@ -1148,7 +1447,10 @@
      "trainerId": 19,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png"
+     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png",
+     "field": {
+      "label": "KETCHUP'S POKEMON WILL ENDURE A HIT IF ABOVE 75% OF MAX HP"
+     }
     },
     {
      "name": "Mansion F4 Burglar Max",
@@ -1156,7 +1458,8 @@
      "trainerId": 454,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/r4MDjgq/Burglar.png"
+     "sprite": "https://i.ibb.co/r4MDjgq/Burglar.png",
+     "field": null
     },
     {
      "name": "Mansion F4 Burglar Anson",
@@ -1164,7 +1467,8 @@
      "trainerId": 455,
      "minLevel": 101,
      "maxLevel": 101,
-     "sprite": "https://i.ibb.co/r4MDjgq/Burglar.png"
+     "sprite": "https://i.ibb.co/r4MDjgq/Burglar.png",
+     "field": null
     }
    ]
   },
@@ -1177,7 +1481,11 @@
      "trainerId": 78,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/5BW746H/Lorelei.png"
+     "sprite": "https://i.ibb.co/5BW746H/Lorelei.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT PRIMORDIAL SEA",
+      "weather": "Heavy Rain"
+     }
     },
     {
      "name": "Elite Four Lorelei",
@@ -1185,7 +1493,11 @@
      "trainerId": 77,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/5BW746H/Lorelei.png"
+     "sprite": "https://i.ibb.co/5BW746H/Lorelei.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT SNOW",
+      "weather": "Snow"
+     }
     },
     {
      "name": "Elite Four Bruno",
@@ -1193,7 +1505,11 @@
      "trainerId": 80,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/Q9fb5Tk/Bruno.png"
+     "sprite": "https://i.ibb.co/Q9fb5Tk/Bruno.png",
+     "field": {
+      "label": "MISTY TERRAIN",
+      "terrain": "Misty"
+     }
     },
     {
      "name": "Elite Four Bruno",
@@ -1201,7 +1517,11 @@
      "trainerId": 81,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/Q9fb5Tk/Bruno.png"
+     "sprite": "https://i.ibb.co/Q9fb5Tk/Bruno.png",
+     "field": {
+      "label": "MISTY TERRAIN",
+      "terrain": "Misty"
+     }
     },
     {
      "name": "Elite Four Agatha",
@@ -1209,7 +1529,11 @@
      "trainerId": 83,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rcFfMw3/Agatha.png"
+     "sprite": "https://i.ibb.co/rcFfMw3/Agatha.png",
+     "field": {
+      "label": "PSYCHIC TERRAIN",
+      "terrain": "Psychic"
+     }
     },
     {
      "name": "Elite Four Agatha",
@@ -1217,7 +1541,11 @@
      "trainerId": 83,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rcFfMw3/Agatha.png"
+     "sprite": "https://i.ibb.co/rcFfMw3/Agatha.png",
+     "field": {
+      "label": "PSYCHIC TERRAIN",
+      "terrain": "Psychic"
+     }
     },
     {
      "name": "Elite Four Lance",
@@ -1225,7 +1553,10 @@
      "trainerId": 86,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/q7H43Kp/Lance.png"
+     "sprite": "https://i.ibb.co/q7H43Kp/Lance.png",
+     "field": {
+      "label": "CAN'T REMOVE HAZARDS"
+     }
     },
     {
      "name": "Elite Four Lance",
@@ -1233,7 +1564,10 @@
      "trainerId": 86,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/q7H43Kp/Lance.png"
+     "sprite": "https://i.ibb.co/q7H43Kp/Lance.png",
+     "field": {
+      "label": "CAN'T REMOVE HAZARDS"
+     }
     },
     {
      "name": "Champion Rival",
@@ -1241,7 +1575,8 @@
      "trainerId": 332,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Champion Rival",
@@ -1249,7 +1584,8 @@
      "trainerId": 440,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     },
     {
      "name": "Champion Rival",
@@ -1257,7 +1593,8 @@
      "trainerId": 332,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/fXwks6z/Rival.png"
+     "sprite": "https://i.ibb.co/fXwks6z/Rival.png",
+     "field": null
     }
    ]
   },
@@ -1270,7 +1607,8 @@
      "trainerId": 200,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/88pHxt3/Oak.png"
+     "sprite": "https://i.ibb.co/88pHxt3/Oak.png",
+     "field": null
     },
     {
      "name": "Oak'S Lab Professor Oak",
@@ -1278,7 +1616,8 @@
      "trainerId": 210,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/88pHxt3/Oak.png"
+     "sprite": "https://i.ibb.co/88pHxt3/Oak.png",
+     "field": null
     },
     {
      "name": "Gym Leader Clair",
@@ -1286,7 +1625,10 @@
      "trainerId": 38,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/yFkD5QH/Clair.png"
+     "sprite": "https://i.ibb.co/yFkD5QH/Clair.png",
+     "field": {
+      "label": "DOUBLES + UNABLE TO USE FAIRY TYPES"
+     }
     },
     {
      "name": "Gym Leader Misty",
@@ -1294,7 +1636,10 @@
      "trainerId": 32,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/mh2zYn4/Misty.png"
+     "sprite": "https://i.ibb.co/mh2zYn4/Misty.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Rock Tunnel Leader Falkner",
@@ -1302,7 +1647,11 @@
      "trainerId": 43,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/gMdPsRL/Falkner.png"
+     "sprite": "https://i.ibb.co/gMdPsRL/Falkner.png",
+     "field": {
+      "label": "DELTA STREAM",
+      "weather": "Strong Winds"
+     }
     },
     {
      "name": "Saffron City Dumass Gian",
@@ -1310,7 +1659,11 @@
      "trainerId": 35,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TTVpygz/Kid.png"
+     "sprite": "https://i.ibb.co/TTVpygz/Kid.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT RAIN + GRENINJA IS PRE-TRANSFORMED",
+      "weather": "Rain"
+     }
     },
     {
      "name": "Seafoam Isl. Secret Room Leader Pryce",
@@ -1318,7 +1671,11 @@
      "trainerId": 79,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png"
+     "sprite": "https://i.ibb.co/rkZGjMV/Pryce.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT TRICK ROOM + PLAYER'S FIRST 3 SLOTS GET FROSTBITE + KYUREM",
+      "trickRoom": true
+     }
     },
     {
      "name": "Pkmn Tower Gauntlet 1 Tester Runan",
@@ -1326,7 +1683,10 @@
      "trainerId": 124,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Pkmn Tower Gauntlet 2 Ace Trainer Samantha",
@@ -1334,7 +1694,8 @@
      "trainerId": 82,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Pkmn Tower Gauntlet 3 Tester Symes",
@@ -1342,7 +1703,8 @@
      "trainerId": 113,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Pkmn Tower Gauntlet Boss Leader Morty",
@@ -1350,7 +1712,8 @@
      "trainerId": 28,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/h9K4sWf/Morty.png"
+     "sprite": "https://i.ibb.co/h9K4sWf/Morty.png",
+     "field": null
     },
     {
      "name": "One Island Dumass Jojo Fan",
@@ -1358,7 +1721,8 @@
      "trainerId": 40,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/ZTK3dwM/Jojo-Fan.png"
+     "sprite": "https://i.ibb.co/ZTK3dwM/Jojo-Fan.png",
+     "field": null
     },
     {
      "name": "Treasure Bea. Swimmer Amara",
@@ -1366,7 +1730,8 @@
      "trainerId": 546,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png"
+     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png",
+     "field": null
     },
     {
      "name": "Treasure Bea. Swimmer Abigail",
@@ -1374,7 +1739,8 @@
      "trainerId": 548,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png"
+     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png",
+     "field": null
     },
     {
      "name": "Kindle Road Red",
@@ -1382,7 +1748,8 @@
      "trainerId": 3,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/sHT2hBk/Red.png"
+     "sprite": "https://i.ibb.co/sHT2hBk/Red.png",
+     "field": null
     },
     {
      "name": "Kindle Road Picnicker Claire",
@@ -1390,7 +1757,10 @@
      "trainerId": 556,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png"
+     "sprite": "https://i.ibb.co/LSRVQF1/Picnicker.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Kindle Road Crush Girl Tanya",
@@ -1398,7 +1768,8 @@
      "trainerId": 552,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3N39wW0/Crush-Girl.png"
+     "sprite": "https://i.ibb.co/3N39wW0/Crush-Girl.png",
+     "field": null
     },
     {
      "name": "Kindle Road Camper Bryce",
@@ -1406,7 +1777,8 @@
      "trainerId": 555,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png"
+     "sprite": "https://i.ibb.co/n7Pn1gb/Camper.png",
+     "field": null
     },
     {
      "name": "Kindle Road Swimmer Garrett",
@@ -1414,7 +1786,10 @@
      "trainerId": 550,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/1Qbjwx2/SwimmerM.png"
+     "sprite": "https://i.ibb.co/1Qbjwx2/SwimmerM.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Kindle Road Crush Kin Mik & Kia",
@@ -1422,7 +1797,8 @@
      "trainerId": 557,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/tCvX9Dw/Crush-Kin.png"
+     "sprite": "https://i.ibb.co/tCvX9Dw/Crush-Kin.png",
+     "field": null
     },
     {
      "name": "Kindle Road Black Belt Shea",
@@ -1430,7 +1806,8 @@
      "trainerId": 553,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png"
+     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png",
+     "field": null
     },
     {
      "name": "Kindle Road Black Belt Hugh",
@@ -1438,7 +1815,8 @@
      "trainerId": 554,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png"
+     "sprite": "https://i.ibb.co/nzhVFm2/Ketchup.png",
+     "field": null
     },
     {
      "name": "Kindle Road Crush Girl Sharon",
@@ -1446,7 +1824,8 @@
      "trainerId": 518,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3N39wW0/Crush-Girl.png"
+     "sprite": "https://i.ibb.co/3N39wW0/Crush-Girl.png",
+     "field": null
     },
     {
      "name": "Kindle Road Swimmer Finn",
@@ -1454,7 +1833,8 @@
      "trainerId": 549,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/1Qbjwx2/SwimmerM.png"
+     "sprite": "https://i.ibb.co/1Qbjwx2/SwimmerM.png",
+     "field": null
     },
     {
      "name": "Kindle Road Swimmer Maria",
@@ -1462,7 +1842,8 @@
      "trainerId": 547,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png"
+     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png",
+     "field": null
     },
     {
      "name": "Kindle Road Fisherman Tommy",
@@ -1470,7 +1851,10 @@
      "trainerId": 551,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/QpKd0mc/Fisherman.png"
+     "sprite": "https://i.ibb.co/QpKd0mc/Fisherman.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Kindle Road Leader Bugsy",
@@ -1478,7 +1862,8 @@
      "trainerId": 75,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/Lrh0bjy/Bugsy.png"
+     "sprite": "https://i.ibb.co/Lrh0bjy/Bugsy.png",
+     "field": null
     },
     {
      "name": "Mt. Ember Ranger Beth",
@@ -1486,7 +1871,8 @@
      "trainerId": 597,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3vV7Cw8/Ranger.png"
+     "sprite": "https://i.ibb.co/3vV7Cw8/Ranger.png",
+     "field": null
     },
     {
      "name": "Mt. Ember Gatekeeper Logan",
@@ -1494,7 +1880,8 @@
      "trainerId": 595,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3vV7Cw8/Ranger.png"
+     "sprite": "https://i.ibb.co/3vV7Cw8/Ranger.png",
+     "field": null
     },
     {
      "name": "Mt. Ember Crush Girl Jocelyn",
@@ -1502,7 +1889,8 @@
      "trainerId": 592,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3N39wW0/Crush-Girl.png"
+     "sprite": "https://i.ibb.co/3N39wW0/Crush-Girl.png",
+     "field": null
     },
     {
      "name": "Mt. Ember Ariana",
@@ -1510,7 +1898,8 @@
      "trainerId": 41,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qgT6ZFT/Ariana.png"
+     "sprite": "https://i.ibb.co/qgT6ZFT/Ariana.png",
+     "field": null
     },
     {
      "name": "Mt. Ember Archer",
@@ -1518,7 +1907,11 @@
      "trainerId": 42,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/xhnkr2Z/Archer.png"
+     "sprite": "https://i.ibb.co/xhnkr2Z/Archer.png",
+     "field": {
+      "label": "DOUBLES + PERMANENT DESOLATE LAND",
+      "weather": "Harsh Sunshine"
+     }
     },
     {
      "name": "Two Island Whitney",
@@ -1526,7 +1919,10 @@
      "trainerId": 76,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/JtgmCkX/Whitney.png"
+     "sprite": "https://i.ibb.co/JtgmCkX/Whitney.png",
+     "field": {
+      "label": "INVERSE BATTLE + ZANGOOSE IS PRE-POISONED + URSALUNA IS PRE-BURNED"
+     }
     },
     {
      "name": "Joyful Game Corner Ace Trainer Andrew",
@@ -1534,7 +1930,8 @@
      "trainerId": 2,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Cape Brink Channeler Rachel",
@@ -1542,7 +1939,8 @@
      "trainerId": 147,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/DDVMpxR/Channeler.png"
+     "sprite": "https://i.ibb.co/DDVMpxR/Channeler.png",
+     "field": null
     },
     {
      "name": "Three Island Goon 1",
@@ -1550,7 +1948,8 @@
      "trainerId": 527,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": null
     },
     {
      "name": "Three Island Goon 2",
@@ -1558,7 +1957,10 @@
      "trainerId": 528,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Three Island Goon 3",
@@ -1566,7 +1968,8 @@
      "trainerId": 528,
      "minLevel": 101,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png"
+     "sprite": "https://i.ibb.co/qsQbp4Z/Biker.png",
+     "field": null
     },
     {
      "name": "Three Island Gang Boss",
@@ -1574,7 +1977,8 @@
      "trainerId": 69,
      "minLevel": 80,
      "maxLevel": 80,
-     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png"
+     "sprite": "https://i.ibb.co/Wv3HtLh/CueBall.png",
+     "field": null
     },
     {
      "name": "Bond Bridge Twins Joy & Meg",
@@ -1582,7 +1986,10 @@
      "trainerId": 560,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/nQz85bj/Twins.png"
+     "sprite": "https://i.ibb.co/nQz85bj/Twins.png",
+     "field": {
+      "label": "DOUBLES"
+     }
     },
     {
      "name": "Bond Bridge Aroma Lady Violet",
@@ -1590,7 +1997,8 @@
      "trainerId": 558,
      "minLevel": 102,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3NcSy5g/Aroma-Lady.png"
+     "sprite": "https://i.ibb.co/3NcSy5g/Aroma-Lady.png",
+     "field": null
     },
     {
      "name": "Bond Bridge Tuber Alexis",
@@ -1598,7 +2006,8 @@
      "trainerId": 559,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/dbpWnbD/Tuber.png"
+     "sprite": "https://i.ibb.co/dbpWnbD/Tuber.png",
+     "field": null
     },
     {
      "name": "Bond Bridge Swimmer Tisha",
@@ -1606,7 +2015,8 @@
      "trainerId": 561,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png"
+     "sprite": "https://i.ibb.co/qNMR4cv/SwimmerF.png",
+     "field": null
     },
     {
      "name": "Bond Bridge Tuber Amira",
@@ -1614,7 +2024,8 @@
      "trainerId": 519,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/dbpWnbD/Tuber.png"
+     "sprite": "https://i.ibb.co/dbpWnbD/Tuber.png",
+     "field": null
     },
     {
      "name": "Bond Bridge Aroma Lady Nikki",
@@ -1622,7 +2033,8 @@
      "trainerId": 523,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/3NcSy5g/Aroma-Lady.png"
+     "sprite": "https://i.ibb.co/3NcSy5g/Aroma-Lady.png",
+     "field": null
     },
     {
      "name": "Berry Forest Gauntlet 1 Ace Trainer Barry",
@@ -1630,7 +2042,8 @@
      "trainerId": 88,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Berry Forest Gauntlet 2 Ace Trainer Sharon",
@@ -1638,7 +2051,8 @@
      "trainerId": 174,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Berry Forest Gauntlet 3 Ace Trainer Nick",
@@ -1646,7 +2060,8 @@
      "trainerId": 85,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png"
+     "sprite": "https://i.ibb.co/TKBZjnF/Ace-Trainer-M.png",
+     "field": null
     },
     {
      "name": "Berry Forest Gauntlet 4 Ace Trainer Janny",
@@ -1654,7 +2069,8 @@
      "trainerId": 175,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png"
+     "sprite": "https://i.ibb.co/26kF6WW/Ace-Trainer-F.png",
+     "field": null
     },
     {
      "name": "Berry Forest Gatekeeper Owen",
@@ -1662,7 +2078,8 @@
      "trainerId": 176,
      "minLevel": 103,
      "maxLevel": 103,
-     "sprite": "https://i.ibb.co/FYn1QFQ/Gatekeeper.png"
+     "sprite": "https://i.ibb.co/FYn1QFQ/Gatekeeper.png",
+     "field": null
     }
    ]
   }
