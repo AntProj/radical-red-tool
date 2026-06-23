@@ -738,9 +738,15 @@ function movePoolOf(sp) {
 const tmLabel = (n) => n < 120 ? 'TM' + String(n + 1).padStart(2, '0') : 'HM' + String(n - 119).padStart(2, '0');
 // Player move pool = level-up moves learnable at/below this level + owned TMs/HMs it can learn
 // (+ its current moves so imported sets stay intact). Bosses keep their full learnset.
+let _allMoves = null;
+function allMovesPool() {
+  if (_allMoves) return _allMoves;
+  _allMoves = Object.values(DATA.moves).filter((m) => m && m.name).map((m) => [m.ID, m.name]).sort((a, b) => a[1].localeCompare(b[1]));
+  return _allMoves;
+}
 function movePoolFor(cfg, isBoss) {
+  if (isBoss) return allMovesPool();   // bosses get any move (custom hardcore movesets)
   const sp = DATA.species[cfg.species];
-  if (isBoss) return movePoolOf(sp);
   const ids = new Set();
   (sp.levelupMoves || []).forEach((x) => { if (x[1] <= cfg.level) ids.add(x[0]); });
   (sp.tmMoves || []).forEach((n) => { if (ownedTMs.has(n)) { const m = DATA.tmMoves[n]; if (m) ids.add(m); } });
@@ -782,10 +788,11 @@ function hthStatRow(lab, key, idx, L, R, Ls, Rs, Lb, Rb) {
   const iv = (cfg, side) => cfg ? '<input class="vs-iv" type="number" min="0" max="31" value="' + (cfg.ivs[idx] != null ? cfg.ivs[idx] : 31) + '" data-side="' + side + '" data-iv="' + idx + '" title="IV">' : '<span></span>';
   const stage = (cfg, side) => (!cfg || isHP) ? '<span class="vs-stage"></span>' :
     '<span class="vs-stage"><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="-1">−</button><b>' + ((cfg.boosts[key] || 0) > 0 ? '+' : '') + (cfg.boosts[key] || 0) + '</b><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="1">+</button></span>';
-  // value cell: battle stat (with stage) bold + base stat below, both visible
+  // value cell: battle stat bold + base stat below. Stages are applied to the
+  // DAMAGE (like items), so only SPEED's displayed stat reflects its stage.
   const val = (cfg, b, base) => {
     if (!cfg || !b || b[key] == null) return '<span class="hth-statv"><b>—</b><span class="hth-basev">' + (base != null ? base : '—') + '</span></span>';
-    const st = isHP ? 0 : (cfg.boosts[key] || 0);
+    const st = (key === 'spe') ? (cfg.boosts[key] || 0) : 0;
     return '<span class="hth-statv"><b' + (st ? ' class="boosted"' : '') + '>' + statWithStage(b[key], st) + '</b><span class="hth-basev">' + base + '</span></span>';
   };
   return '<div class="hth-srow">' + iv(L, 'left') +
@@ -876,8 +883,8 @@ function renderAddPicker() {
       ? (mons.map(({ m, i, sp }) => '<button class="vs-pickmon" data-boxpick="' + i + '"><img src="' + spriteFor(sp) + '" alt=""><span>' + esc(m.nickname || sp.name) + '</span><small>Lv ' + (m.level || '?') + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>')
       : '<div class="hth-noteam" style="padding:18px">Import a save in the <b>Box</b> tab to pick from your PC.</div>';
   } else {
-    const ms = ENTRIES.filter((s) => !q || s.name.toLowerCase().includes(q) || pad(s.dexID).includes(q)).slice(0, 150);
-    list.innerHTML = ms.map((s) => '<button class="vs-pickmon" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt=""><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>';
+    const ms = ENTRIES.filter((s) => !q || s.name.toLowerCase().includes(q) || pad(s.dexID).includes(q));
+    list.innerHTML = ms.map((s) => '<button class="vs-pickmon" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt="" loading="lazy"><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>';
   }
   list.scrollTop = sc;
 }
@@ -1018,10 +1025,9 @@ function openDexModal() {
 }
 function renderDexList() {
   const q = dexQuery.trim().toLowerCase();
-  let html = '', n = 0;
+  let html = '';
   for (const s of ENTRIES) {
     if (!pkMatchesText(s, q)) continue;
-    if (++n > 400) break;
     html += '<li class="dex-row' + (s.ID === dexSel ? ' active' : '') + '" data-dexid="' + s.ID + '">' +
       '<img src="' + spriteFor(s) + '" alt=""><span class="dex-rn">' + esc(s.name) + '</span><span class="dex-rnum">' + pad(s.dexID) + '</span></li>';
   }

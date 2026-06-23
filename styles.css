@@ -452,7 +452,7 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-pop-done:hover { filter: brightness(1.1); }
 .vs-pickmon.picked { border-color: var(--accent); }
 .vs-pickmon.picked::after { content: "✓"; position: absolute; top: 2px; right: 4px; font: 800 11px system-ui; color: var(--accent); }
-.vs-pickmon { position: relative; }
+.vs-pickmon { position: relative; content-visibility: auto; contain-intrinsic-size: 0 78px; }
 .vs-pop-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
 .vs-pick-x { background: var(--panel-2); border: 1px solid var(--line-2); color: var(--text); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; }
 .vs-pick-tab { background: var(--panel-2); border: none; color: var(--muted); font: 700 12px system-ui; padding: 6px 14px; border-radius: 7px; cursor: pointer; }
@@ -489,7 +489,7 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .dex-head input { flex: 1; padding: 8px 12px; background: var(--bg); border: 1px solid var(--line-2); border-radius: 8px; color: var(--text); }
 .dex-body { display: grid; grid-template-columns: 232px 1fr; gap: 14px; min-height: 0; }
 .dex-list { list-style: none; margin: 0; padding: 0; max-height: 64vh; overflow-y: auto; }
-.dex-row { display: flex; align-items: center; gap: 8px; padding: 4px 7px; border-radius: 7px; cursor: pointer; }
+.dex-row { display: flex; align-items: center; gap: 8px; padding: 4px 7px; border-radius: 7px; cursor: pointer; content-visibility: auto; contain-intrinsic-size: 0 42px; }
 .dex-row:hover { background: var(--panel-2); }
 .dex-row.active { background: var(--accent-dim); }
 .dex-row img { width: 34px; height: 34px; image-rendering: pixelated; flex: 0 0 34px; }
