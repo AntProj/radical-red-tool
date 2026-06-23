@@ -95,8 +95,16 @@ h1 { margin: 0; }
 .bcard-lv { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .bcard-name { font-weight: 800; font-size: 16px; margin-top: 4px; }
 .bcard-where { color: var(--muted); font-size: 12px; margin-top: 1px; }
-.bcard-team { display: flex; gap: 2px; margin-top: 8px; }
-.bcard-team img { width: 34px; height: 34px; image-rendering: pixelated; }
+.bcard-sprites { display: flex; gap: 2px; margin-top: 8px; }
+.bcard-sprites img { width: 34px; height: 34px; image-rendering: pixelated; }
+.bcard-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 9px; }
+.expand-hint { color: var(--muted); font-size: 11px; font-weight: 600; }
+.bcard.open .expand-hint { color: var(--accent); }
+.bcard-team { display: none; flex-direction: column; gap: 8px; margin-top: 10px; }
+.bcard.open .bcard-team { display: flex; }
+.vs-btn { background: var(--accent-dim); border: 1px solid var(--accent); color: #fff; font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 7px; cursor: pointer; }
+.vs-btn:hover { background: var(--accent); }
+.vs-btn.sm { padding: 2px 8px; font-size: 10.5px; margin-left: 10px; }
 
 /* Subtabs (Hardcore) */
 .subtabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
@@ -108,13 +116,17 @@ h1 { margin: 0; }
 .to-list { display: flex; flex-direction: column; }
 .to-cap { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--accent); margin: 16px 0 6px; }
 .to-cap:first-child { margin-top: 0; }
-.to-row { display: flex; align-items: baseline; gap: 12px; padding: 8px 10px; border-radius: 7px; border-bottom: 1px solid var(--line); }
-.to-row.linkable { cursor: pointer; }
-.to-row.linkable:hover { background: var(--panel-2); }
+.to-entry { border-bottom: 1px solid var(--line); }
+.to-row { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 7px; }
+.to-entry.linkable .to-row { cursor: pointer; }
+.to-entry.linkable .to-row:hover { background: var(--panel-2); }
 .to-name { font-weight: 600; flex: 0 0 auto; min-width: 200px; }
-.to-row.linkable .to-name { color: #7db1ff; }
+.to-entry.linkable .to-name { color: #7db1ff; }
 .to-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #ffce6b; border: 1px solid #6a571f; background: #2a2410; padding: 0 5px; border-radius: 5px; margin-left: 8px; }
-.to-loc { color: var(--muted); font-size: 12.5px; }
+.to-loc { color: var(--muted); font-size: 12.5px; flex: 1; }
+.to-team { display: none; flex-direction: column; gap: 8px; padding: 4px 10px 12px; }
+.to-entry.open .to-team { display: flex; }
+@media (min-width: 720px) { .to-team { display: none; } .to-entry.open .to-team { display: grid; grid-template-columns: 1fr 1fr; } }
 
 /* ---------- Shared components ---------- */
 .d-head { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
@@ -258,6 +270,36 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .boss-meta h1 { font-size: 22px; }
 .tr-minis { display: flex; gap: 2px; margin-top: 8px; flex-wrap: wrap; }
 .tr-mini { width: 34px; height: 34px; image-rendering: pixelated; }
+
+/* Versus modal */
+.modal-box.vs-modal-box { width: min(1120px, 97vw); }
+.modal-box.vs-modal-box #modal-content { padding: 0; }
+.vs-modal { display: flex; align-items: stretch; max-height: 86vh; }
+.vs-trainer { flex: 0 0 100px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px; background: var(--panel); border-right: 1px solid var(--line); }
+.vs-modal .vs-trainer:last-child { border-right: none; border-left: 1px solid var(--line); }
+.vs-trainer .tr-img, .vs-trainer .tr-ph { width: 86px; height: 86px; flex: 0 0 86px; }
+.vs-tname { font-size: 11px; font-weight: 700; text-align: center; color: var(--muted); line-height: 1.2; }
+.vs-half { flex: 1; min-width: 0; padding: 16px 14px; overflow-y: auto; }
+.vs-label { font-weight: 800; font-size: 15px; margin-bottom: 10px; text-align: center; }
+.vs-label.you { color: #7db1ff; }
+.vs-team { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 14px; }
+.vs-circle { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--line-2); background: var(--panel-2); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+.vs-circle:hover { border-color: var(--muted); }
+.vs-circle.on { border-color: var(--accent); background: var(--accent-dim); }
+.vs-circle img { width: 40px; height: 40px; image-rendering: pixelated; }
+.vsd-head { display: flex; align-items: center; gap: 10px; }
+.vsd-sprite { width: 76px; height: 76px; image-rendering: pixelated; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.vsd-name { font-weight: 800; font-size: 16px; }
+.vsd-stats { margin-top: 10px; }
+.vsd-moves { margin-top: 10px; }
+.vs-center { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: var(--accent); padding: 0 4px; }
+.vs-empty { color: var(--muted); font-size: 12.5px; padding: 16px 8px; text-align: center; }
+@media (max-width: 700px) {
+  .vs-modal { flex-wrap: wrap; max-height: 88vh; overflow-y: auto; }
+  .vs-trainer { flex-basis: 50%; flex-direction: row; border: none !important; }
+  .vs-half { flex-basis: 100%; }
+  .vs-center { flex-basis: 100%; padding: 6px 0; }
+}
 
 .modal-box.dex-modal-box { width: min(960px, 95vw); }
 .dex-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }

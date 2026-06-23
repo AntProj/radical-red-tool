@@ -465,12 +465,13 @@ function trainerOrderHtml() {
   let lastCap = null;
   for (const e of order) {
     if (e.cap !== lastCap) { rows += '<div class="to-cap">Level Cap ' + esc(e.cap) + '</div>'; lastCap = e.cap; }
-    const link = e.trainerId ? ' data-go-boss="' + e.trainerId + '"' : '';
-    rows += '<div class="to-row' + (e.trainerId ? ' linkable' : '') + '"' + link + '>' +
-      '<span class="to-name">' + esc(e.name) + (e.optional ? '<span class="to-opt">optional</span>' : '') + '</span>' +
-      '<span class="to-loc">' + esc(e.location || '') + '</span></div>';
+    rows += '<div class="to-entry' + (e.trainerId ? ' linkable' : '') + '"' + (e.trainerId ? ' data-boss="' + e.trainerId + '"' : '') + '>' +
+      '<div class="to-row"><span class="to-name">' + esc(e.name) + (e.optional ? '<span class="to-opt">optional</span>' : '') + '</span>' +
+      '<span class="to-loc">' + esc(e.location || '') + '</span>' +
+      (e.trainerId ? '<button class="vs-btn sm" data-vs="' + e.trainerId + '">⚔ VS</button>' : '') + '</div>' +
+      '<div class="to-team"></div></div>';
   }
-  return '<div class="page-head"><h1>Trainer Order</h1><p class="page-sub">Story-order fights with their level caps. Click a linked trainer to see the Hardcore team.</p></div>' +
+  return '<div class="page-head"><h1>Trainer Order</h1><p class="page-sub">Story-order fights with their level caps. Click a trainer to see their team, or ⚔ Versus to compare against your party.</p></div>' +
     '<div class="to-list">' + rows + '</div>';
 }
 function bossCatList() { return (DATA.hardcore.categories || []).map((c) => ({ key: c.name, label: c.name })); }
@@ -492,10 +493,12 @@ function renderBossGrid() {
       const sprites = (t && t.hardcore || []).slice(0, 6).map((m) => { const sp = DATA.species[m.species]; return sp ? '<img src="' + spriteFor(sp) + '" alt="">' : ''; }).join('');
       const lo = Math.min(resolveLevel(b.minLevel), resolveLevel(b.maxLevel));
       const hi = Math.max(resolveLevel(b.minLevel), resolveLevel(b.maxLevel));
-      html += '<div class="bcard" data-go-boss="' + b.trainerId + '"><div class="bcard-top"><span class="bcard-cat">' + esc(cat.name) + '</span>' +
+      html += '<div class="bcard" data-boss="' + b.trainerId + '"><div class="bcard-top"><span class="bcard-cat">' + esc(cat.name) + '</span>' +
         '<span class="bcard-lv">Lv ' + (lo === hi ? lo : lo + '–' + hi) + '</span></div>' +
         '<div class="bcard-name">' + esc(b.trainerName) + '</div><div class="bcard-where">' + esc(b.name) + '</div>' +
-        '<div class="bcard-team">' + sprites + '</div></div>';
+        '<div class="bcard-sprites">' + sprites + '</div>' +
+        '<div class="bcard-actions"><span class="expand-hint">▸ team</span><button class="vs-btn" data-vs="' + b.trainerId + '">⚔ Versus</button></div>' +
+        '<div class="bcard-team"></div></div>';
     }
   }
   document.getElementById('hc-grid').innerHTML = html || '<div class="ability-desc">No bosses match.</div>';
@@ -531,20 +534,81 @@ function trainerSprite(t) {
       'onerror="this.outerHTML=\'<div class=&quot;tr-ph&quot;>🧑‍🎤</div>\'">'
     : '<div class="tr-ph" title="' + esc(t.name) + '">🧑‍🎤</div>';
 }
-function showBoss(id) {
+// Inline collapsible team (shown under a boss card / trainer-order row).
+function bossTeamHtml(id) {
   const t = DATA.trainers[id];
-  if (!t) return;
-  activeBoss = Number(id);
-  const team = t.hardcore || [];
-  const lvls = team.map((m) => resolveLevel(m.level));
-  const range = lvls.length ? (Math.min(...lvls) === Math.max(...lvls) ? Math.min(...lvls) : Math.min(...lvls) + '–' + Math.max(...lvls)) : '';
-  const minis = team.map((m) => { const sp = DATA.species[m.species]; return sp ? '<img class="tr-mini" src="' + spriteFor(sp) + '" alt="" title="' + esc(sp.name) + '">' : ''; }).join('');
-  const html = '<div class="boss-head">' + trainerSprite(t) +
-    '<div class="boss-meta"><div class="d-num">Hardcore Boss</div><h1>' + esc(t.name) + '</h1>' +
-    (team.length ? '<p class="page-sub">Level ' + range + ' · ' + team.length + ' Pokémon</p>' : '') +
-    '<div class="tr-minis">' + minis + '</div></div></div>' +
-    '<div class="team-grid">' + team.map(bossMonCard).join('') + '</div>';
-  openModal(html, 'boss-modal');
+  return t && t.hardcore ? t.hardcore.map(bossMonCard).join('') : '';
+}
+function toggleInlineTeam(el, id, panelSel) {
+  const panel = el.querySelector(panelSel);
+  if (!panel) return;
+  if (el.classList.contains('open')) { el.classList.remove('open'); return; }
+  if (!panel.dataset.filled) { panel.innerHTML = bossTeamHtml(id); panel.dataset.filled = '1'; }
+  el.classList.add('open');
+}
+
+/* ---------------- Versus ---------------- */
+let vs = { tid: null, left: 0, right: 0 };
+function vsTeam(side) {
+  return side === 'right' ? ((DATA.trainers[vs.tid] && DATA.trainers[vs.tid].hardcore) || []) : ((savData && savData.party) || []);
+}
+function teamCircles(team, side) {
+  return team.map((m, i) => {
+    const sp = DATA.species[m.species];
+    return '<button class="vs-circle' + (i === vs[side] ? ' on' : '') + '" data-vsside="' + side + '" data-vsidx="' + i + '" title="' +
+      (sp ? esc(sp.name) : '') + '"><img src="' + (sp ? spriteFor(sp) : (DATA.sprites[0] || '')) + '" alt=""></button>';
+  }).join('');
+}
+function vsMonDetail(m, isBoss) {
+  const sp = DATA.species[m.species];
+  if (!sp) return '<div class="vs-empty">Unknown species #' + m.species + '</div>';
+  const lvl = isBoss ? resolveLevel(m.level) : m.level;
+  const total = sp.stats.reduce((a, b) => a + b, 0);
+  const name = (!isBoss && m.nickname && !m.isEgg) ? esc(m.nickname) : esc(sp.name);
+  let h = '<div class="vsd-head"><img class="vsd-sprite" src="' + spriteFor(sp) + '" alt="">' +
+    '<div><div class="vsd-name">' + name + ' <span class="tc-lv">Lv ' + lvl + '</span></div>' +
+    '<div class="d-types">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
+  h += '<div class="vsd-stats">';
+  sp.stats.forEach((v, i) => {
+    h += '<div class="stat"><span class="stat-label">' + STAT_LABELS[i] + '</span><span class="stat-val">' + v +
+      '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
+  });
+  h += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></div>';
+  const moves = (m.moves || []).map((id) => { const mv = DATA.moves[id]; return mv ? '<div class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : ''; }).join('');
+  if (moves) h += '<div class="tc-moves vsd-moves">' + moves + '</div>';
+  return h;
+}
+function renderVsDetail(side) {
+  const el = document.getElementById('vs-detail-' + side);
+  if (!el) return;
+  const m = vsTeam(side)[vs[side]];
+  el.innerHTML = m ? vsMonDetail(m, side === 'right') : '';
+}
+function playerTrainerHtml() {
+  const ot = (savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You';
+  return '<div class="tr-ph">🧑‍🦱</div><div class="vs-tname">' + esc(ot) + '</div>';
+}
+function showVersus(tid) {
+  const boss = DATA.trainers[tid];
+  if (!boss) return;
+  vs = { tid, left: 0, right: 0 };
+  const myTeam = (savData && savData.party) || [];
+  const bossTeam = boss.hardcore || [];
+  const html = '<div class="vs-modal">' +
+    '<div class="vs-trainer">' + playerTrainerHtml() + '</div>' +
+    '<div class="vs-half"><div class="vs-label you">Your Team</div>' +
+      (myTeam.length ? '<div class="vs-team" id="vs-team-left">' + teamCircles(myTeam, 'left') + '</div>'
+        : '<div class="vs-empty">Import your save in the <b>Box</b> tab to load your team here.</div>') +
+      '<div class="vs-detail" id="vs-detail-left"></div></div>' +
+    '<div class="vs-center">VS</div>' +
+    '<div class="vs-half"><div class="vs-label">' + esc(boss.name) + '</div>' +
+      '<div class="vs-team" id="vs-team-right">' + teamCircles(bossTeam, 'right') + '</div>' +
+      '<div class="vs-detail" id="vs-detail-right"></div></div>' +
+    '<div class="vs-trainer">' + trainerSprite(boss) + '<div class="vs-tname">' + esc(boss.name) + '</div></div>' +
+    '</div>';
+  openModal(html, 'vs-modal-box');
+  renderVsDetail('left');
+  renderVsDetail('right');
 }
 function evIvLine(arr, label) {
   if (!arr) return '';
@@ -732,7 +796,7 @@ function toggleSplit() {
 }
 function goMon(id) { if (mode !== 'pokemon') setMode('pokemon', true); selectSpecies(id); }
 function goArea(idx) { if (mode !== 'areas') setMode('areas', true); showArea(idx); }
-function goBoss(id) { if (mode !== 'hardcore') setMode('hardcore', true); showBoss(id); }
+function goBoss(id) { if (mode !== 'hardcore') setMode('hardcore', true); hcSub = 'bosses'; renderHardcore(); renderBossGrid(); }
 function setHcSub(sub) { hcSub = sub; activeBoss = null; renderHardcore(); if (sub === 'bosses') renderBossGrid(); setHash(sub); }
 
 /* ================= Hash routing ================= */
@@ -791,10 +855,12 @@ function init() {
   // Hardcore view (delegated)
   const hc = document.getElementById('hc-body');
   hc.addEventListener('click', (e) => {
-    if (onGoClick(e)) return;
+    const vsb = e.target.closest('[data-vs]'); if (vsb) { showVersus(Number(vsb.dataset.vs)); return; }
+    if (onGoClick(e)) return;                                   // team-mon click -> dex (inside expanded teams)
     if (e.target.closest('[data-dex]')) { openDexModal(); return; }
     const sub = e.target.closest('[data-sub]'); if (sub) { setHcSub(sub.dataset.sub); return; }
-    const boss = e.target.closest('[data-go-boss]'); if (boss) { showBoss(Number(boss.dataset.goBoss)); return; }
+    const bc = e.target.closest('.bcard[data-boss]'); if (bc) { toggleInlineTeam(bc, Number(bc.dataset.boss), '.bcard-team'); return; }
+    const te = e.target.closest('.to-entry[data-boss]'); if (te) { toggleInlineTeam(te, Number(te.dataset.boss), '.to-team'); return; }
     const chip = e.target.closest('.fchip'); if (chip) { const [, v] = chip.dataset.f.split(':'); bossCat.has(v) ? bossCat.delete(v) : bossCat.add(v); document.getElementById('hc-filters').innerHTML = chipRow(bossCatList(), 'b', bossCat); renderBossGrid(); }
   });
   // Box view (delegated): file picker, drag-drop, sub-tabs, mon -> dex
@@ -818,14 +884,16 @@ function init() {
       playerHighest = Math.max(1, Math.min(255, parseInt(e.target.value, 10) || 100));
       try { localStorage.setItem('rr_highest', playerHighest); } catch (_) {}
       if (hcSub === 'bosses') renderBossGrid();
-      if (!document.getElementById('modal').hidden && activeBoss != null) showBoss(activeBoss);
+      if (!document.getElementById('modal').hidden && vs.tid != null) { renderVsDetail('left'); renderVsDetail('right'); }
     }
   });
 
-  // Modal (boss team + mini Pokédex)
+  // Modal (versus + mini Pokédex)
   const modal = document.getElementById('modal');
   modal.addEventListener('click', (e) => {
     if (e.target.closest('[data-close]')) { closeModal(); return; }
+    const vc = e.target.closest('[data-vsside]');
+    if (vc) { const s = vc.dataset.vsside; vs[s] = +vc.dataset.vsidx; document.querySelectorAll('#vs-team-' + s + ' .vs-circle').forEach((b, i) => b.classList.toggle('on', i === vs[s])); renderVsDetail(s); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
