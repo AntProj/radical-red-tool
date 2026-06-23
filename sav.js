@@ -10,6 +10,7 @@
 (function () {
   'use strict';
   const SECTION = 4096, SLOT = SECTION * 14, SIG = 0x08012025;
+  const DATA_SIZE = [3884, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 2000]; // per section id
   // 24 substructure orderings, indexed by personality % 24.
   const ORDER = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG',
     'AMGE', 'AMEG', 'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG'];
@@ -37,17 +38,32 @@
 
   const levelFromExp = (exp) => Math.max(1, Math.min(100, Math.round(Math.cbrt(exp || 1)))); // Medium-Fast estimate
 
+  function checksumOk(dv, off, id) {
+    const n = DATA_SIZE[id] || 3968;
+    let sum = 0;
+    for (let i = 0; i < n; i += 4) sum = (sum + (dv.getUint32(off + i, true) >>> 0)) >>> 0;
+    return (((sum & 0xFFFF) + (sum >>> 16)) & 0xFFFF) === dv.getUint16(off + 0x0FF6, true);
+  }
   function readSlot(dv, base) {
-    const sections = {}; let saveIndex = -1, found = 0;
+    const sections = {}; let saveIndex = -1, found = 0, valid = 0;
     for (let i = 0; i < 14; i++) {
       const off = base + i * SECTION;
       if (dv.getUint32(off + 0x0FF8, true) !== SIG) continue;
       const id = dv.getUint16(off + 0x0FF4, true);
-      const idx = dv.getUint32(off + 0x0FFC, true);
+      if (id > 13) continue;
       sections[id] = off; found++;
+      if (checksumOk(dv, off, id)) valid++;
+      const idx = dv.getUint32(off + 0x0FFC, true) >>> 0;
       if (idx > saveIndex) saveIndex = idx;
     }
-    return { sections, saveIndex, found };
+    return { sections, saveIndex, found, valid };
+  }
+  // Prefer a slot with section 0, then the most checksum-valid sections, then the newest counter.
+  function pickSlot(a, b) {
+    const cand = [a, b].filter((s) => s.found && s.sections[0] !== undefined);
+    if (!cand.length) return a.found >= b.found ? a : b;
+    cand.sort((x, y) => (y.valid - x.valid) || (y.saveIndex - x.saveIndex));
+    return cand[0];
   }
 
   // Concatenate the data area of the given section ids (3968 B each, except section 13 = 2000 B).
@@ -66,49 +82,67 @@
     return new DataView(out.buffer);
   }
 
-  function decodeMon(dv, off, isParty) {
-    const pv = dv.getUint32(off, true);
-    const otid = dv.getUint32(off + 4, true);
-    if (pv === 0 && otid === 0) return null; // empty slot
-    const key = pv ^ otid;
-    const order = ORDER[pv % 24];
-    const dec = new DataView(new ArrayBuffer(48));
-    for (let i = 0; i < 12; i++) dec.setUint32(i * 4, (dv.getUint32(off + 0x20 + i * 4, true) ^ key) >>> 0, true);
-    const pos = {}; order.split('').forEach((c, i) => { pos[c] = i * 12; });
-    const G = pos.G, A = pos.A, E = pos.E, M = pos.M;
-
-    const species = dec.getUint16(G + 0, true);
-    if (!species) return null;
-    const heldItem = dec.getUint16(G + 2, true);
-    const exp = dec.getUint32(G + 4, true);
-    const moves = [0, 2, 4, 6].map((o) => dec.getUint16(A + o, true)).filter(Boolean);
-    const evs = [0, 1, 2, 3, 4, 5].map((o) => dec.getUint8(E + o)); // HP,Atk,Def,Spe,SpA,SpD
-    const ivWord = dec.getUint32(M + 4, true) >>> 0;
-    const ivs = [0, 5, 10, 15, 20, 25].map((sh) => (ivWord >>> sh) & 31); // HP,Atk,Def,Spe,SpA,SpD
-    const isEgg = (ivWord >>> 30) & 1;
-    const abilityNum = (ivWord >>> 31) & 1;
-    const tid = otid & 0xFFFF, sid = (otid >>> 16) & 0xFFFF;
-    const shiny = ((tid ^ sid ^ (pv & 0xFFFF) ^ (pv >>> 16)) & 0xFFFF) < 8;
-
+  const MAX_SPECIES = 1525; // sanity bound (RR goes up to ~1375)
+  let isValidSpecies = null; // optional predicate(id)->bool supplied by the app (real species set)
+  // Pull the 4 substructures (Growth/Attacks/EVs/Misc) from a 48-byte block given their byte offsets.
+  function fields(b, G, A, E, M) {
+    const species = b.getUint16(G, true);
+    const ok = isValidSpecies ? isValidSpecies(species) : (species >= 1 && species <= MAX_SPECIES);
+    if (!ok) return null;
+    const ivWord = b.getUint32(M + 4, true) >>> 0;
     return {
-      species, heldItem, exp, moves, evs, ivs, isEgg: !!isEgg, abilityNum, shiny,
-      nature: pv % 25,
-      nickname: decodeStr(dv, off + 0x08, 10),
-      otName: decodeStr(dv, off + 0x14, 7),
-      level: isParty ? dv.getUint8(off + 0x54) : levelFromExp(exp),
-      levelExact: !!isParty,
+      species,
+      heldItem: b.getUint16(G + 2, true),
+      exp: b.getUint32(G + 4, true) >>> 0,
+      moves: [0, 2, 4, 6].map((o) => b.getUint16(A + o, true)).filter(Boolean),
+      evs: [0, 1, 2, 3, 4, 5].map((o) => b.getUint8(E + o)),         // HP,Atk,Def,Spe,SpA,SpD
+      ivs: [0, 5, 10, 15, 20, 25].map((sh) => (ivWord >>> sh) & 31), // HP,Atk,Def,Spe,SpA,SpD
+      isEgg: !!((ivWord >>> 30) & 1),
+      abilityNum: (ivWord >>> 31) & 1,
     };
   }
 
-  function parse(buffer) {
+  function decodeMon(dv, off, isParty) {
+    const pv = dv.getUint32(off, true) >>> 0;
+    const otid = dv.getUint32(off + 4, true) >>> 0;
+    if (pv === 0 && otid === 0) return null; // empty slot
+    // copy the 48-byte substructure block
+    const blk = new DataView(new ArrayBuffer(48));
+    for (let i = 0; i < 48; i++) blk.setUint8(i, dv.getUint8(off + 0x20 + i));
+
+    // Radical Red stores substructures PLAINTEXT in fixed G,A,E,M order. Try that first.
+    let f = fields(blk, 0, 12, 24, 36);
+    // Fallback: vanilla Gen-3 — decrypt with PV^OTID and unshuffle by PV%24.
+    if (!f) {
+      const key = (pv ^ otid) >>> 0;
+      const dec = new DataView(new ArrayBuffer(48));
+      for (let i = 0; i < 12; i++) dec.setUint32(i * 4, (blk.getUint32(i * 4, true) ^ key) >>> 0, true);
+      const pos = {}; ORDER[pv % 24].split('').forEach((c, i) => { pos[c] = i * 12; });
+      f = fields(dec, pos.G, pos.A, pos.E, pos.M);
+    }
+    if (!f) return null;
+
+    const tid = otid & 0xFFFF, sid = (otid >>> 16) & 0xFFFF;
+    f.shiny = ((tid ^ sid ^ (pv & 0xFFFF) ^ (pv >>> 16)) & 0xFFFF) < 8;
+    f.nature = pv % 25;
+    f.nickname = decodeStr(dv, off + 0x08, 10);
+    f.otName = decodeStr(dv, off + 0x14, 7);
+    f.level = isParty ? dv.getUint8(off + 0x54) : levelFromExp(f.exp);
+    f.levelExact = !!isParty;
+    return f;
+  }
+
+  function parse(buffer, validSpecies) {
+    isValidSpecies = (typeof validSpecies === 'function') ? validSpecies : null;
     const diag = {};
     try {
       const dv = new DataView(buffer);
       if (buffer.byteLength < SLOT) return { ok: false, error: 'File too small to be a GBA save (' + buffer.byteLength + ' bytes).', diag };
-      const a = readSlot(dv, 0), b = buffer.byteLength >= SLOT * 2 ? readSlot(dv, SLOT) : { sections: {}, saveIndex: -1, found: 0 };
-      const slot = (a.found && (!b.found || a.saveIndex >= b.saveIndex)) ? a : b;
+      const a = readSlot(dv, 0), b = buffer.byteLength >= SLOT * 2 ? readSlot(dv, SLOT) : { sections: {}, saveIndex: -1, found: 0, valid: 0 };
+      const slot = pickSlot(a, b);
       diag.slot = slot === a ? 'A' : 'B';
       diag.sectionsFound = slot.found;
+      diag.sectionsValid = slot.valid;
       if (!slot.found) return { ok: false, error: 'No valid save sections found (signature mismatch).', diag };
 
       // Boxes: PokemonStorage across sections 5-13, boxes start at offset 4, 14 boxes x 30 x 80B.

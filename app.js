@@ -627,7 +627,7 @@ function pickSave() {
 function loadSaveFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
-    const res = window.RRSav ? RRSav.parse(reader.result) : { ok: false, error: 'Parser not loaded.' };
+    const res = window.RRSav ? RRSav.parse(reader.result, (id) => !!DATA.species[id]) : { ok: false, error: 'Parser not loaded.' };
     if (res.ok) {
       savData = res;
       const fb = res.boxes.findIndex((b) => b.mons.length);
