@@ -508,6 +508,10 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .dex-d-head img { width: 80px; height: 80px; image-rendering: pixelated; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
 .dex-d-name { font-size: 20px; font-weight: 800; }
 .dex-h { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 14px 0 8px; }
+/* Compact evolution line inside the mini-Pokédex modal: one horizontally-scrolling row. */
+.dex-evo { flex-wrap: nowrap; overflow-x: auto; gap: 7px; padding-bottom: 4px; }
+.dex-evo .evo-card { width: 84px; flex: 0 0 auto; padding: 6px 4px; }
+.dex-evo .evo-card img { width: 46px; height: 46px; }
 
 /* Hardcore subbar controls */
 .subbar { position: sticky; top: 0; z-index: 20; background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 18px; padding-top: 8px; }

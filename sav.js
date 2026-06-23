@@ -153,7 +153,10 @@
       diag.sectionsValid = slot.valid;
       if (!slot.found) return { ok: false, error: 'No valid save sections found (signature mismatch).', diag };
 
-      // Boxes: PokemonStorage across sections 5-13, boxes start at offset 4, 14 boxes x 30 x 80B.
+      // Boxes: tries the vanilla PokemonStorage layout (sections 5-13, offset 4, 14x30x80).
+      // NOTE: Radical Red / CFRU uses a NON-vanilla expanded PC — on RR saves these sections are
+      // empty (no box mons, no vanilla box-name table), so this yields nothing. Pinning down RR's
+      // real box format needs a save WITH boxed mons. The party (plaintext, SaveBlock1) reads fine.
       const pc = assemble(dv, slot.sections, [5, 6, 7, 8, 9, 10, 11, 12, 13]);
       const boxes = [];
       if (pc) {

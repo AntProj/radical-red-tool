@@ -1068,6 +1068,21 @@ function renderDexList() {
   const el = document.getElementById('dex-list');
   if (el) el.innerHTML = html || '<li class="dex-empty">No matches</li>';
 }
+// Compact evolution line for the mini-Pokédex modal; clicking a card selects it in-modal
+// (the modal click handler routes [data-dexid] -> selectDexMon).
+function dexEvoLine(s) {
+  const froms = evolvesFromMap[s.ID] || [], intos = s.evolutions || [];
+  if (!froms.length && !intos.length) return '';
+  const card = (sp, cond) => { const fm = formName(sp);
+    return '<div class="evo-card" data-dexid="' + sp.ID + '"><img src="' + spriteFor(sp) + '" alt="' + esc(sp.name) + '">' +
+    '<div class="en">' + esc(sp.name) + (fm ? ' <span class="row-form">' + esc(fm) + '</span>' : '') + '</div>' +
+    (cond ? '<div class="ec">' + esc(cond) + '</div>' : '') + '</div>'; };
+  let h = '<h3 class="dex-h">Evolution</h3><div class="evo-row dex-evo">';
+  for (const f of froms) { const p = DATA.species[f.from]; if (p) h += card(p, '← ' + (evoCondition(f.evo) || '')); }
+  if (froms.length && intos.length) h += '<div class="evo-sep">·</div>';
+  for (const evo of intos) { const t = DATA.species[evo[2]]; if (t) h += card(t, '→ ' + (evoCondition(evo) || '')); }
+  return h + '</div>';
+}
 function selectDexMon(id) {
   const s = DATA.species[id];
   if (!s) return;
@@ -1084,6 +1099,7 @@ function selectDexMon(id) {
       '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
   });
   html += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></div>';
+  html += dexEvoLine(s);
   html += '<div class="dex-moves"><h3 class="dex-h">Level-Up Moves</h3><div class="dex-moves-scroll">' + movesTable(s, 'level') + '</div></div>';
   const el = document.getElementById('dex-detail');
   if (el) { el.innerHTML = html; el.scrollTop = 0; }
