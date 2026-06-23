@@ -311,6 +311,7 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .modal-box.vs-modal-box .modal-x { display: none; } /* trainer sprites break into this corner; close via backdrop/ESC */
 .vs-modal { position: relative; }
 .hth-card { position: relative; background: var(--bg); border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.hth-compare { max-height: 60vh; overflow-y: auto; }
 
 /* battle-scene bands */
 .hth-bands { position: relative; display: flex; }
@@ -385,6 +386,46 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .hth-move { margin: 0 0 8px; }
 .hth-mcol.l .hth-move { flex-direction: row-reverse; }
 .hth-mcol.l .hth-move .bm-mname { text-align: right; }
+/* move damage (nearest the center) */
+.hth-dmg { font: 800 11px ui-monospace, monospace; color: var(--accent); white-space: nowrap; flex: 0 0 auto; min-width: 56px; }
+.hth-mcol.l .hth-dmg { text-align: left; }
+.hth-mcol.r .hth-dmg { text-align: right; }
+.hth-dmg.none { color: var(--muted-2); font-weight: 600; }
+
+/* field bar */
+.vs-field { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 10px 22px 2px; }
+.vs-field-lbl { font: 800 11px system-ui; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); }
+.vs-field-note { font: 600 11px system-ui; color: var(--muted); }
+.vs-fld { display: flex; align-items: center; gap: 5px; font: 700 10px system-ui; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.vs-sel { background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 6px; padding: 3px 6px; font: 600 12px system-ui; max-width: 140px; }
+.vs-sel:focus { border-color: var(--accent); outline: none; }
+
+/* per-side editors */
+.hth-edits { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 6px 22px 18px; }
+.hth-edit { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.hth-edit.right { padding-left: 22px; border-left: 1px solid var(--panel); }
+.hth-edit .vs-fld { justify-content: space-between; }
+.hth-edit .vs-fld .vs-sel { flex: 1; max-width: none; margin-left: 8px; }
+.vs-mv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
+.vs-mv-grid .vs-sel { max-width: none; width: 100%; }
+
+/* add-mon button + picker */
+.vs-addbtn { background: var(--accent-dim); border: 1px solid var(--accent); color: #fff; font: 700 12px system-ui; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin: 0 auto 6px; }
+.vs-addbtn:hover { background: var(--accent); }
+.vs-addbtn.big { padding: 10px 16px; font-size: 13px; }
+.vs-picker { padding: 14px 18px 20px; }
+.vs-pick-head { display: flex; justify-content: space-between; align-items: center; font-size: 15px; margin-bottom: 10px; }
+.vs-pick-x { background: var(--panel-2); border: 1px solid var(--line-2); color: var(--text); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; }
+.vs-pick-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.vs-pick-tab { background: var(--panel-2); border: none; color: var(--muted); font: 700 12px system-ui; padding: 6px 14px; border-radius: 7px; cursor: pointer; }
+.vs-pick-tab.on { background: var(--accent-dim); color: #fff; }
+.vs-dexq { width: 100%; max-width: 360px; padding: 8px 11px; margin-bottom: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 8px; }
+.vs-pickgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; max-height: 320px; overflow-y: auto; }
+.vs-pickmon { display: flex; flex-direction: column; align-items: center; gap: 1px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 7px 4px; cursor: pointer; color: var(--text); }
+.vs-pickmon:hover { border-color: var(--accent); background: var(--panel-2); }
+.vs-pickmon img { width: 48px; height: 48px; image-rendering: pixelated; }
+.vs-pickmon span { font: 600 11px system-ui; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 84px; }
+.vs-pickmon small { font: 700 9px ui-monospace, monospace; color: var(--muted-2); }
 @media (max-width: 640px) {
   .hth-band.left { padding-left: 70px; } .hth-band.right { padding-right: 70px; }
   .hth-trainer { height: 112px; max-width: 80px; } .hth-trainer.r { height: 100px; }
