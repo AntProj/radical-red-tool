@@ -619,8 +619,9 @@ function toggleInlineTeam(el, id, panelSel, cardFn) {
 }
 
 /* ---------------- Versus (head-to-head + damage calc) ---------------- */
-let vs = { tid: null, rightIdx: 0 };
-let vsLeft = null;   // player mon cfg {species,level,nature,ability,item,moves[],ivs[],evs[],nickname}
+let vs = { tid: null, rightIdx: 0, leftIdx: 0 };
+let vsLeftTeam = [], vsRightTeam = [];  // player team (built via Add), boss team cfgs
+let vsLeft = null;   // selected player mon cfg
 let vsRight = null;  // selected boss mon cfg
 let vsField = null;  // {label, weather, terrain, trickRoom}
 let vsAddMode = 'box', vsDexQ = '';
@@ -650,21 +651,22 @@ function abilityNameSlot(sp, slot) {
   const a = sp.abilities && sp.abilities[slot], id = a && a[0];
   return (id && DATA.abilities[id]) ? DATA.abilities[id].names[0] : (abilityNamesOf(sp)[0] || '');
 }
+const vsExtras = () => ({ boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 }, status: '', crit: false, side: {} });
 function cfgFromBoss(m) {
   const sp = DATA.species[m.species];
-  return { species: m.species, level: resolveLevel(m.level), nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
-    item: m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || [0, 0, 0, 0, 0, 0]).slice() };
+  return Object.assign({ species: m.species, level: resolveLevel(m.level), nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
+    item: m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || [0, 0, 0, 0, 0, 0]).slice() }, vsExtras());
 }
 function cfgFromBox(m) {
   const sp = DATA.species[m.species];
-  return { species: m.species, level: m.level || 50, nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
-    item: m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || m.ivs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || m.evs || [0, 0, 0, 0, 0, 0]).slice(), nickname: m.nickname };
+  return Object.assign({ species: m.species, level: m.level || 50, nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
+    item: m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || m.ivs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || m.evs || [0, 0, 0, 0, 0, 0]).slice(), nickname: m.nickname }, vsExtras());
 }
 function cfgFromDex(id) {
   const sp = DATA.species[id];
   const lv = (sp.levelupMoves || []).slice().sort((a, b) => a[1] - b[1]).map((x) => x[0]);
-  return { species: id, level: (playerHighest && playerHighest <= 100) ? playerHighest : 50, nature: 0, ability: abilityNamesOf(sp)[0] || '',
-    item: 0, moves: lv.slice(-4), ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] };
+  return Object.assign({ species: id, level: (playerHighest && playerHighest <= 100) ? playerHighest : 50, nature: 0, ability: abilityNamesOf(sp)[0] || '',
+    item: 0, moves: lv.slice(-4), ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] }, vsExtras());
 }
 
 /* ----- calc bridge ----- */
@@ -674,21 +676,33 @@ function toCalcMon(cfg) {
   const opts = { level: cfg.level, nature: DATA.natures[cfg.nature] || 'Hardy', ivs: vsStatsObj(cfg.ivs), evs: vsStatsObj(cfg.evs) };
   if (cfg.ability) opts.ability = cfg.ability;
   if (cfg.item && DATA.items[cfg.item]) opts.item = DATA.items[cfg.item].name;
+  if (cfg.boosts) opts.boosts = cfg.boosts;
+  if (cfg.status) opts.status = cfg.status;
   return new RRC.Pokemon(RRC._gen, sp.name, opts);
 }
-const vsFieldCalc = () => new RRC.Field({ weather: (vsField && vsField.weather) || undefined, terrain: (vsField && vsField.terrain) || undefined });
+const SIDE_FLAGS = ['isSR', 'isReflect', 'isLightScreen', 'isAuroraVeil', 'isSeeded', 'isHelpingHand', 'isTailwind', 'isFriendGuard'];
+function sideObj(side) {
+  side = side || {}; const o = {};
+  SIDE_FLAGS.forEach((k) => { if (side[k]) o[k] = true; });
+  if (side.spikes) o.spikes = side.spikes;
+  return o;
+}
+const battleStats = (cfg) => { try { return toCalcMon(cfg).stats; } catch (e) { return null; } };
 function calcMove(atkCfg, defCfg, moveId) {
   if (!RRC || !atkCfg || !defCfg) return null;
   const mv = DATA.moves[moveId];
   if (!mv || !mv.power) return null;  // status / no base power -> no damage
   try {
     const def = toCalcMon(defCfg);
-    const r = RRC.calculate(RRC._gen, toCalcMon(atkCfg), def, new RRC.Move(RRC._gen, mv.name), vsFieldCalc());
-    const range = r.range(), maxHP = (def.stats && def.stats.hp) || (def.maxHP && def.maxHP()) || 1;
+    const field = new RRC.Field({ weather: (vsField && vsField.weather) || undefined, terrain: (vsField && vsField.terrain) || undefined, attackerSide: sideObj(atkCfg.side), defenderSide: sideObj(defCfg.side) });
+    const r = RRC.calculate(RRC._gen, toCalcMon(atkCfg), def, new RRC.Move(RRC._gen, mv.name, { isCrit: !!atkCfg.crit }), field);
+    const range = r.range(), maxHP = (def.stats && def.stats.hp) || 1;
     const ko = r.kochance ? r.kochance() : null;
     return { pctLo: +(range[0] / maxHP * 100).toFixed(1), pctHi: +(range[1] / maxHP * 100).toFixed(1), ko: ko && ko.text };
   } catch (e) { return null; }
 }
+const STATUS_OPTS = [['', 'Healthy'], ['brn', 'Burn'], ['par', 'Paralysis'], ['psn', 'Poison'], ['tox', 'Badly Poisoned'], ['slp', 'Sleep'], ['frz', 'Frozen']];
+const COND_OPTS = [['isSR', 'Stealth Rock'], ['spikes', 'Spikes'], ['isReflect', 'Reflect'], ['isLightScreen', 'Light Screen'], ['isAuroraVeil', 'Aurora Veil'], ['isSeeded', 'Leech Seed'], ['isHelpingHand', 'Helping Hand'], ['isTailwind', 'Tailwind'], ['isFriendGuard', 'Friend Guard']];
 
 /* ----- option lists (cached) ----- */
 let _itemOpts = null;
@@ -751,22 +765,40 @@ function hthMoves(cfg, oppCfg, isBoss) {
     const mv = id && DATA.moves[id];
     if (!mv) continue;
     const d = calcMove(cfg, oppCfg, id);
-    const dmg = d ? '<span class="hth-dmg" title="' + esc(d.ko || '') + '">' + d.pctLo + '–' + d.pctHi + '%</span>' : '<span class="hth-dmg none">—</span>';
-    rows += '<div class="bm-move hth-move">' + dmg + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>';
+    const dmg = '<span class="hth-dmg' + (d ? '' : ' none') + '" title="' + (d ? esc(d.ko || '') : '') + '">' + (d ? d.pctLo + '–' + d.pctHi + '%' : '—') + '</span>';
+    const chip = typeChip(mv.type, true), nm = '<span class="bm-mname">' + esc(mv.name) + '</span>';
+    // "damage · type · name" from the center: boss row dmg|type|name, player row name|type|dmg
+    rows += '<div class="hth-move ' + side + '">' + (isBoss ? (dmg + chip + nm) : (nm + chip + dmg)) + '</div>';
   }
   return '<div class="hth-mcol ' + side + '"><div class="hth-mtitle">' + (name ? name + '’s Moves' : 'Moves') + '</div>' + (rows || '<div class="hth-noteam">—</div>') + '</div>';
 }
+const STAT_MAP = [['HP', 'hp', 0], ['Atk', 'atk', 1], ['Def', 'def', 2], ['SpA', 'spa', 4], ['SpD', 'spd', 5], ['Spe', 'spe', 3]];
+function bstatsHtml(cfg, side) {
+  const bs = battleStats(cfg) || {};
+  return '<div class="vs-bstats"><div class="vs-bs-cap">Battle Stats</div>' + STAT_MAP.map(([lab, key, ivIdx]) => {
+    const isHP = key === 'hp', stage = cfg.boosts[key] || 0;
+    const stepper = isHP ? '<span class="vs-stage"></span>'
+      : '<span class="vs-stage"><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="-1">−</button><b>' + (stage > 0 ? '+' : '') + stage + '</b><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="1">+</button></span>';
+    return '<div class="vs-bstat"><span class="vs-bsl">' + lab + '</span><span class="vs-bsv">' + (bs[key] != null ? bs[key] : '—') + '</span>' + stepper +
+      '<input class="vs-iv" type="number" min="0" max="31" value="' + (cfg.ivs[ivIdx] != null ? cfg.ivs[ivIdx] : 31) + '" data-side="' + side + '" data-iv="' + ivIdx + '" title="IV"></div>';
+  }).join('') + '</div>';
+}
 function hthEditor(cfg, side) {
   if (!cfg) return '<div class="hth-edit ' + side + '"></div>';
-  const sp = DATA.species[cfg.species];
-  const pool = movePoolOf(sp);
+  const sp = DATA.species[cfg.species], pool = movePoolOf(sp);
   let moves = '';
   for (let i = 0; i < 4; i++) moves += '<select class="vs-sel vs-mv" data-side="' + side + '" data-slot="' + i + '"><option value="0">—</option>' + selOpts(pool, cfg.moves[i] || 0) + '</select>';
+  const conds = COND_OPTS.map(([k, l]) => '<option value="' + k + '"' + ((k === 'spikes' ? cfg.side.spikes : cfg.side[k]) ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
   return '<div class="hth-edit ' + side + '">' +
+    '<div class="vs-row2"><label class="vs-fld">Status<select class="vs-sel" data-side="' + side + '" data-edit="status">' + selOpts(STATUS_OPTS, cfg.status || '') + '</select></label>' +
+    '<label class="vs-fld vs-crit"><input type="checkbox" data-side="' + side + '" data-edit="crit"' + (cfg.crit ? ' checked' : '') + '> Crit</label></div>' +
+    bstatsHtml(cfg, side) +
     '<label class="vs-fld">Nature<select class="vs-sel" data-side="' + side + '" data-edit="nature">' + selOpts(Object.entries(DATA.natures), cfg.nature) + '</select></label>' +
     '<label class="vs-fld">Ability<select class="vs-sel" data-side="' + side + '" data-edit="ability">' + selOpts(abilityNamesOf(sp).map((n) => [n, n]), cfg.ability) + '</select></label>' +
     '<label class="vs-fld">Item<select class="vs-sel vs-item" data-side="' + side + '" data-edit="item" data-val="' + cfg.item + '">' + itemOptionsHtml() + '</select></label>' +
-    '<div class="vs-mv-grid">' + moves + '</div></div>';
+    '<div class="vs-mv-grid">' + moves + '</div>' +
+    '<label class="vs-fld vs-cond">Conditions<select class="vs-sel vs-condsel" multiple size="4" data-side="' + side + '" data-edit="cond">' + conds + '</select></label>' +
+    '</div>';
 }
 const WEATHERS = [['', '— none —'], ['Sand', 'Sandstorm'], ['Rain', 'Rain'], ['Sun', 'Sun'], ['Snow', 'Snow'], ['Hail', 'Hail'], ['Harsh Sunshine', 'Desolate Land'], ['Heavy Rain', 'Primordial Sea'], ['Strong Winds', 'Delta Stream']];
 const TERRAINS = [['', '— none —'], ['Electric', 'Electric'], ['Grassy', 'Grassy'], ['Misty', 'Misty'], ['Psychic', 'Psychic']];
@@ -857,6 +889,13 @@ function vsBossHuddle(team) {
       'px;z-index:' + (i + 1) + '" data-vsidx="' + i + '" data-rawsrc="' + uri + '" src="' + uri + '" alt="" title="' + (sp ? esc(sp.name) : '') + '">';
   }).join('');
 }
+function vsPlayerHuddle() {
+  return vsLeftTeam.map((c, i) => {
+    const sp = DATA.species[c.species], uri = sp ? spriteFor(sp) : '', flip = i % 2 === 1;
+    return '<img class="vs-mon' + (flip ? ' flip' : '') + (i === vs.leftIdx ? ' on' : '') + '" style="--j:' + VS_JITTER[i % VS_JITTER.length] +
+      'px;z-index:' + (i + 1) + '" data-vsleftidx="' + i + '" data-rawsrc="' + uri + '" src="' + uri + '" alt="" title="' + (sp ? esc(c.nickname || sp.name) : '') + '">';
+  }).join('');
+}
 function vsBand(side, boss) {
   if (side === 'right') {
     const team = boss.hardcore || [];
@@ -864,16 +903,11 @@ function vsBand(side, boss) {
       '<div class="vs-party right" id="vs-party-right">' + vsBossHuddle(team) + '</div></div>';
   }
   const ot = (savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You';
-  let inner;
-  if (vsLeft) {
-    const sp = DATA.species[vsLeft.species], uri = sp ? spriteFor(sp) : '';
-    inner = '<div class="vs-party left"><img class="vs-mon on" style="--j:-6px" data-rawsrc="' + uri + '" src="' + uri + '" alt=""></div><button class="vs-addbtn" data-addmon>Change</button>';
-  } else {
-    inner = '<button class="vs-addbtn big" data-addmon>＋ Add Pokémon</button>';
-  }
-  return '<div class="hth-band left"><div class="hth-tname you">' + esc(ot) + '<span>Your Pokémon</span></div>' + inner + '</div>';
+  return '<div class="hth-band left"><div class="hth-tname you">' + esc(ot) + '<span>' + (vsLeftTeam.length ? 'Your Team · ' + vsLeftTeam.length : 'No Pokémon yet — Add one ↙') + '</span></div>' +
+    '<div class="vs-party left" id="vs-party-left">' + vsPlayerHuddle() + '</div></div>';
 }
 function highlightBossHuddle() { document.querySelectorAll('#vs-party-right .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs.rightIdx)); }
+function highlightPlayerHuddle() { document.querySelectorAll('#vs-party-left .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs.leftIdx)); }
 function bossData(tid) {
   for (const c of (DATA.hardcore.categories || [])) for (const b of c.bosses) if (b.trainerId === tid) return b;
   return null;
@@ -881,15 +915,17 @@ function bossData(tid) {
 function showVersus(tid) {
   const boss = DATA.trainers[tid];
   if (!boss) return;
-  vs = { tid, rightIdx: 0 };
-  vsLeft = null; vsAddMode = 'box'; vsDexQ = '';
-  vsRight = (boss.hardcore && boss.hardcore[0]) ? cfgFromBoss(boss.hardcore[0]) : null;
+  vs = { tid, rightIdx: 0, leftIdx: 0 };
+  vsLeftTeam = []; vsLeft = null; vsAddMode = 'box'; vsDexQ = '';
+  vsRightTeam = (boss.hardcore || []).map(cfgFromBoss);
+  vsRight = vsRightTeam[0] || null;
   const bd = bossData(tid);
   vsField = bd && bd.field ? Object.assign({}, bd.field) : null;
   const html = '<div class="vs-modal">' +
     vsTrainerImg('left', boss) + vsTrainerImg('right', boss) +
     '<div class="hth-card"><div class="hth-bands">' + vsBand('left', boss) + vsBand('right', boss) +
-      '<div class="hth-vs">VS</div></div><div class="hth-compare" id="hth-compare"></div></div></div>';
+      '<div class="hth-vs">VS</div></div><div class="hth-compare" id="hth-compare"></div></div>' +
+    '<button class="vs-addfab" data-addmon>＋ Add Pokémon</button></div>';
   openModal(html, 'vs-modal-box');
   renderHthCompare();
   sizeLineups();
@@ -1250,8 +1286,8 @@ function init() {
       try { localStorage.setItem('rr_highest', playerHighest); } catch (_) {}
       if (hcSub === 'bosses') renderBossGrid();
       if (!document.getElementById('modal').hidden && vs.tid != null) {
-        const t = DATA.trainers[vs.tid];
-        if (t && t.hardcore && t.hardcore[vs.rightIdx]) vsRight = cfgFromBoss(t.hardcore[vs.rightIdx]); // re-resolve scaled boss level
+        vsRightTeam = ((DATA.trainers[vs.tid] || {}).hardcore || []).map(cfgFromBoss); // re-resolve scaled boss levels
+        vsRight = vsRightTeam[vs.rightIdx] || null;
         renderHthCompare();
       }
     }
@@ -1261,24 +1297,34 @@ function init() {
   const modal = document.getElementById('modal');
   modal.addEventListener('click', (e) => {
     if (e.target.closest('[data-close]')) { closeModal(); return; }
+    const step = e.target.closest('.vs-step');
+    if (step) { const cfg = step.dataset.side === 'right' ? vsRight : vsLeft; if (cfg) { const k = step.dataset.stat; cfg.boosts[k] = Math.max(-6, Math.min(6, (cfg.boosts[k] || 0) + (+step.dataset.dir))); renderHthCompare(); } return; }
     const vc = e.target.closest('[data-vsidx]');
-    if (vc) { vs.rightIdx = +vc.dataset.vsidx; const t = DATA.trainers[vs.tid]; vsRight = (t && t.hardcore && t.hardcore[vs.rightIdx]) ? cfgFromBoss(t.hardcore[vs.rightIdx]) : null; highlightBossHuddle(); renderHthCompare(); return; }
+    if (vc) { vs.rightIdx = +vc.dataset.vsidx; vsRight = vsRightTeam[vs.rightIdx] || null; highlightBossHuddle(); renderHthCompare(); return; }
+    const lc = e.target.closest('[data-vsleftidx]');
+    if (lc) { vs.leftIdx = +lc.dataset.vsleftidx; vsLeft = vsLeftTeam[vs.leftIdx] || null; highlightPlayerHuddle(); renderHthCompare(); return; }
     if (e.target.closest('[data-addmon]')) { renderAddPicker(); return; }
     const ptab = e.target.closest('[data-pick]'); if (ptab) { vsAddMode = ptab.dataset.pick; renderAddPicker(); return; }
     if (e.target.closest('[data-addcancel]')) { renderHthCompare(); return; }
-    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) vsLeft = cfgFromBox(m); rebuildVsBands(); renderHthCompare(); return; }
-    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeft = cfgFromDex(+dp.dataset.dexpick); rebuildVsBands(); renderHthCompare(); return; }
+    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; } rebuildVsBands(); renderHthCompare(); return; }
+    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; rebuildVsBands(); renderHthCompare(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
   modal.addEventListener('change', (e) => {
-    const sel = e.target.closest('select.vs-sel'); if (!sel) return;
-    if (sel.dataset.field) { vsField = vsField || {}; vsField[sel.dataset.field] = sel.value || undefined; renderHthCompare(); return; }
-    const cfg = sel.dataset.side === 'right' ? vsRight : vsLeft; if (!cfg) return;
-    if (sel.dataset.edit === 'nature') cfg.nature = +sel.value;
-    else if (sel.dataset.edit === 'ability') cfg.ability = sel.value;
-    else if (sel.dataset.edit === 'item') cfg.item = +sel.value;
-    else if (sel.classList.contains('vs-mv')) cfg.moves[+sel.dataset.slot] = +sel.value;
+    const t = e.target; if (!t.dataset) return;
+    if (t.dataset.field) { vsField = vsField || {}; vsField[t.dataset.field] = t.value || undefined; renderHthCompare(); return; }
+    const cfg = t.dataset.side === 'right' ? vsRight : (t.dataset.side === 'left' ? vsLeft : null);
+    if (!cfg) return;
+    if (t.dataset.iv != null) { cfg.ivs[+t.dataset.iv] = Math.max(0, Math.min(31, parseInt(t.value, 10) || 0)); renderHthCompare(); return; }
+    if (t.dataset.edit === 'crit') { cfg.crit = t.checked; renderHthCompare(); return; }
+    if (t.classList.contains('vs-condsel')) { cfg.side = {}; [...t.selectedOptions].forEach((o) => { if (o.value === 'spikes') cfg.side.spikes = 3; else cfg.side[o.value] = true; }); renderHthCompare(); return; }
+    if (t.dataset.edit === 'nature') cfg.nature = +t.value;
+    else if (t.dataset.edit === 'ability') cfg.ability = t.value;
+    else if (t.dataset.edit === 'item') cfg.item = +t.value;
+    else if (t.dataset.edit === 'status') cfg.status = t.value;
+    else if (t.classList.contains('vs-mv')) cfg.moves[+t.dataset.slot] = +t.value;
+    else return;
     renderHthCompare();
   });
   modal.addEventListener('input', (e) => {

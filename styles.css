@@ -383,13 +383,15 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .hth-mcol.r { padding-left: 22px; border-left: 1px solid var(--panel); }
 .hth-mtitle { font: 700 10.5px system-ui; color: var(--muted-2); letter-spacing: .6px; text-transform: uppercase; margin-bottom: 9px; }
 .hth-mcol.l .hth-mtitle { text-align: right; }
-.hth-move { margin: 0 0 8px; }
-.hth-mcol.l .hth-move { flex-direction: row-reverse; }
-.hth-mcol.l .hth-move .bm-mname { text-align: right; }
-/* move damage (nearest the center) */
-.hth-dmg { font: 800 11px ui-monospace, monospace; color: var(--accent); white-space: nowrap; flex: 0 0 auto; min-width: 56px; }
-.hth-mcol.l .hth-dmg { text-align: left; }
-.hth-mcol.r .hth-dmg { text-align: right; }
+/* move rows: aligned grid (damage · type · name from the center) */
+.hth-move { display: grid; align-items: center; gap: 8px; margin: 0 0 7px; }
+.hth-move.r { grid-template-columns: 64px 76px 1fr; }
+.hth-move.l { grid-template-columns: 1fr 76px 64px; }
+.hth-move .type-chip { justify-self: center; }
+.hth-move.l .bm-mname { text-align: right; }
+.hth-dmg { font: 800 11px ui-monospace, monospace; color: var(--accent); white-space: nowrap; }
+.hth-move.r .hth-dmg { text-align: left; }
+.hth-move.l .hth-dmg { text-align: right; }
 .hth-dmg.none { color: var(--muted-2); font-weight: 600; }
 
 /* field bar */
@@ -408,6 +410,26 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .hth-edit .vs-fld .vs-sel { flex: 1; max-width: none; margin-left: 8px; }
 .vs-mv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
 .vs-mv-grid .vs-sel { max-width: none; width: 100%; }
+/* status + crit row */
+.vs-row2 { display: flex; gap: 12px; align-items: center; }
+.vs-crit { cursor: pointer; }
+.vs-crit input { margin: 0 4px 0 0; }
+/* battle stats with stage steppers + IVs */
+.vs-bstats { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; display: flex; flex-direction: column; gap: 3px; }
+.vs-bs-cap { font: 700 9px ui-monospace, monospace; color: #5f6773; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 1px; }
+.vs-bstat { display: grid; grid-template-columns: 26px 34px 1fr 44px; align-items: center; gap: 6px; }
+.vs-bsl { font: 700 10px ui-monospace, monospace; color: var(--muted); }
+.vs-bsv { font: 700 12px ui-monospace, monospace; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+.vs-stage { display: flex; align-items: center; gap: 4px; justify-content: center; }
+.vs-stage b { font: 700 11px ui-monospace, monospace; min-width: 20px; text-align: center; }
+.vs-step { width: 18px; height: 18px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 13px; line-height: 1; padding: 0; }
+.vs-step:hover { background: var(--accent-dim); }
+.vs-iv { width: 42px; background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 5px; padding: 2px 4px; font: 600 11px ui-monospace, monospace; text-align: center; }
+.vs-cond { flex-direction: column; align-items: stretch !important; gap: 4px; }
+.vs-cond .vs-condsel { width: 100%; max-width: none; margin-left: 0; }
+/* bottom-left Add Pokémon button */
+.vs-addfab { position: absolute; left: 10px; bottom: 10px; z-index: 30; background: var(--accent); border: 1px solid var(--accent); color: #fff; font: 700 12.5px system-ui; padding: 8px 14px; border-radius: 9px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.45); }
+.vs-addfab:hover { filter: brightness(1.1); }
 
 /* add-mon button + picker */
 .vs-addbtn { background: var(--accent-dim); border: 1px solid var(--accent); color: #fff; font: 700 12px system-ui; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin: 0 auto 6px; }
