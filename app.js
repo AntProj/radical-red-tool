@@ -712,6 +712,13 @@ function itemOptionsHtml() {
   _itemOpts = '<option value="0">— None —</option>' + list.map((it) => '<option value="' + it.ID + '">' + esc(it.name) + '</option>').join('');
   return _itemOpts;
 }
+let _abilOpts = null;  // ALL abilities (hardcore changes some, so let the player pick any)
+function abilityOptionsHtml() {
+  if (_abilOpts) return _abilOpts;
+  const names = [...new Set(Object.values(DATA.abilities).map((a) => a && a.names && a.names[0]).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  _abilOpts = names.map((n) => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+  return _abilOpts;
+}
 const _movePool = {};
 function movePoolOf(sp) {
   if (_movePool[sp.ID]) return _movePool[sp.ID];
@@ -735,7 +742,7 @@ function hthCfgGrid(cfg, side) {
   const checks = COND_OPTS.map(([k, l]) => '<label><input type="checkbox" data-cond="' + k + '" data-side="' + side + '"' + ((k === 'spikes' ? cfg.side.spikes : cfg.side[k]) ? ' checked' : '') + '> ' + esc(l) + '</label>').join('');
   return '<div class="hth-cfg">' +
     '<select class="vs-sel" data-side="' + side + '" data-edit="nature" title="Nature">' + selOpts(Object.entries(DATA.natures), cfg.nature) + '</select>' +
-    '<select class="vs-sel" data-side="' + side + '" data-edit="ability" title="Ability">' + selOpts(abilityNamesOf(sp).map((a) => [a, a]), cfg.ability) + '</select>' +
+    '<select class="vs-sel vs-abil" data-side="' + side + '" data-edit="ability" data-val="' + esc(cfg.ability) + '" title="Ability">' + abilityOptionsHtml() + '</select>' +
     '<select class="vs-sel vs-item" data-side="' + side + '" data-edit="item" data-val="' + cfg.item + '" title="Item">' + itemOptionsHtml() + '</select>' +
     '<details class="vs-multi" data-side="' + side + '"><summary>Cond' + (n ? ' (' + n + ')' : '') + '</summary><div class="vs-multi-panel">' + checks + '</div></details>' +
     '</div>';
@@ -808,22 +815,39 @@ function allBoxMons() {
   if (!savData) return [];
   return [...(savData.party || []), ...((savData.boxes || []).flatMap((b) => b.mons || []))];
 }
-function renderAddPicker() {
-  const el = document.getElementById('hth-compare'); if (!el) return;
-  let body;
-  if (vsAddMode === 'box') {
-    const mons = allBoxMons();
-    body = mons.length ? '<div class="vs-pickgrid">' + mons.map((m, i) => { const sp = DATA.species[m.species]; if (!sp) return ''; return '<button class="vs-pickmon" data-boxpick="' + i + '"><img src="' + spriteFor(sp) + '" alt=""><span>' + esc(m.nickname || sp.name) + '</span><small>Lv ' + (m.level || '?') + '</small></button>'; }).join('') + '</div>'
-      : '<div class="hth-noteam" style="padding:20px">Import a save in the <b>Box</b> tab to pick from your boxes.</div>';
-  } else {
-    const q = vsDexQ.trim().toLowerCase();
-    const list = ENTRIES.filter((s) => !q || s.name.toLowerCase().includes(q) || pad(s.dexID).includes(q)).slice(0, 60);
-    body = '<input id="vs-dex-q" class="vs-dexq" type="search" placeholder="Search dex…" value="' + esc(vsDexQ) + '" autocomplete="off">' +
-      '<div class="vs-pickgrid">' + list.map((s) => '<button class="vs-pickmon" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt=""><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') + '</div>';
+// Add-Pokémon picker = a popup overlay over the modal (does NOT replace the compare).
+function openAddPop() {
+  let pop = document.getElementById('vs-pop');
+  if (!pop) {
+    pop = document.createElement('div'); pop.id = 'vs-pop'; pop.className = 'vs-pop';
+    pop.innerHTML = '<div class="vs-pop-bd" data-addcancel></div><div class="vs-pop-box">' +
+      '<div class="vs-pop-head"><b>Add your Pokémon</b><button class="vs-pick-x" data-addcancel aria-label="Close">✕</button></div>' +
+      '<div class="vs-pop-tabs"><button class="vs-pick-tab" data-pick="box">From Box</button><button class="vs-pick-tab" data-pick="dex">From Dex</button></div>' +
+      '<input id="vs-pop-q" class="vs-dexq" type="search" placeholder="Search…" autocomplete="off">' +
+      '<div id="vs-pop-list" class="vs-pickgrid"></div></div>';
+    (document.querySelector('.vs-modal') || document.getElementById('modal-content')).appendChild(pop);
   }
-  el.innerHTML = '<div class="vs-picker"><div class="vs-pick-head"><b>Add your Pokémon</b><button class="vs-pick-x" data-addcancel>✕</button></div>' +
-    '<div class="vs-pick-tabs"><button class="vs-pick-tab' + (vsAddMode === 'box' ? ' on' : '') + '" data-pick="box">From Box</button>' +
-    '<button class="vs-pick-tab' + (vsAddMode === 'dex' ? ' on' : '') + '" data-pick="dex">From Dex</button></div>' + body + '</div>';
+  pop.classList.add('on');
+  const q = document.getElementById('vs-pop-q'); if (q) q.value = '';
+  vsDexQ = '';
+  renderAddPicker();
+  if (q) q.focus();
+}
+function closeAddPop() { const p = document.getElementById('vs-pop'); if (p) p.classList.remove('on'); }
+function renderAddPicker() {
+  const pop = document.getElementById('vs-pop'); if (!pop) return;
+  pop.querySelectorAll('.vs-pick-tab').forEach((b) => b.classList.toggle('on', b.dataset.pick === vsAddMode));
+  const q = (document.getElementById('vs-pop-q') ? document.getElementById('vs-pop-q').value : vsDexQ).trim().toLowerCase();
+  const list = document.getElementById('vs-pop-list'); if (!list) return;
+  if (vsAddMode === 'box') {
+    const mons = allBoxMons().map((m, i) => ({ m, i, sp: DATA.species[m.species] })).filter((x) => x.sp && (!q || (x.m.nickname || x.sp.name).toLowerCase().includes(q)));
+    list.innerHTML = allBoxMons().length
+      ? (mons.map(({ m, i, sp }) => '<button class="vs-pickmon" data-boxpick="' + i + '"><img src="' + spriteFor(sp) + '" alt=""><span>' + esc(m.nickname || sp.name) + '</span><small>Lv ' + (m.level || '?') + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>')
+      : '<div class="hth-noteam" style="padding:18px">Import a save in the <b>Box</b> tab to pick from your boxes.</div>';
+  } else {
+    const ms = ENTRIES.filter((s) => !q || s.name.toLowerCase().includes(q) || pad(s.dexID).includes(q)).slice(0, 150);
+    list.innerHTML = ms.map((s) => '<button class="vs-pickmon" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt=""><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>';
+  }
 }
 function renderHthCompare() {
   const el = document.getElementById('hth-compare'); if (!el) return;
@@ -832,7 +856,7 @@ function renderHthCompare() {
     '<div class="hth-heads">' + hthHead(vsLeft, false) + hthHead(vsRight, true) + '</div>' +
     hthStats(vsLeft, vsRight) +
     '<div class="hth-moves" id="hth-moves">' + hthMoves(vsLeft, vsRight, false) + hthMoves(vsRight, vsLeft, true) + '</div>';
-  el.querySelectorAll('.vs-item').forEach((s) => { s.value = s.dataset.val; });  // big item select: set value post-render
+  el.querySelectorAll('.vs-item, .vs-abil').forEach((s) => { s.value = s.dataset.val; });  // big cached selects: set value post-render
   el.scrollTop = sc;
 }
 function renderMovesOnly() {  // lighter update (e.g. conditions) that keeps header dropdowns open
@@ -1303,11 +1327,11 @@ function init() {
     if (vc) { vs.rightIdx = +vc.dataset.vsidx; vsRight = vsRightTeam[vs.rightIdx] || null; highlightBossHuddle(); renderHthCompare(); return; }
     const lc = e.target.closest('[data-vsleftidx]');
     if (lc) { vs.leftIdx = +lc.dataset.vsleftidx; vsLeft = vsLeftTeam[vs.leftIdx] || null; highlightPlayerHuddle(); renderHthCompare(); return; }
-    if (e.target.closest('[data-addmon]')) { renderAddPicker(); return; }
+    if (e.target.closest('[data-addmon]')) { openAddPop(); return; }
     const ptab = e.target.closest('[data-pick]'); if (ptab) { vsAddMode = ptab.dataset.pick; renderAddPicker(); return; }
-    if (e.target.closest('[data-addcancel]')) { renderHthCompare(); return; }
-    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; } rebuildVsBands(); renderHthCompare(); return; }
-    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; rebuildVsBands(); renderHthCompare(); return; }
+    if (e.target.closest('[data-addcancel]')) { closeAddPop(); return; }
+    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; } closeAddPop(); rebuildVsBands(); renderHthCompare(); return; }
+    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; closeAddPop(); rebuildVsBands(); renderHthCompare(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
@@ -1329,7 +1353,7 @@ function init() {
   });
   modal.addEventListener('input', (e) => {
     if (e.target.id === 'dex-q') { dexQuery = e.target.value; renderDexList(); }
-    else if (e.target.id === 'vs-dex-q') { vsDexQ = e.target.value; renderAddPicker(); const i = document.getElementById('vs-dex-q'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+    else if (e.target.id === 'vs-pop-q') { vsDexQ = e.target.value; renderAddPicker(); }
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 
