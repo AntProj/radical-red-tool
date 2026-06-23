@@ -727,78 +727,74 @@ function movePoolOf(sp) {
 const selOpts = (pairs, sel) => pairs.map(([v, l]) => '<option value="' + v + '"' + (String(v) === String(sel) ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
 
 /* ----- head-to-head render ----- */
+const STAT_MAP = [['HP', 'hp', 0], ['Atk', 'atk', 1], ['Def', 'def', 2], ['SpA', 'spa', 4], ['SpD', 'spd', 5], ['Spe', 'spe', 3]];
+// 2x2 config block (nature, ability, item, conditions) shown beside the mon header.
+function hthCfgGrid(cfg, side) {
+  const sp = DATA.species[cfg.species];
+  const n = COND_OPTS.filter(([k]) => k === 'spikes' ? cfg.side.spikes : cfg.side[k]).length;
+  const checks = COND_OPTS.map(([k, l]) => '<label><input type="checkbox" data-cond="' + k + '" data-side="' + side + '"' + ((k === 'spikes' ? cfg.side.spikes : cfg.side[k]) ? ' checked' : '') + '> ' + esc(l) + '</label>').join('');
+  return '<div class="hth-cfg">' +
+    '<select class="vs-sel" data-side="' + side + '" data-edit="nature" title="Nature">' + selOpts(Object.entries(DATA.natures), cfg.nature) + '</select>' +
+    '<select class="vs-sel" data-side="' + side + '" data-edit="ability" title="Ability">' + selOpts(abilityNamesOf(sp).map((a) => [a, a]), cfg.ability) + '</select>' +
+    '<select class="vs-sel vs-item" data-side="' + side + '" data-edit="item" data-val="' + cfg.item + '" title="Item">' + itemOptionsHtml() + '</select>' +
+    '<details class="vs-multi" data-side="' + side + '"><summary>Cond' + (n ? ' (' + n + ')' : '') + '</summary><div class="vs-multi-panel">' + checks + '</div></details>' +
+    '</div>';
+}
 function hthHead(cfg, isBoss) {
   const side = isBoss ? 'r' : 'l';
   const sp = cfg ? DATA.species[cfg.species] : null;
-  if (!sp) return '<div class="hth-head ' + side + '"><div class="hth-noteam">Add a Pokémon to compare →</div></div>';
+  if (!sp) return '<div class="hth-head ' + side + '"><div class="hth-noteam">Add a Pokémon ↙</div></div>';
   const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name);
-  return '<div class="hth-head ' + side + '"><img class="hth-hsprite" src="' + spriteFor(sp) + '" alt="">' +
-    '<div class="hth-hmeta"><div class="hth-hname">' + name + '</div><div class="hth-hlv">Lv ' + cfg.level + '</div>' +
-    '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
+  const meta = '<div class="hth-hmeta"><div class="hth-hname">' + name + '</div><div class="hth-hlv">Lv ' + cfg.level + '</div>' +
+    '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div>';
+  return '<div class="hth-head ' + side + '"><img class="hth-hsprite" src="' + spriteFor(sp) + '" alt="">' + meta + hthCfgGrid(cfg, isBoss ? 'right' : 'left') + '</div>';
 }
-function hthStatRow(label, lv, rv, isBST) {
-  const max = isBST ? 600 : 120;
-  const lw = lv != null ? Math.min(100, lv / max * 100) : 0, rw = rv != null ? Math.min(100, rv / max * 100) : 0;
-  const lWin = lv != null && rv != null && lv > rv, rWin = lv != null && rv != null && rv > lv;
-  const lcol = isBST ? (lWin ? 'var(--accent)' : '#5b6472') : statColor(lv || 0), rcol = isBST ? (rWin ? 'var(--accent)' : '#5b6472') : statColor(rv || 0);
-  return '<div class="hth-row' + (isBST ? ' bst' : '') + '">' +
-    '<span class="hth-bar l"><i' + (rWin ? ' class="dim"' : '') + ' style="width:' + lw + '%;background:' + lcol + '"></i></span>' +
-    '<span class="hth-v l' + (lWin ? ' win' : rWin ? ' lose' : '') + '">' + (lv != null ? lv : '—') + '</span>' +
-    '<span class="hth-lab">' + label + '</span>' +
-    '<span class="hth-v r' + (rWin ? ' win' : lWin ? ' lose' : '') + '">' + (rv != null ? rv : '—') + '</span>' +
-    '<span class="hth-bar r"><i' + (lWin ? ' class="dim"' : '') + ' style="width:' + rw + '%;background:' + rcol + '"></i></span></div>';
+// One diverging stat row: from the center outward = name · battle stat · stage · bar(base) · IV.
+function hthStatRow(lab, key, idx, L, R, Ls, Rs, Lb, Rb) {
+  const lBase = Ls ? Ls.stats[idx] : null, rBase = Rs ? Rs.stats[idx] : null, isHP = key === 'hp', max = 120;
+  const lw = lBase != null ? Math.min(100, lBase / max * 100) : 0, rw = rBase != null ? Math.min(100, rBase / max * 100) : 0;
+  const lWin = lBase != null && rBase != null && lBase > rBase, rWin = lBase != null && rBase != null && rBase > lBase;
+  const iv = (cfg, side) => cfg ? '<input class="vs-iv" type="number" min="0" max="31" value="' + (cfg.ivs[idx] != null ? cfg.ivs[idx] : 31) + '" data-side="' + side + '" data-iv="' + idx + '" title="IV">' : '<span></span>';
+  const stage = (cfg, side) => (!cfg || isHP) ? '<span class="vs-stage"></span>' :
+    '<span class="vs-stage"><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="-1">−</button><b>' + ((cfg.boosts[key] || 0) > 0 ? '+' : '') + (cfg.boosts[key] || 0) + '</b><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="1">+</button></span>';
+  const battle = (b) => '<span class="hth-battle">' + (b && b[key] != null ? b[key] : '—') + '</span>';
+  return '<div class="hth-srow">' + iv(L, 'left') +
+    '<span class="hth-bar l"><i' + (rWin ? ' class="dim"' : '') + ' style="width:' + lw + '%;background:' + statColor(lBase || 0) + '"></i></span>' +
+    stage(L, 'left') + battle(Lb) + '<span class="hth-lab">' + lab + '</span>' + battle(Rb) + stage(R, 'right') +
+    '<span class="hth-bar r"><i' + (lWin ? ' class="dim"' : '') + ' style="width:' + rw + '%;background:' + statColor(rBase || 0) + '"></i></span>' + iv(R, 'right') + '</div>';
+}
+function bstRow(lt, rt) {
+  const max = 720, lw = lt != null ? Math.min(100, lt / max * 100) : 0, rw = rt != null ? Math.min(100, rt / max * 100) : 0;
+  const lWin = lt != null && rt != null && lt > rt, rWin = lt != null && rt != null && rt > lt;
+  return '<div class="hth-srow bst"><span></span>' +
+    '<span class="hth-bar l"><i' + (rWin ? ' class="dim"' : '') + ' style="width:' + lw + '%;background:' + (lWin ? 'var(--accent)' : '#5b6472') + '"></i></span>' +
+    '<span class="vs-stage"></span><span class="hth-battle">' + (lt != null ? lt : '—') + '</span><span class="hth-lab">BST</span><span class="hth-battle">' + (rt != null ? rt : '—') + '</span><span class="vs-stage"></span>' +
+    '<span class="hth-bar r"><i' + (lWin ? ' class="dim"' : '') + ' style="width:' + rw + '%;background:' + (rWin ? 'var(--accent)' : '#5b6472') + '"></i></span><span></span></div>';
 }
 function hthStats(L, R) {
   const Ls = L ? DATA.species[L.species] : null, Rs = R ? DATA.species[R.species] : null;
-  let h = '<div class="hth-stats">';
-  STAT_LABELS.forEach((lab, i) => { h += hthStatRow(lab, Ls ? Ls.stats[i] : null, Rs ? Rs.stats[i] : null, false); });
-  h += hthStatRow('BST', Ls ? Ls.stats.reduce((a, b) => a + b, 0) : null, Rs ? Rs.stats.reduce((a, b) => a + b, 0) : null, true);
+  const Lb = L ? battleStats(L) : null, Rb = R ? battleStats(R) : null;
+  let h = '<div class="hth-stats"><div class="hth-srow hth-shdr"><span>IV</span><span>Base</span><span>Stage</span><span>Stat</span><span></span><span>Stat</span><span>Stage</span><span>Base</span><span>IV</span></div>';
+  STAT_MAP.forEach(([lab, key, idx]) => { h += hthStatRow(lab, key, idx, L, R, Ls, Rs, Lb, Rb); });
+  h += bstRow(Ls ? Ls.stats.reduce((a, b) => a + b, 0) : null, Rs ? Rs.stats.reduce((a, b) => a + b, 0) : null);
   return h + '</div>';
 }
 function hthMoves(cfg, oppCfg, isBoss) {
-  const side = isBoss ? 'r' : 'l';
+  const side = isBoss ? 'r' : 'l', sideKey = isBoss ? 'right' : 'left';
   const sp = cfg ? DATA.species[cfg.species] : null;
-  const name = sp ? ((!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name)) : '';
+  if (!sp) return '<div class="hth-mcol ' + side + '"><div class="hth-noteam">—</div></div>';
+  const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name), pool = movePoolOf(sp);
   let rows = '';
   for (let i = 0; i < 4; i++) {
-    const id = cfg && cfg.moves[i];
-    const mv = id && DATA.moves[id];
-    if (!mv) continue;
-    const d = calcMove(cfg, oppCfg, id);
-    const dmg = '<span class="hth-dmg' + (d ? '' : ' none') + '" title="' + (d ? esc(d.ko || '') : '') + '">' + (d ? d.pctLo + '–' + d.pctHi + '%' : '—') + '</span>';
-    const chip = typeChip(mv.type, true), nm = '<span class="bm-mname">' + esc(mv.name) + '</span>';
-    // "damage · type · name" from the center: boss row dmg|type|name, player row name|type|dmg
-    rows += '<div class="hth-move ' + side + '">' + (isBoss ? (dmg + chip + nm) : (nm + chip + dmg)) + '</div>';
+    const id = cfg.moves[i] || 0, mv = DATA.moves[id], d = mv ? calcMove(cfg, oppCfg, id) : null;
+    const dmg = '<span class="hth-dmg' + (d ? '' : ' none') + '" title="' + (d ? esc(d.ko || '') : '') + '">' + (d ? d.pctLo + '–' + d.pctHi + '%' : (mv ? '—' : '')) + '</span>';
+    const chip = mv ? typeChip(mv.type, true) : '<span class="hth-notype">·</span>';
+    const sel = '<select class="vs-sel vs-mv" data-side="' + sideKey + '" data-slot="' + i + '"><option value="0">—</option>' + selOpts(pool, id) + '</select>';
+    rows += '<div class="hth-move ' + side + '">' + (isBoss ? (dmg + chip + sel) : (sel + chip + dmg)) + '</div>';
   }
-  return '<div class="hth-mcol ' + side + '"><div class="hth-mtitle">' + (name ? name + '’s Moves' : 'Moves') + '</div>' + (rows || '<div class="hth-noteam">—</div>') + '</div>';
-}
-const STAT_MAP = [['HP', 'hp', 0], ['Atk', 'atk', 1], ['Def', 'def', 2], ['SpA', 'spa', 4], ['SpD', 'spd', 5], ['Spe', 'spe', 3]];
-function bstatsHtml(cfg, side) {
-  const bs = battleStats(cfg) || {};
-  return '<div class="vs-bstats"><div class="vs-bs-cap">Battle Stats</div>' + STAT_MAP.map(([lab, key, ivIdx]) => {
-    const isHP = key === 'hp', stage = cfg.boosts[key] || 0;
-    const stepper = isHP ? '<span class="vs-stage"></span>'
-      : '<span class="vs-stage"><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="-1">−</button><b>' + (stage > 0 ? '+' : '') + stage + '</b><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="1">+</button></span>';
-    return '<div class="vs-bstat"><span class="vs-bsl">' + lab + '</span><span class="vs-bsv">' + (bs[key] != null ? bs[key] : '—') + '</span>' + stepper +
-      '<input class="vs-iv" type="number" min="0" max="31" value="' + (cfg.ivs[ivIdx] != null ? cfg.ivs[ivIdx] : 31) + '" data-side="' + side + '" data-iv="' + ivIdx + '" title="IV"></div>';
-  }).join('') + '</div>';
-}
-function hthEditor(cfg, side) {
-  if (!cfg) return '<div class="hth-edit ' + side + '"></div>';
-  const sp = DATA.species[cfg.species], pool = movePoolOf(sp);
-  let moves = '';
-  for (let i = 0; i < 4; i++) moves += '<select class="vs-sel vs-mv" data-side="' + side + '" data-slot="' + i + '"><option value="0">—</option>' + selOpts(pool, cfg.moves[i] || 0) + '</select>';
-  const conds = COND_OPTS.map(([k, l]) => '<option value="' + k + '"' + ((k === 'spikes' ? cfg.side.spikes : cfg.side[k]) ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
-  return '<div class="hth-edit ' + side + '">' +
-    '<div class="vs-row2"><label class="vs-fld">Status<select class="vs-sel" data-side="' + side + '" data-edit="status">' + selOpts(STATUS_OPTS, cfg.status || '') + '</select></label>' +
-    '<label class="vs-fld vs-crit"><input type="checkbox" data-side="' + side + '" data-edit="crit"' + (cfg.crit ? ' checked' : '') + '> Crit</label></div>' +
-    bstatsHtml(cfg, side) +
-    '<label class="vs-fld">Nature<select class="vs-sel" data-side="' + side + '" data-edit="nature">' + selOpts(Object.entries(DATA.natures), cfg.nature) + '</select></label>' +
-    '<label class="vs-fld">Ability<select class="vs-sel" data-side="' + side + '" data-edit="ability">' + selOpts(abilityNamesOf(sp).map((n) => [n, n]), cfg.ability) + '</select></label>' +
-    '<label class="vs-fld">Item<select class="vs-sel vs-item" data-side="' + side + '" data-edit="item" data-val="' + cfg.item + '">' + itemOptionsHtml() + '</select></label>' +
-    '<div class="vs-mv-grid">' + moves + '</div>' +
-    '<label class="vs-fld vs-cond">Conditions<select class="vs-sel vs-condsel" multiple size="4" data-side="' + side + '" data-edit="cond">' + conds + '</select></label>' +
-    '</div>';
+  const head = '<div class="hth-mhead"><label class="vs-fld">Status<select class="vs-sel" data-side="' + sideKey + '" data-edit="status">' + selOpts(STATUS_OPTS, cfg.status || '') + '</select></label>' +
+    '<label class="vs-fld vs-crit"><input type="checkbox" data-side="' + sideKey + '" data-edit="crit"' + (cfg.crit ? ' checked' : '') + '> Crit</label></div>';
+  return '<div class="hth-mcol ' + side + '"><div class="hth-mtitle">' + name + '’s Moves</div>' + head + rows + '</div>';
 }
 const WEATHERS = [['', '— none —'], ['Sand', 'Sandstorm'], ['Rain', 'Rain'], ['Sun', 'Sun'], ['Snow', 'Snow'], ['Hail', 'Hail'], ['Harsh Sunshine', 'Desolate Land'], ['Heavy Rain', 'Primordial Sea'], ['Strong Winds', 'Delta Stream']];
 const TERRAINS = [['', '— none —'], ['Electric', 'Electric'], ['Grassy', 'Grassy'], ['Misty', 'Misty'], ['Psychic', 'Psychic']];
@@ -831,12 +827,16 @@ function renderAddPicker() {
 }
 function renderHthCompare() {
   const el = document.getElementById('hth-compare'); if (!el) return;
+  const sc = el.scrollTop;
   el.innerHTML = fieldBar() +
     '<div class="hth-heads">' + hthHead(vsLeft, false) + hthHead(vsRight, true) + '</div>' +
     hthStats(vsLeft, vsRight) +
-    '<div class="hth-moves">' + hthMoves(vsLeft, vsRight, false) + hthMoves(vsRight, vsLeft, true) + '</div>' +
-    '<div class="hth-edits">' + hthEditor(vsLeft, 'left') + hthEditor(vsRight, 'right') + '</div>';
+    '<div class="hth-moves" id="hth-moves">' + hthMoves(vsLeft, vsRight, false) + hthMoves(vsRight, vsLeft, true) + '</div>';
   el.querySelectorAll('.vs-item').forEach((s) => { s.value = s.dataset.val; });  // big item select: set value post-render
+  el.scrollTop = sc;
+}
+function renderMovesOnly() {  // lighter update (e.g. conditions) that keeps header dropdowns open
+  const el = document.getElementById('hth-moves'); if (el) el.innerHTML = hthMoves(vsLeft, vsRight, false) + hthMoves(vsRight, vsLeft, true);
 }
 // Crop a data-URI sprite to its opaque bounding box and report its real drawn
 // height (so the lineup can scale each mon to its actual size). Cached by URI.
@@ -925,7 +925,7 @@ function showVersus(tid) {
     vsTrainerImg('left', boss) + vsTrainerImg('right', boss) +
     '<div class="hth-card"><div class="hth-bands">' + vsBand('left', boss) + vsBand('right', boss) +
       '<div class="hth-vs">VS</div></div><div class="hth-compare" id="hth-compare"></div></div>' +
-    '<button class="vs-addfab" data-addmon>＋ Add Pokémon</button></div>';
+    '<button class="vs-addfab" data-addmon title="Add Pokémon" aria-label="Add Pokémon">＋</button></div>';
   openModal(html, 'vs-modal-box');
   renderHthCompare();
   sizeLineups();
@@ -1318,7 +1318,7 @@ function init() {
     if (!cfg) return;
     if (t.dataset.iv != null) { cfg.ivs[+t.dataset.iv] = Math.max(0, Math.min(31, parseInt(t.value, 10) || 0)); renderHthCompare(); return; }
     if (t.dataset.edit === 'crit') { cfg.crit = t.checked; renderHthCompare(); return; }
-    if (t.classList.contains('vs-condsel')) { cfg.side = {}; [...t.selectedOptions].forEach((o) => { if (o.value === 'spikes') cfg.side.spikes = 3; else cfg.side[o.value] = true; }); renderHthCompare(); return; }
+    if (t.dataset.cond) { if (t.dataset.cond === 'spikes') cfg.side.spikes = t.checked ? 3 : 0; else cfg.side[t.dataset.cond] = t.checked; renderMovesOnly(); return; }
     if (t.dataset.edit === 'nature') cfg.nature = +t.value;
     else if (t.dataset.edit === 'ability') cfg.ability = t.value;
     else if (t.dataset.edit === 'item') cfg.item = +t.value;

@@ -358,24 +358,35 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .hth-htypes { display: flex; gap: 6px; }
 .hth-head.l .hth-htypes { justify-content: flex-end; }
 .hth-noteam { font: 600 12.5px system-ui; color: var(--muted); padding: 16px 4px; }
+.hth-hmeta { flex: 0 0 auto; }
+/* 2x2 config (nature/ability/item/conditions) beside the mon header */
+.hth-cfg { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; align-self: stretch; align-content: center; flex: 1; min-width: 0; max-width: 250px; }
+.hth-cfg .vs-sel { width: 100%; max-width: none; min-width: 0; }
+.vs-multi { position: relative; min-width: 0; }
+.vs-multi > summary { list-style: none; cursor: pointer; background: var(--bg); border: 1px solid var(--line-2); border-radius: 6px; padding: 3px 6px; font: 600 11px system-ui; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vs-multi > summary::-webkit-details-marker { display: none; }
+.vs-multi[open] > summary { border-color: var(--accent); }
+.vs-multi-panel { position: absolute; z-index: 40; top: 100%; margin-top: 3px; min-width: 152px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 8px; padding: 6px; box-shadow: 0 8px 22px rgba(0,0,0,.55); display: flex; flex-direction: column; gap: 3px; }
+.hth-head.r .vs-multi-panel { right: 0; }
+.hth-head.l .vs-multi-panel { left: 0; }
+.vs-multi-panel label { display: flex; align-items: center; gap: 6px; font: 600 12px system-ui; color: var(--text); white-space: nowrap; cursor: pointer; }
+.vs-multi-panel input { margin: 0; }
 
 /* diverging stat bars */
-.hth-stats { padding: 10px 22px 4px; }
-.hth-row { display: grid; grid-template-columns: 1fr 30px 52px 30px 1fr; align-items: center; gap: 9px; margin: 8px 0; }
-.hth-bar { display: flex; height: 12px; background: #0f1115; border-radius: 6px; overflow: hidden; }
+/* diverging stat rows: IV · bar(base) · stage · battle | NAME | battle · stage · bar · IV */
+.hth-stats { padding: 8px 16px 4px; }
+.hth-srow { display: grid; grid-template-columns: 40px 1fr 58px 32px 40px 32px 58px 1fr 40px; align-items: center; gap: 5px; margin: 5px 0; }
+.hth-shdr { margin-bottom: 2px; }
+.hth-shdr span { font: 700 8.5px ui-monospace, monospace; color: #5f6773; text-transform: uppercase; letter-spacing: .3px; text-align: center; }
+.hth-bar { display: flex; height: 11px; background: #0f1115; border-radius: 6px; overflow: hidden; }
 .hth-bar.l { justify-content: flex-end; }
 .hth-bar i { height: 100%; border-radius: 6px; display: block; }
 .hth-bar i.dim { opacity: .38; }
-.hth-v { font: 700 13px ui-monospace, monospace; color: var(--text); }
-.hth-v.l { text-align: right; }
-.hth-v.r { text-align: left; }
-.hth-v.win { color: #fff; }
-.hth-v.lose { color: var(--muted-2); }
-.hth-lab { text-align: center; font: 700 11px ui-monospace, monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
-.hth-row.bst { margin: 12px 0 4px; padding-top: 12px; border-top: 1px solid var(--line); }
-.hth-row.bst .hth-bar { height: 14px; border-radius: 7px; }
-.hth-row.bst .hth-v { font-weight: 800; }
-.hth-row.bst .hth-lab { color: var(--text); font-weight: 800; }
+.hth-battle { font: 700 12px ui-monospace, monospace; color: var(--text); text-align: center; font-variant-numeric: tabular-nums; }
+.hth-lab { text-align: center; font: 700 10px ui-monospace, monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+.hth-srow.bst { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); }
+.hth-srow.bst .hth-bar { height: 13px; border-radius: 7px; }
+.hth-srow.bst .hth-battle, .hth-srow.bst .hth-lab { font-weight: 800; color: var(--text); }
 
 /* moves */
 .hth-moves { display: grid; grid-template-columns: 1fr 1fr; padding: 6px 22px 20px; }
@@ -402,33 +413,21 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-sel { background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 6px; padding: 3px 6px; font: 600 12px system-ui; max-width: 140px; }
 .vs-sel:focus { border-color: var(--accent); outline: none; }
 
-/* per-side editors */
-.hth-edits { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 6px 22px 18px; }
-.hth-edit { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-.hth-edit.right { padding-left: 22px; border-left: 1px solid var(--panel); }
-.hth-edit .vs-fld { justify-content: space-between; }
-.hth-edit .vs-fld .vs-sel { flex: 1; max-width: none; margin-left: 8px; }
-.vs-mv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
-.vs-mv-grid .vs-sel { max-width: none; width: 100%; }
-/* status + crit row */
-.vs-row2 { display: flex; gap: 12px; align-items: center; }
+/* moves: status+crit header, then inline move dropdowns + damage */
+.hth-mhead { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+.hth-mcol.l .hth-mhead { flex-direction: row-reverse; }
 .vs-crit { cursor: pointer; }
 .vs-crit input { margin: 0 4px 0 0; }
-/* battle stats with stage steppers + IVs */
-.vs-bstats { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; display: flex; flex-direction: column; gap: 3px; }
-.vs-bs-cap { font: 700 9px ui-monospace, monospace; color: #5f6773; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 1px; }
-.vs-bstat { display: grid; grid-template-columns: 26px 34px 1fr 44px; align-items: center; gap: 6px; }
-.vs-bsl { font: 700 10px ui-monospace, monospace; color: var(--muted); }
-.vs-bsv { font: 700 12px ui-monospace, monospace; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
-.vs-stage { display: flex; align-items: center; gap: 4px; justify-content: center; }
-.vs-stage b { font: 700 11px ui-monospace, monospace; min-width: 20px; text-align: center; }
-.vs-step { width: 18px; height: 18px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 13px; line-height: 1; padding: 0; }
+.hth-move .vs-mv { width: 100%; max-width: none; min-width: 0; }
+.hth-notype { color: var(--muted-2); text-align: center; }
+/* stat-stage steppers + IV inputs (used inside the diverging stat rows) */
+.vs-stage { display: flex; align-items: center; gap: 3px; justify-content: center; }
+.vs-stage b { font: 700 10px ui-monospace, monospace; min-width: 16px; text-align: center; }
+.vs-step { width: 16px; height: 16px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 12px; line-height: 1; padding: 0; }
 .vs-step:hover { background: var(--accent-dim); }
-.vs-iv { width: 42px; background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 5px; padding: 2px 4px; font: 600 11px ui-monospace, monospace; text-align: center; }
-.vs-cond { flex-direction: column; align-items: stretch !important; gap: 4px; }
-.vs-cond .vs-condsel { width: 100%; max-width: none; margin-left: 0; }
-/* bottom-left Add Pokémon button */
-.vs-addfab { position: absolute; left: 10px; bottom: 10px; z-index: 30; background: var(--accent); border: 1px solid var(--accent); color: #fff; font: 700 12.5px system-ui; padding: 8px 14px; border-radius: 9px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.45); }
+.vs-iv { width: 38px; background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 5px; padding: 2px 3px; font: 600 11px ui-monospace, monospace; text-align: center; }
+/* bottom-left circular Add button, outside the modal */
+.vs-addfab { position: fixed; left: 22px; bottom: 22px; z-index: 60; width: 50px; height: 50px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); color: #fff; font: 400 26px/1 system-ui; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
 .vs-addfab:hover { filter: brightness(1.1); }
 
 /* add-mon button + picker */
@@ -453,7 +452,7 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
   .hth-trainer { height: 112px; max-width: 80px; } .hth-trainer.r { height: 100px; }
   .hth-hname { font-size: 14px; } .hth-hsprite { width: 52px; height: 52px; flex-basis: 52px; }
   .hth-heads, .hth-stats, .hth-moves { padding-left: 12px; padding-right: 12px; }
-  .hth-row { grid-template-columns: 1fr 26px 40px 26px 1fr; gap: 6px; }
+  .hth-srow { grid-template-columns: 30px 1fr 46px 26px 34px 26px 46px 1fr 30px; gap: 3px; }
 }
 
 .modal-box.dex-modal-box { width: min(960px, 95vw); }
