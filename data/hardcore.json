@@ -1673,14 +1673,14 @@
    "cap": "16",
    "optional": true,
    "location": "ROUTE 22",
-   "trainerId": 326
+   "trainerId": 329
   },
   {
    "name": "BRENDAN",
    "cap": "16",
    "optional": false,
    "location": "VIRIDIAN FOREST",
-   "trainerId": 55
+   "trainerId": 44
   },
   {
    "name": "LASS ANNE",
@@ -1708,7 +1708,7 @@
    "cap": "16",
    "optional": false,
    "location": "PEWTER CITY",
-   "trainerId": 43
+   "trainerId": 45
   },
   {
    "name": "BROCK",
@@ -1736,14 +1736,14 @@
    "cap": "23",
    "optional": false,
    "location": "MT. MOON",
-   "trainerId": 53
+   "trainerId": 46
   },
   {
    "name": "RIVAL",
    "cap": "28/36",
    "optional": false,
    "location": "CERULEAN CITY",
-   "trainerId": 326
+   "trainerId": 332
   },
   {
    "name": "CATCHER CALE",
@@ -1771,7 +1771,7 @@
    "cap": "28/36",
    "optional": false,
    "location": "NUGGET BRIDGE",
-   "trainerId": null
+   "trainerId": 122
   },
   {
    "name": "CAMPER ETHAN",
@@ -1785,7 +1785,7 @@
    "cap": "28/36",
    "optional": false,
    "location": "NUGGET BRIDGE",
-   "trainerId": 368
+   "trainerId": 356
   },
   {
    "name": "BUGSY",
@@ -1806,7 +1806,7 @@
    "cap": "28/36",
    "optional": false,
    "location": "DIG HOUSE",
-   "trainerId": 368
+   "trainerId": 355
   },
   {
    "name": "CAMPER JEFF",
@@ -1820,21 +1820,21 @@
    "cap": "28/36",
    "optional": false,
    "location": "S.S. ANNE",
-   "trainerId": 126
+   "trainerId": 482
   },
   {
    "name": "EDMOND & TREVOR",
    "cap": "28/36",
    "optional": false,
    "location": "S.S. ANNE",
-   "trainerId": 134
+   "trainerId": 135
   },
   {
    "name": "BRENDAN",
    "cap": "28/36",
    "optional": false,
    "location": "S.S. ANNE",
-   "trainerId": 55
+   "trainerId": 50
   },
   {
    "name": "WHITNEY",
@@ -1890,7 +1890,7 @@
    "cap": "36+",
    "optional": true,
    "location": "LAVENDER TOWN",
-   "trainerId": 28
+   "trainerId": 52
   },
   {
    "name": "SUPER NERD AIDAN",
@@ -1918,21 +1918,21 @@
    "cap": "47",
    "optional": false,
    "location": "GAME CORNER",
-   "trainerId": 373
+   "trainerId": 357
   },
   {
    "name": "LEFT GUARD",
    "cap": "47",
    "optional": false,
    "location": "ROCKET HIDEOUT",
-   "trainerId": 373
+   "trainerId": 367
   },
   {
    "name": "RIGHT GUARD",
    "cap": "47",
    "optional": false,
    "location": "ROCKET HIDEOUT",
-   "trainerId": 373
+   "trainerId": 367
   },
   {
    "name": "GIOVANNI",
@@ -1953,35 +1953,35 @@
    "cap": "56",
    "optional": false,
    "location": "POKEMON TOWER",
-   "trainerId": 2001
+   "trainerId": 285
   },
   {
    "name": "GRUNT 1",
    "cap": "56",
    "optional": false,
    "location": "POKEMON TOWER",
-   "trainerId": 381
+   "trainerId": 369
   },
   {
    "name": "GRUNT 2",
    "cap": "56",
    "optional": false,
    "location": "POKEMON TOWER",
-   "trainerId": 381
+   "trainerId": 370
   },
   {
    "name": "GRUNT 3",
    "cap": "56",
    "optional": false,
    "location": "POKEMON TOWER",
-   "trainerId": 381
+   "trainerId": 371
   },
   {
    "name": "RIVAL",
    "cap": "56",
    "optional": false,
    "location": "SILPH CO.",
-   "trainerId": 329
+   "trainerId": 432
   },
   {
    "name": "ARIANA & ARCHER",
@@ -2086,7 +2086,7 @@
    "cap": "68",
    "optional": false,
    "location": "ROUTE 13",
-   "trainerId": 268
+   "trainerId": 269
   },
   {
    "name": "BIRD KEEPER PERRY",
@@ -2191,7 +2191,7 @@
    "cap": "68",
    "optional": false,
    "location": "SAFARI ZONE",
-   "trainerId": 55
+   "trainerId": 57
   },
   {
    "name": "BROCK (REMATCH)",
@@ -2205,21 +2205,21 @@
    "cap": "59/68",
    "optional": false,
    "location": "CERULEAN CITY",
-   "trainerId": 32
+   "trainerId": 48
   },
   {
    "name": "LT. SURGE (REMATCH)",
    "cap": "59/68",
    "optional": false,
    "location": "VERMILLION CITY",
-   "trainerId": 416
+   "trainerId": 51
   },
   {
    "name": "ERIKA (REMATCH)",
    "cap": "68",
    "optional": true,
    "location": "CELADON CITY",
-   "trainerId": 417
+   "trainerId": 65
   },
   {
    "name": "JUGGLER KAYDEN",
@@ -2240,7 +2240,7 @@
    "cap": "73+",
    "optional": true,
    "location": "POWER PLANT",
-   "trainerId": 40
+   "trainerId": 66
   },
   {
    "name": "PRYCE",
@@ -2310,28 +2310,28 @@
    "cap": "79",
    "optional": false,
    "location": "CERULEAN CAVE",
-   "trainerId": 71
+   "trainerId": 72
   },
   {
    "name": "GRUNT 2",
    "cap": "79",
    "optional": false,
    "location": "CERULEAN CAVE",
-   "trainerId": 71
+   "trainerId": 70
   },
   {
    "name": "ARCHER",
    "cap": "79",
    "optional": false,
    "location": "CERULEAN CAVE",
-   "trainerId": 53
+   "trainerId": 67
   },
   {
    "name": "ARIANA",
    "cap": "79",
    "optional": false,
    "location": "CERULEAN CAVE",
-   "trainerId": 54
+   "trainerId": 68
   },
   {
    "name": "GIOVANNI",
@@ -2345,7 +2345,7 @@
    "cap": "81+",
    "optional": true,
    "location": "CERULEAN CAVE",
-   "trainerId": 325
+   "trainerId": 20
   },
   {
    "name": "CLAIR",
@@ -2373,7 +2373,7 @@
    "cap": "82",
    "optional": false,
    "location": "ROUTE 22",
-   "trainerId": 329
+   "trainerId": 435
   },
   {
    "name": "BRENDAN",
@@ -2443,7 +2443,7 @@
    "cap": "85",
    "optional": false,
    "location": "ELITE FOUR",
-   "trainerId": 77
+   "trainerId": 78
   },
   {
    "name": "BRUNO",
@@ -2464,14 +2464,14 @@
    "cap": "85",
    "optional": false,
    "location": "ELITE FOUR",
-   "trainerId": 39
+   "trainerId": 86
   },
   {
    "name": "RIVAL",
    "cap": "85",
    "optional": false,
    "location": "CHAMPION",
-   "trainerId": 329
+   "trainerId": 332
   }
  ]
 }

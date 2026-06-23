@@ -89,7 +89,7 @@ def extract_bosses(ws, species_idx, ws_f=None):
                 m = re.search(r'IMAGE\("([^"]+)"', fv)
                 if m:
                     sprite = m.group(1)
-        bosses.append({'name': nm, 'species_names': sp_names, 'species_ids': ids, 'sprite': sprite})
+        bosses.append({'name': nm, 'species_names': sp_names, 'species_ids': ids, 'sprite': sprite, 'row': ridx + 1})
     return bosses
 
 def proper_name(boss_name):
@@ -176,26 +176,45 @@ def match_order_trainer(name, capnum, trainers):
             return cand[1]
     return None
 
-def parse_trainer_order(ws, trainers):
+def resolve_link(loc, loc_map):
+    # loc is an internal ref like "Rivals!C5" or "'Mini Bosses'!C3" pointing at a boss block.
+    if not loc or '!' not in loc:
+        return None
+    sheet, cell = loc.rsplit('!', 1)
+    sheet = sheet.strip().strip("'")
+    m = re.search(r'(\d+)', cell)
+    if not m:
+        return None
+    L = int(m.group(1))
+    lst = loc_map.get(sheet)
+    if not lst:
+        return None
+    ge = [(r, t) for (r, t) in lst if r >= L]   # link targets the block top; name row is at/after L
+    return (min(ge)[1] if ge else min(lst, key=lambda rt: abs(rt[0] - L))[1])
+
+def parse_trainer_order(ws, trainers, loc_map):
     entries, optional, expecting_loc = [], False, False
-    for row in ws.iter_rows(values_only=True):
-        c2, c3, c5 = get(row, 2), get(row, 3), get(row, 5)
+    for row in ws.iter_rows():
+        cv = lambda i: row[i].value if i < len(row) and row[i].value is not None else None
+        c2, c3, c5 = cv(2), cv(3), cv(5)
         if c2 and 'OPTIONAL' in str(c2).upper():
             optional = True
             continue
         name = ' '.join(str(c3).split()) if c3 else ''
+        link = row[3].hyperlink.location if (len(row) > 3 and row[3].hyperlink) else None
         if c3 and c5 is not None:
-            entries.append({'name': name, 'cap': clean_cap(c5), 'optional': optional, 'location': None})
+            entries.append({'name': name, 'cap': clean_cap(c5), 'optional': optional, 'location': None, 'link': link})
             optional, expecting_loc = False, True
         elif c3 and expecting_loc:
             entries[-1]['location'] = name
             expecting_loc = False
         elif c3:  # name row missing its cap cell -> new entry, inherit prior cap
             entries.append({'name': name, 'cap': entries[-1]['cap'] if entries else '',
-                            'optional': optional, 'location': None})
+                            'optional': optional, 'location': None, 'link': link})
             optional, expecting_loc = False, True
     for e in entries:
-        e['trainerId'] = match_order_trainer(e['name'], to_num(e['cap']), trainers)
+        tid = resolve_link(e.pop('link', None), loc_map)   # exact mapping from the sheet's hyperlink
+        e['trainerId'] = tid if tid else match_order_trainer(e['name'], to_num(e['cap']), trainers)
     return entries
 
 INFO_HEADERS = {
@@ -270,6 +289,7 @@ def main():
     sidx = build_species_index(species)
 
     categories = []
+    loc_map = {}  # sheet -> [(boss name-row, trainerId)] for hyperlink resolution
     total, matched, unmatched = 0, 0, []
     for sh in SHEETS:
         if sh not in wb.sheetnames:
@@ -287,12 +307,15 @@ def main():
             lvls = [m['level'] for m in tr['hardcore']]
             out.append({'name': b['name'].title(), 'trainerName': tr['name'], 'trainerId': tid,
                         'minLevel': min(lvls), 'maxLevel': max(lvls), 'sprite': b.get('sprite', '')})
+            loc_map.setdefault(sh, []).append((b['row'], tid))
         if out:
             categories.append({'name': sh, 'bosses': out})
         print('  %-16s %d bosses' % (sh, len(out)))
+    for sh in loc_map:
+        loc_map[sh].sort()
 
     info = build_info(wb['Main'])
-    trainer_order = parse_trainer_order(wb['Trainer Order'], trainers) if 'Trainer Order' in wb.sheetnames else []
+    trainer_order = parse_trainer_order(wb['Trainer Order'], trainers, loc_map) if 'Trainer Order' in wb.sheetnames else []
     to_linked = sum(1 for e in trainer_order if e['trainerId'])
     out = {'info': info, 'categories': categories, 'trainerOrder': trainer_order}
     with open(os.path.join(DATA, 'hardcore.json'), 'w', encoding='utf-8') as fh:

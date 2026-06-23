@@ -204,8 +204,10 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .tc-types { display: flex; gap: 5px; margin-top: 3px; }
 .tc-info { margin-top: 10px; font-size: 12.5px; }
 .tc-ab b { color: #ffce6b; }
-.tc-moves { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; margin-top: 8px; }
-.bm-move { display: flex; align-items: center; gap: 6px; }
+.tc-moves { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.bm-move { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.bm-move .type-chip { flex: 0 0 74px; justify-content: center; }   /* uniform type label (fits longest, e.g. Fighting) */
+.bm-mname { flex: 1; }                                              /* uniform move name column */
 .mdot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; }
 .tc-ev { margin-top: 6px; color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .evk { color: var(--muted-2); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .5px; }
