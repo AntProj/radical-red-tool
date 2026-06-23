@@ -33,12 +33,19 @@
     <!-- POKÉMON: two-pane (list + detail) -->
     <section id="view-pokemon" class="view">
       <aside id="pk-sidebar">
-        <div class="side-head">
-          <input id="pk-search" type="search" placeholder="Search name, #number, or type…" autocomplete="off" spellcheck="false">
-          <div id="pk-filters"></div>
-          <div id="pk-count" class="count"></div>
+        <button id="pk-expand" class="pk-railbtn" title="Expand Pokédex panel">⟩<span class="pk-rail-label">Pokédex</span></button>
+        <div class="pk-panel">
+          <div class="side-head">
+            <div class="pk-side-title"><span class="pk-side-name">Pokédex</span><button id="pk-collapse" class="pk-iconbtn" title="Collapse panel">⟨</button></div>
+            <button id="pk-filt-toggle" class="pk-filt-toggle">Search &amp; Filters <span id="pk-filt-state">▾ hide</span></button>
+            <div id="pk-filt-wrap">
+              <input id="pk-search" type="search" placeholder="Search name, #number, or type…" autocomplete="off" spellcheck="false">
+              <div id="pk-filters"></div>
+            </div>
+            <div id="pk-count" class="count"></div>
+          </div>
+          <ul id="pk-list" role="listbox" aria-label="Pokémon list"></ul>
         </div>
-        <ul id="pk-list" role="listbox" aria-label="Pokémon list"></ul>
       </aside>
       <main id="pk-detail" tabindex="0"><div id="pk-detail-content"></div></main>
     </section>

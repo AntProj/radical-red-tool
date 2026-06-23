@@ -30,7 +30,7 @@ let AREAVIEW = [], monWild = {}, monFixed = {}, monRaid = {}, areaRank = {};
 let mode = 'pokemon';
 let splitMode = false, rightMode = null;   // second side-by-side pane
 // pokemon
-let activeId = null, pkSearch = '', activeMoveTab = 'level';
+let activeId = null, pkSearch = '', activeMoveTab = 'level', sidebarOpen = true, filtersOpen = true;
 const pkFilters = { methods: new Set(), time: null };
 // areas
 let activeAreaIdx = null, areaSearch = '';
@@ -49,6 +49,8 @@ function loadUiState() {
   areaSearch = lsGet('rr_area_q', '');
   bossSearch = lsGet('rr_boss_q', '');
   hcSub = lsGet('rr_hcsub', 'order');
+  sidebarOpen = lsGet('rr_pk_side', '1') !== '0';
+  filtersOpen = lsGet('rr_pk_filt', '1') !== '0';
   try {
     const pf = JSON.parse(lsGet('rr_pk_f', '{}'));
     (pf.methods || []).forEach((m) => pkFilters.methods.add(m)); if (pf.time) pkFilters.time = pf.time;
@@ -298,25 +300,27 @@ function renderDetail(s) {
     '<div class="d-titles"><div class="d-num">' + pad(s.dexID) + '</div><div class="d-name">' + esc(s.name) + '</div>' +
     (form ? '<div class="d-form">' + esc(form) + '</div>' : '') +
     '<div class="d-types">' + s.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
-  html += '<div class="grid-2"><section class="card"><h2>Base Stats</h2>';
+  // Stats row: Base Stats (left) | Type Defenses over Abilities (right column).
+  let stats = '';
   s.stats.forEach((v, i) => {
-    html += '<div class="stat"><span class="stat-label">' + STAT_LABELS[i] + '</span><span class="stat-val">' + v +
+    stats += '<div class="stat"><span class="stat-label">' + STAT_LABELS[i] + '</span><span class="stat-val">' + v +
       '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
   });
-  html += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></section>';
-  html += '<section class="card"><h2>Type Defenses</h2>' + defenseGroup('Weak to', def.weak) + defenseGroup('Resists', def.resist) + defenseGroup('Immune to', def.immune);
-  if (!def.weak.length && !def.resist.length && !def.immune.length) html += '<div class="ability-desc">No notable matchups.</div>';
-  html += '</section></div>';
-  html += '<section class="card"><h2>Abilities</h2>';
-  for (const a of abilities) html += '<div class="kv"><div class="v"><span class="ability-name">' + esc(a.name) + '</span>' +
+  stats += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div>';
+  let defenses = defenseGroup('Weak to', def.weak) + defenseGroup('Resists', def.resist) + defenseGroup('Immune to', def.immune);
+  if (!def.weak.length && !def.resist.length && !def.immune.length) defenses += '<div class="ability-desc">No notable matchups.</div>';
+  let abil = '';
+  for (const a of abilities) abil += '<div class="kv"><div class="v"><span class="ability-name">' + esc(a.name) + '</span>' +
     (a.hidden ? '<span class="tag">Hidden</span>' : '') + '<div class="ability-desc">' + esc(a.desc || '') + '</div></div></div>';
-  if (!abilities.length) html += '<div class="ability-desc">—</div>';
-  html += '<div class="kv" style="margin-top:10px"><div class="k">Egg Groups</div><div class="v">' + (eggGroups.length ? eggGroups.map(esc).join(', ') : '—') + '</div></div>';
-  if (heldItems.length) html += '<div class="kv"><div class="k">Wild Held Items</div><div class="v">' + heldItems.join(', ') + '</div></div>';
-  html += '</section>';
+  if (!abilities.length) abil += '<div class="ability-desc">—</div>';
+  abil += '<div class="kv" style="margin-top:10px"><div class="k">Egg Groups</div><div class="v">' + (eggGroups.length ? eggGroups.map(esc).join(', ') : '—') + '</div></div>';
+  if (heldItems.length) abil += '<div class="kv"><div class="k">Wild Held Items</div><div class="v">' + heldItems.join(', ') + '</div></div>';
+  html += '<div class="grid-2"><section class="card stats-card"><h2>Base Stats</h2>' + stats + '</section>' +
+    '<div class="d-rightcol"><section class="card"><h2>Type Defenses</h2>' + defenses + '</section>' +
+    '<section class="card"><h2>Abilities</h2>' + abil + '</section></div></div>';
   const evo = evolutionSection(s);
   if (evo) html += evo;
-  html += locationsSection(s) + movesSection(s);
+  html += movesSection(s) + locationsSection(s);   // Moves placed ABOVE Locations
   document.getElementById('pk-detail-content').innerHTML = html;
   wireMoveTabs(s);
 }
@@ -369,7 +373,7 @@ function movesTable(s, tab) {
   const rows = movesFor(s, tab);
   if (!rows.length) return '<div class="mv-empty">No ' + ({ level: 'level-up', tm: 'TM', tutor: 'tutor', egg: 'egg' }[tab]) + ' moves.</div>';
   const first = tab === 'level' ? '<th class="num">Lv</th>' : (tab === 'tm' ? '<th class="num">TM</th>' : '');
-  let html = '<table class="mtable"><thead><tr>' + first + '<th>Move</th><th>Type</th><th>Cat</th><th class="num">Pwr</th><th class="num">Acc</th><th class="num">PP</th></tr></thead><tbody>';
+  let html = '<div class="mtable-scroll"><table class="mtable"><thead><tr>' + first + '<th>Move</th><th>Type</th><th>Cat</th><th class="num">Pwr</th><th class="num">Acc</th><th class="num">PP</th></tr></thead><tbody>';
   for (const r of rows) {
     const m = DATA.moves[r.id]; if (!m) continue;
     const cat = DATA.splits[m.split];
@@ -378,7 +382,7 @@ function movesTable(s, tab) {
       (DATA.sprites[cat] ? '<img class="cat-icon" src="' + DATA.sprites[cat] + '" alt="' + esc(cat) + '" title="' + esc(cat) + '">' : esc(cat || '')) +
       '</td><td class="num">' + (m.power || '—') + '</td><td class="num">' + (m.accuracy || '—') + '</td><td class="num">' + (m.pp || '—') + '</td></tr>';
   }
-  return html + '</tbody></table>';
+  return html + '</tbody></table></div>';
 }
 function wireMoveTabs(s) {
   document.querySelectorAll('#pk-detail .tab').forEach((tab) => tab.addEventListener('click', () => {
@@ -1028,6 +1032,17 @@ function init() {
   });
   document.getElementById('pk-list').addEventListener('click', (e) => { const r = e.target.closest('.row'); if (r) selectSpecies(Number(r.dataset.id)); });
   document.getElementById('pk-detail-content').addEventListener('click', onGoClick);
+  // Collapsible sidebar panel + independent search/filters toggle
+  const sidebar = document.getElementById('pk-sidebar'), sideHead = sidebar.querySelector('.side-head');
+  const applyPkPanel = () => {
+    sidebar.classList.toggle('collapsed', !sidebarOpen);
+    sideHead.classList.toggle('filt-closed', !filtersOpen);
+    document.getElementById('pk-filt-state').textContent = filtersOpen ? '▾ hide' : '▸ show';
+  };
+  document.getElementById('pk-collapse').addEventListener('click', () => { sidebarOpen = false; lsSet('rr_pk_side', '0'); applyPkPanel(); });
+  document.getElementById('pk-expand').addEventListener('click', () => { sidebarOpen = true; lsSet('rr_pk_side', '1'); applyPkPanel(); });
+  document.getElementById('pk-filt-toggle').addEventListener('click', () => { filtersOpen = !filtersOpen; lsSet('rr_pk_filt', filtersOpen ? '1' : '0'); applyPkPanel(); });
+  applyPkPanel();
 
   // Areas view (delegated)
   const ar = document.getElementById('ar-body');
