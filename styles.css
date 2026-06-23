@@ -272,17 +272,19 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .tr-mini { width: 34px; height: 34px; image-rendering: pixelated; }
 
 /* Versus modal — Head-to-Head */
-.modal-box.vs-modal-box { width: min(1100px, 96vw); background: var(--bg); }
+/* modal-box is just a positioning shell here — .hth-card is the visible frame,
+   so trainer sprites (siblings of the card) can extend out past the top edge. */
+.modal-box.vs-modal-box { width: min(1100px, 96vw); background: transparent; border: none; box-shadow: none; overflow: visible; }
 .modal-box.vs-modal-box #modal-content { padding: 0; overflow: visible; }
 .modal-box.vs-modal-box .modal-x { display: none; } /* trainer sprites break into this corner; close via backdrop/ESC */
-.vs-modal { position: relative; padding-top: 42px; }
+.vs-modal { position: relative; }
 .hth-card { position: relative; background: var(--bg); border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
 
 /* battle-scene bands */
 .hth-bands { position: relative; display: flex; }
 .hth-band { flex: 1; position: relative; min-height: 132px; display: flex; align-items: flex-end; }
-.hth-band.left { background: rgba(125,177,255,.10); border-bottom: 2px solid #7db1ff; padding: 32px 12px 4px 84px; justify-content: flex-start; }
-.hth-band.right { background: rgba(227,65,58,.12); border-bottom: 2px solid var(--accent); padding: 32px 88px 4px 12px; justify-content: flex-end; }
+.hth-band.left { background: rgba(125,177,255,.10); border-bottom: 2px solid #7db1ff; padding: 32px 12px 4px 90px; justify-content: flex-start; }
+.hth-band.right { background: rgba(227,65,58,.12); border-bottom: 2px solid var(--accent); padding: 32px 96px 4px 12px; justify-content: flex-end; }
 .hth-tname { position: absolute; top: 13px; z-index: 6; font: 800 16px system-ui; color: var(--text); }
 .hth-band.left .hth-tname { right: 18px; text-align: right; color: #7db1ff; }
 .hth-band.right .hth-tname { left: 18px; text-align: left; }
@@ -303,9 +305,11 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-party.right .vs-mon.on { filter: drop-shadow(0 0 5px var(--accent)) drop-shadow(0 3px 3px rgba(0,0,0,.45)); }
 
 /* overhanging trainer sprites */
-.hth-trainer { position: absolute; top: 0; height: 152px; max-width: 130px; image-rendering: pixelated; pointer-events: none; z-index: 4; filter: drop-shadow(0 5px 5px rgba(0,0,0,.4)); }
-.hth-trainer.l { left: 6px; }
-.hth-trainer.r { right: 6px; height: 134px; top: 12px; }
+/* trainers anchored so their feet land on the seam (band height = 132px),
+   bodies extending up and out past the top of the card. */
+.hth-trainer { position: absolute; image-rendering: pixelated; pointer-events: none; z-index: 4; filter: drop-shadow(0 5px 5px rgba(0,0,0,.4)); }
+.hth-trainer.l { left: 6px; height: 152px; top: -20px; }
+.hth-trainer.r { right: 6px; height: 144px; top: -12px; }
 
 /* VS medallion on the seam */
 .hth-vs { position: absolute; left: 50%; top: 100%; transform: translate(-50%, -50%); width: 52px; height: 52px; border-radius: 50%; background: var(--accent); border: 4px solid var(--bg); color: #fff; display: flex; align-items: center; justify-content: center; font: 900 17px system-ui; box-shadow: 0 4px 16px rgba(227,65,58,.5); z-index: 5; }
