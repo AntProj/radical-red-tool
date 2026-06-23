@@ -41,6 +41,27 @@ const bossCat = new Set();
 let playerHighest = 100;   // resolves scaled boss levels (codes 101–104) relative to your top mon
 let bossSprite = {};       // trainerId -> trainer sprite URL (from the Hardcore sheet's =IMAGE cells)
 
+/* ---------- Persisted UI state (search / filters / tabs survive reloads) ---------- */
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (_) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+function loadUiState() {
+  pkSearch = lsGet('rr_pk_q', '');
+  areaSearch = lsGet('rr_area_q', '');
+  bossSearch = lsGet('rr_boss_q', '');
+  hcSub = lsGet('rr_hcsub', 'order');
+  try {
+    const pf = JSON.parse(lsGet('rr_pk_f', '{}'));
+    (pf.methods || []).forEach((m) => pkFilters.methods.add(m)); if (pf.time) pkFilters.time = pf.time;
+    const af = JSON.parse(lsGet('rr_area_f', '{}'));
+    (af.methods || []).forEach((m) => areaFilters.methods.add(m)); if (af.time) areaFilters.time = af.time;
+    (af.cats || []).forEach((c) => areaFilters.cats.add(c));
+    JSON.parse(lsGet('rr_boss_cat', '[]')).forEach((c) => bossCat.add(c));
+  } catch (_) {}
+}
+const savePkState = () => { lsSet('rr_pk_q', pkSearch); lsSet('rr_pk_f', JSON.stringify({ methods: [...pkFilters.methods], time: pkFilters.time })); };
+const saveAreaState = () => { lsSet('rr_area_q', areaSearch); lsSet('rr_area_f', JSON.stringify({ methods: [...areaFilters.methods], time: areaFilters.time, cats: [...areaFilters.cats] })); };
+const saveBossState = () => { lsSet('rr_boss_q', bossSearch); lsSet('rr_boss_cat', JSON.stringify([...bossCat])); };
+
 /* ---------------- Loading ---------------- */
 const FILES = ['species', 'sprites', 'types', 'abilities', 'moves', 'items', 'evolutions',
   'eggGroups', 'tmMoves', 'tutorMoves', 'splits', 'natures', 'scaledLevels', 'areas', 'trainers', 'hardcore', 'area-order'];
@@ -67,10 +88,20 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const spriteFor = (s) => DATA.sprites[s.ID] || DATA.sprites[0] || '';
 // Item sprites from the PokeAPI sprite repo, keyed by lowercase-hyphenated name.
 const itemSlug = (name) => name.toLowerCase().replace(/[’'.]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+// A "TMxx" item -> the move it teaches (tmMoves is 0-indexed; the TM number is 1-indexed).
+function tmMove(name) {
+  const mt = /^TM(\d+)$/i.exec(name || '');
+  if (!mt) return null;
+  const mid = DATA.tmMoves[(+mt[1]) - 1];
+  return mid ? DATA.moves[mid] : null;
+}
 function itemIcon(id, imgCls, phCls) {
   const it = id && DATA.items[id];
   if (!it) return '<span class="' + phCls + '"></span>';
-  const url = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/' + itemSlug(it.name) + '.png';
+  const tm = tmMove(it.name);
+  const url = tm
+    ? 'assets/items/tm-' + (DATA.types[tm.type] ? DATA.types[tm.type].name.toLowerCase() : 'normal') + '.png'
+    : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/' + itemSlug(it.name) + '.png';
   return '<img class="' + imgCls + '" src="' + url + '" alt="" referrerpolicy="no-referrer" loading="lazy" ' +
     'onerror="this.outerHTML=\'<span class=&quot;' + phCls + '&quot;></span>\'">';
 }
@@ -408,20 +439,35 @@ function renderAreaGrid() {
   document.getElementById('ar-count').textContent = list.length + ' of ' + AREAVIEW.length + ' areas' + (wildContext ? ' · locations-file order' : '');
 }
 // Expanded area = a responsive grid of vertical category cards (handoff Areas spec).
-const AREA_DOT = { grass: '#62A13D', surf: '#6390F0', fish: '#65A19E', smash: '#B6A136', items: '#ffce6b', special: '#8571BE', raid: '#e3413a', trainers: '#7db1ff', tutors: '#65A19E' };
+const AREA_DOT = { grass: '#62A13D', night: '#9b6dde', surf: '#6390F0', fish: '#65A19E', smash: '#B6A136', items: '#ffce6b', special: '#8571BE', raid: '#e3413a', trainers: '#7db1ff', tutors: '#65A19E' };
 function areaCatCard(color, label, lvChip, rows) {
   return '<div class="acat"><div class="acat-head"><span class="acat-dot" style="background:' + color + '"></span>' +
     '<span class="acat-label">' + esc(label) + '</span>' + (lvChip ? '<span class="acat-lv">' + esc(lvChip) + '</span>' : '') +
     '</div><div class="acat-rows">' + rows + '</div></div>';
 }
-function areaMonRow(id) {
+function areaMonRow(id, lvText) {
   const s = DATA.species[id];
   if (!s) return '';
-  return '<div class="acat-row" data-go-mon="' + id + '"><img class="acat-sprite" src="' + spriteFor(s) + '" alt="" loading="lazy"><span class="acat-name">' + esc(s.name) + '</span></div>';
+  return '<div class="acat-row" data-go-mon="' + id + '"><img class="acat-sprite" src="' + spriteFor(s) + '" alt="" loading="lazy"><span class="acat-name">' + esc(s.name) + '</span>' +
+    (lvText ? '<span class="acat-rlv">' + esc(lvText) + '</span>' : '') + '</div>';
+}
+// A move row with type chip + power + accuracy (Move Tutors and TMs).
+function areaMoveRow(moveId, opts) {
+  const mv = DATA.moves[moveId];
+  if (!mv) return '';
+  opts = opts || {};
+  return '<div class="acat-mrow">' +
+    '<div class="acat-mtop">' + (opts.icon || '') + '<span class="acat-name">' + esc(opts.label || mv.name) + '</span>' +
+    (opts.tag ? '<span class="acat-tmtag">' + esc(opts.tag) + '</span>' : '') + '</div>' +
+    '<div class="acat-mmeta">' + typeChip(mv.type, true) +
+    '<span class="acat-mstat">Pwr ' + (mv.power || '—') + '</span><span class="acat-mstat">Acc ' + (mv.accuracy || '—') + '</span></div></div>';
 }
 function areaItemRow(id) {
   const it = DATA.items[id];
-  return '<div class="acat-row no-link">' + itemIcon(id, 'acat-iimg', 'acat-iicon') + '<span class="acat-name">' + (it ? esc(it.name) : '#' + id) + '</span></div>';
+  if (!it) return '<div class="acat-row no-link"><span class="acat-iicon"></span><span class="acat-name">#' + id + '</span></div>';
+  const tm = tmMove(it.name);
+  if (tm) return areaMoveRow(tm.ID, { icon: itemIcon(id, 'acat-iimg', 'acat-iicon'), label: tm.name, tag: it.name });
+  return '<div class="acat-row no-link">' + itemIcon(id, 'acat-iimg', 'acat-iicon') + '<span class="acat-name">' + esc(it.name) + '</span></div>';
 }
 function areaCategoriesHtml(a) {
   const cards = [];
@@ -430,9 +476,9 @@ function areaCategoriesHtml(a) {
     if (!list || !list.length) continue;
     const m = WILD_METHODS[key];
     const label = m.time ? m.label + ' (' + m.time + ')' : m.label;
-    const min = Math.min(...list.map((e) => e.min)), max = Math.max(...list.map((e) => e.max));
-    const rows = list.slice().sort((x, y) => x.min - y.min).map((e) => areaMonRow(e.id)).join('');
-    cards.push(areaCatCard(AREA_DOT[m.group], label, 'Lv ' + (min === max ? min : min + '–' + max), rows));
+    const color = key === 'wild-night' ? AREA_DOT.night : AREA_DOT[m.group];
+    const rows = list.slice().sort((x, y) => x.min - y.min).map((e) => areaMonRow(e.id, lv(e.min, e.max))).join('');
+    cards.push(areaCatCard(color, label, '', rows));
   }
   for (const key of ITEM_ORDER) {
     const ids = a.items[key];
@@ -442,20 +488,20 @@ function areaCategoriesHtml(a) {
   for (const key of FIXED_ORDER) {
     const ids = a.fixed[key];
     if (!ids || !ids.length) continue;
-    cards.push(areaCatCard(AREA_DOT.special, FIXED_METHODS[key], '', ids.map(areaMonRow).join('')));
+    cards.push(areaCatCard(AREA_DOT.special, FIXED_METHODS[key], '', ids.map((id) => areaMonRow(id)).join('')));
   }
   for (let star = 6; star >= 1; star--) {
     const ids = a.raids[star];
     if (!ids || !ids.length) continue;
-    cards.push(areaCatCard(AREA_DOT.raid, star + '★ Raid', '', ids.map(areaMonRow).join('')));
+    cards.push(areaCatCard(AREA_DOT.raid, star + '★ Raid', '', ids.map((id) => areaMonRow(id)).join('')));
   }
   if (a.trainers.length) {
     const rows = a.trainers.map((id) => '<div class="acat-row no-link"><span class="acat-name">' + (DATA.trainers[id] ? esc(DATA.trainers[id].name) : '#' + id) + '</span></div>').join('');
     cards.push(areaCatCard(AREA_DOT.trainers, 'Trainers', '', rows));
   }
   if (a.tutors.length) {
-    const moves = a.tutors.map((n) => DATA.tutorMoves[n]).filter(Boolean).map((mid) => DATA.moves[mid] ? DATA.moves[mid].name : '#' + mid);
-    if (moves.length) cards.push(areaCatCard(AREA_DOT.tutors, 'Move Tutors', '', moves.map((n) => '<div class="acat-row no-link"><span class="acat-name">' + esc(n) + '</span></div>').join('')));
+    const rows = a.tutors.map((n) => DATA.tutorMoves[n]).filter(Boolean).map((mid) => areaMoveRow(mid)).join('');
+    if (rows) cards.push(areaCatCard(AREA_DOT.tutors, 'Move Tutors', '', rows));
   }
   return cards.join('') || '<div class="ability-desc" style="grid-column:1/-1">No encounter data for this area.</div>';
 }
@@ -926,7 +972,11 @@ function toggleSplit() {
 function goMon(id) { if (mode !== 'pokemon') setMode('pokemon', true); selectSpecies(id); }
 function goArea(idx) {
   if (mode !== 'areas') setMode('areas', true);
-  areaSearch = ''; areaFilters.methods.clear(); areaFilters.time = null; areaFilters.cats.clear();
+  // Only drop the (persisted) search/filters if they'd hide the target area.
+  const a = AREAVIEW[idx], q = areaSearch.trim().toLowerCase();
+  if (a && ((q && !a.name.toLowerCase().includes(q)) || !passesAreaFilter(a))) {
+    areaSearch = ''; areaFilters.methods.clear(); areaFilters.time = null; areaFilters.cats.clear(); saveAreaState();
+  }
   activeAreaIdx = idx;
   showAreaIndex();                                              // renders the list with this area expanded
   const ae = document.querySelector('#ar-grid .to-entry[data-area="' + idx + '"]');
@@ -934,7 +984,7 @@ function goArea(idx) {
   setHash('a' + idx);
 }
 function goBoss(id) { if (mode !== 'hardcore') setMode('hardcore', true); hcSub = 'bosses'; renderHardcore(); renderBossGrid(); }
-function setHcSub(sub) { hcSub = sub; activeBoss = null; renderHardcore(); if (sub === 'bosses') renderBossGrid(); setHash(sub); }
+function setHcSub(sub) { hcSub = sub; lsSet('rr_hcsub', sub); activeBoss = null; renderHardcore(); if (sub === 'bosses') renderBossGrid(); setHash(sub); }
 
 /* ================= Hash routing ================= */
 let suppressHash = false;
@@ -971,10 +1021,10 @@ function init() {
   document.querySelectorAll('#tabs-right button').forEach((b) => b.addEventListener('click', () => setRightMode(b.dataset.rmode)));
 
   // Pokémon view
-  document.getElementById('pk-search').addEventListener('input', (e) => { pkSearch = e.target.value; renderPkList(); });
+  document.getElementById('pk-search').addEventListener('input', (e) => { pkSearch = e.target.value; savePkState(); renderPkList(); });
   document.getElementById('pk-filters').addEventListener('click', (e) => {
     const c = e.target.closest('.fchip'); if (!c) return;
-    const [p, v] = c.dataset.f.split(':'); onFilterToggle(p, v, pkFilters); renderPkFilters(); renderPkList();
+    const [p, v] = c.dataset.f.split(':'); onFilterToggle(p, v, pkFilters); savePkState(); renderPkFilters(); renderPkList();
   });
   document.getElementById('pk-list').addEventListener('click', (e) => { const r = e.target.closest('.row'); if (r) selectSpecies(Number(r.dataset.id)); });
   document.getElementById('pk-detail-content').addEventListener('click', onGoClick);
@@ -984,7 +1034,7 @@ function init() {
   ar.addEventListener('click', (e) => {
     if (onGoClick(e)) return;
     if (onGoClick(e)) return;                                   // mon chip inside an expanded area -> dex
-    const chip = e.target.closest('.fchip'); if (chip) { const [p, v] = chip.dataset.f.split(':'); onFilterToggle(p, v, areaFilters); renderAreaFilters(); renderAreaGrid(); return; }
+    const chip = e.target.closest('.fchip'); if (chip) { const [p, v] = chip.dataset.f.split(':'); onFilterToggle(p, v, areaFilters); saveAreaState(); renderAreaFilters(); renderAreaGrid(); return; }
     const arow = e.target.closest('.to-row');
     if (arow) {
       const ae = arow.closest('.to-entry[data-area]');
@@ -1002,7 +1052,7 @@ function init() {
       return;
     }
   });
-  ar.addEventListener('input', (e) => { if (e.target.id === 'ar-search') { areaSearch = e.target.value; renderAreaGrid(); } });
+  ar.addEventListener('input', (e) => { if (e.target.id === 'ar-search') { areaSearch = e.target.value; saveAreaState(); renderAreaGrid(); } });
 
   // Hardcore view (delegated)
   const hc = document.getElementById('hc-body');
@@ -1021,7 +1071,7 @@ function init() {
       }
       return;
     }
-    const chip = e.target.closest('.fchip'); if (chip) { const [, v] = chip.dataset.f.split(':'); bossCat.has(v) ? bossCat.delete(v) : bossCat.add(v); document.getElementById('hc-filters').innerHTML = chipRow(bossCatList(), 'b', bossCat); renderBossGrid(); }
+    const chip = e.target.closest('.fchip'); if (chip) { const [, v] = chip.dataset.f.split(':'); bossCat.has(v) ? bossCat.delete(v) : bossCat.add(v); saveBossState(); document.getElementById('hc-filters').innerHTML = chipRow(bossCatList(), 'b', bossCat); renderBossGrid(); }
   });
   // Box view (delegated): file picker, drag-drop, sub-tabs, mon -> dex
   const bx = document.getElementById('box-body');
@@ -1039,7 +1089,7 @@ function init() {
   });
 
   hc.addEventListener('input', (e) => {
-    if (e.target.id === 'hc-search') { bossSearch = e.target.value; renderBossGrid(); }
+    if (e.target.id === 'hc-search') { bossSearch = e.target.value; saveBossState(); renderBossGrid(); }
     else if (e.target.id === 'hl') {
       playerHighest = Math.max(1, Math.min(255, parseInt(e.target.value, 10) || 100));
       try { localStorage.setItem('rr_highest', playerHighest); } catch (_) {}
@@ -1071,6 +1121,7 @@ function onGoClick(e) {
 async function start() {
   try { await loadAll(); } catch (err) { fail(err); return; }
   try { const h = parseInt(localStorage.getItem('rr_highest'), 10); if (h) playerHighest = h; } catch (_) {}
+  loadUiState();
   buildEntries(); buildAreaIndex();
   bossSprite = {};
   for (const cat of (DATA.hardcore.categories || [])) for (const b of cat.bosses) if (b.sprite) bossSprite[b.trainerId] = b.sprite;

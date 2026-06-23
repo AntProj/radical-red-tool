@@ -144,6 +144,12 @@ h1 { margin: 0; }
 .acat-iicon { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); }
 .acat-iimg { width: 24px; height: 24px; flex: 0 0 24px; object-fit: contain; image-rendering: pixelated; }
 .acat-name { font: 600 12px system-ui; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acat-rlv { margin-left: auto; padding-left: 6px; font: 700 9.5px ui-monospace, monospace; color: var(--muted-2); white-space: nowrap; }
+.acat-mrow { display: flex; flex-direction: column; gap: 3px; }
+.acat-mtop { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.acat-tmtag { margin-left: auto; font: 700 9px ui-monospace, monospace; color: var(--muted-2); white-space: nowrap; }
+.acat-mmeta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-left: 2px; }
+.acat-mstat { font: 700 9px ui-monospace, monospace; color: var(--muted); font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .to-entry.open .to-team { grid-template-columns: repeat(3, 1fr); } .to-name { min-width: 150px; } }
 @media (max-width: 560px) { .to-entry.open .to-team { grid-template-columns: repeat(2, 1fr); } }
 
