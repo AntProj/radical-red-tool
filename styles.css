@@ -377,7 +377,11 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 /* diverging stat bars */
 /* diverging stat rows: IV · bar(base) · stage · battle | NAME | battle · stage · bar · IV */
 .hth-stats { padding: 8px 16px 4px; }
-.hth-srow { display: grid; grid-template-columns: 40px 1fr 58px 32px 40px 32px 58px 1fr 40px; align-items: center; gap: 5px; margin: 5px 0; }
+.hth-srow { display: grid; grid-template-columns: 38px 1fr 54px 42px 38px 42px 54px 1fr 38px; align-items: center; gap: 5px; margin: 5px 0; }
+.hth-statv { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.hth-statv b { font: 700 12.5px ui-monospace, monospace; color: var(--text); font-variant-numeric: tabular-nums; }
+.hth-statv b.boosted { color: var(--accent); }
+.hth-basev { font: 600 9px ui-monospace, monospace; color: var(--muted-2); }
 .hth-shdr { margin-bottom: 2px; }
 .hth-shdr span { font: 700 8.5px ui-monospace, monospace; color: #5f6773; text-transform: uppercase; letter-spacing: .3px; text-align: center; }
 .hth-bar { display: flex; height: 11px; background: #0f1115; border-radius: 6px; overflow: hidden; }
@@ -429,8 +433,6 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-step:hover { background: var(--accent-dim); }
 .vs-iv { width: 38px; background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: 5px; padding: 2px 3px; font: 600 11px ui-monospace, monospace; text-align: center; }
 /* bottom-left circular Add button, outside the modal */
-.vs-rmbtn { position: absolute; top: 12px; left: 92px; z-index: 7; background: var(--accent-dim); border: 1px solid var(--accent); color: #fff; font: 700 10px system-ui; padding: 3px 9px; border-radius: 6px; cursor: pointer; }
-.vs-rmbtn:hover { background: var(--accent); }
 .vs-addfab { position: fixed; left: 22px; bottom: 22px; z-index: 60; width: 50px; height: 50px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); color: #fff; font: 400 26px/1 system-ui; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
 .vs-addfab:hover { filter: brightness(1.1); }
 
@@ -444,6 +446,13 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-pop-bd { position: absolute; inset: 0; background: rgba(0,0,0,.55); border-radius: 14px; }
 .vs-pop-box { position: relative; z-index: 1; width: min(560px, 88%); height: min(520px, 82%); display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line-2); border-radius: 12px; padding: 14px 16px; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
 .vs-pop-head { display: flex; justify-content: space-between; align-items: center; font-size: 15px; margin-bottom: 10px; }
+.vs-pop-actions { display: flex; align-items: center; gap: 8px; }
+.vs-add-n { font: 700 11px system-ui; color: var(--muted); }
+.vs-pop-done { background: var(--accent); border: none; color: #fff; font: 700 12px system-ui; padding: 5px 14px; border-radius: 7px; cursor: pointer; }
+.vs-pop-done:hover { filter: brightness(1.1); }
+.vs-pickmon.picked { border-color: var(--accent); }
+.vs-pickmon.picked::after { content: "✓"; position: absolute; top: 2px; right: 4px; font: 800 11px system-ui; color: var(--accent); }
+.vs-pickmon { position: relative; }
 .vs-pop-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
 .vs-pick-x { background: var(--panel-2); border: 1px solid var(--line-2); color: var(--text); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; }
 .vs-pick-tab { background: var(--panel-2); border: none; color: var(--muted); font: 700 12px system-ui; padding: 6px 14px; border-radius: 7px; cursor: pointer; }

@@ -664,7 +664,7 @@ function cfgFromBoss(m) {
 function cfgFromBox(m) {
   const sp = DATA.species[m.species];
   return Object.assign({ species: m.species, level: m.level || 50, nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
-    item: m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || m.ivs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || m.evs || [0, 0, 0, 0, 0, 0]).slice(), nickname: m.nickname }, vsExtras());
+    item: m.heldItem || m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || m.ivs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || m.evs || [0, 0, 0, 0, 0, 0]).slice(), nickname: m.nickname }, vsExtras());
 }
 function cfgFromDex(id) {
   const sp = DATA.species[id];
@@ -772,7 +772,9 @@ function hthHead(cfg, isBoss) {
     '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div>';
   return '<div class="hth-head ' + side + '"><img class="hth-hsprite" src="' + spriteFor(sp) + '" alt="">' + meta + hthCfgGrid(cfg, isBoss ? 'right' : 'left') + '</div>';
 }
-// One diverging stat row: from the center outward = name · battle stat · stage · bar(base) · IV.
+// Stage multiplier on a raw stat (battle stat) — Gen-style.
+function statWithStage(raw, stage) { if (!stage) return raw; return Math.floor(raw * (stage > 0 ? (2 + stage) / 2 : 2 / (2 - stage))); }
+// One diverging stat row: from the center outward = name · [battle / base] · stage · bar(base) · IV.
 function hthStatRow(lab, key, idx, L, R, Ls, Rs, Lb, Rb) {
   const lBase = Ls ? Ls.stats[idx] : null, rBase = Rs ? Rs.stats[idx] : null, isHP = key === 'hp', max = 120;
   const lw = lBase != null ? Math.min(100, lBase / max * 100) : 0, rw = rBase != null ? Math.min(100, rBase / max * 100) : 0;
@@ -780,10 +782,15 @@ function hthStatRow(lab, key, idx, L, R, Ls, Rs, Lb, Rb) {
   const iv = (cfg, side) => cfg ? '<input class="vs-iv" type="number" min="0" max="31" value="' + (cfg.ivs[idx] != null ? cfg.ivs[idx] : 31) + '" data-side="' + side + '" data-iv="' + idx + '" title="IV">' : '<span></span>';
   const stage = (cfg, side) => (!cfg || isHP) ? '<span class="vs-stage"></span>' :
     '<span class="vs-stage"><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="-1">−</button><b>' + ((cfg.boosts[key] || 0) > 0 ? '+' : '') + (cfg.boosts[key] || 0) + '</b><button class="vs-step" data-side="' + side + '" data-stat="' + key + '" data-dir="1">+</button></span>';
-  const battle = (b) => '<span class="hth-battle">' + (b && b[key] != null ? b[key] : '—') + '</span>';
+  // value cell: battle stat (with stage) bold + base stat below, both visible
+  const val = (cfg, b, base) => {
+    if (!cfg || !b || b[key] == null) return '<span class="hth-statv"><b>—</b><span class="hth-basev">' + (base != null ? base : '—') + '</span></span>';
+    const st = isHP ? 0 : (cfg.boosts[key] || 0);
+    return '<span class="hth-statv"><b' + (st ? ' class="boosted"' : '') + '>' + statWithStage(b[key], st) + '</b><span class="hth-basev">' + base + '</span></span>';
+  };
   return '<div class="hth-srow">' + iv(L, 'left') +
     '<span class="hth-bar l"><i' + (rWin ? ' class="dim"' : '') + ' style="width:' + lw + '%;background:' + statColor(lBase || 0) + '"></i></span>' +
-    stage(L, 'left') + battle(Lb) + '<span class="hth-lab">' + lab + '</span>' + battle(Rb) + stage(R, 'right') +
+    stage(L, 'left') + val(L, Lb, lBase) + '<span class="hth-lab">' + lab + '</span>' + val(R, Rb, rBase) + stage(R, 'right') +
     '<span class="hth-bar r"><i' + (lWin ? ' class="dim"' : '') + ' style="width:' + rw + '%;background:' + statColor(rBase || 0) + '"></i></span>' + iv(R, 'right') + '</div>';
 }
 function bstRow(lt, rt) {
@@ -837,7 +844,7 @@ function openAddPop() {
   if (!pop) {
     pop = document.createElement('div'); pop.id = 'vs-pop'; pop.className = 'vs-pop';
     pop.innerHTML = '<div class="vs-pop-bd" data-addcancel></div><div class="vs-pop-box">' +
-      '<div class="vs-pop-head"><b>Add your Pokémon</b><button class="vs-pick-x" data-addcancel aria-label="Close">✕</button></div>' +
+      '<div class="vs-pop-head"><b>Add your Pokémon</b><div class="vs-pop-actions"><span id="vs-add-n" class="vs-add-n"></span><button class="vs-pop-done" data-addcancel>Done</button><button class="vs-pick-x" data-addcancel aria-label="Close">✕</button></div></div>' +
       '<div class="vs-pop-tabs"><button class="vs-pick-tab" data-pick="box">PC</button><button class="vs-pick-tab" data-pick="dex">Dex</button><button class="vs-pick-tab" data-pick="tm">TM/HM</button></div>' +
       '<input id="vs-pop-q" class="vs-dexq" type="search" placeholder="Search…" autocomplete="off">' +
       '<div id="vs-pop-list" class="vs-pickgrid"></div></div>';
@@ -847,8 +854,10 @@ function openAddPop() {
   const q = document.getElementById('vs-pop-q'); if (q) q.value = '';
   vsDexQ = '';
   renderAddPicker();
+  bumpAddCount();
   if (q) q.focus();
 }
+function bumpAddCount() { const el = document.getElementById('vs-add-n'); if (el) el.textContent = vsLeftTeam.length ? 'Team: ' + vsLeftTeam.length : ''; }
 function closeAddPop() { const p = document.getElementById('vs-pop'); if (p) p.classList.remove('on'); }
 function renderAddPicker() {
   const pop = document.getElementById('vs-pop'); if (!pop) return;
@@ -950,8 +959,8 @@ function vsBand(side, boss) {
       '<div class="vs-party right" id="vs-party-right">' + vsBossHuddle(team) + '</div></div>';
   }
   const ot = (savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You';
-  return '<div class="hth-band left"><div class="hth-tname you">' + esc(ot) + '<span>' + (vsLeftTeam.length ? 'Your Team · ' + vsLeftTeam.length : 'No Pokémon yet — Add one ↙') + '</span></div>' +
-    (vsLeftTeam.length ? '<button class="vs-rmbtn" data-rmmon title="Remove the selected Pokémon" aria-label="Remove selected Pokémon">✕ Remove</button>' : '') +
+  const sub = vsLeftTeam.length ? 'Your Team · ' + vsLeftTeam.length + ' · right-click to remove' : 'No Pokémon yet — Add one ↙';
+  return '<div class="hth-band left"><div class="hth-tname you">' + esc(ot) + '<span>' + sub + '</span></div>' +
     '<div class="vs-party left" id="vs-party-left">' + vsPlayerHuddle() + '</div></div>';
 }
 function highlightBossHuddle() { document.querySelectorAll('#vs-party-right .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs.rightIdx)); }
@@ -1349,6 +1358,16 @@ function init() {
 
   // Modal (versus + mini Pokédex)
   const modal = document.getElementById('modal');
+  modal.addEventListener('contextmenu', (e) => {   // right-click a player team sprite to remove it
+    const lc = e.target.closest('#vs-party-left [data-vsleftidx]');
+    if (!lc) return;
+    e.preventDefault();
+    const i = +lc.dataset.vsleftidx;
+    vsLeftTeam.splice(i, 1);
+    if (vs.leftIdx >= vsLeftTeam.length) vs.leftIdx = Math.max(0, vsLeftTeam.length - 1);
+    vsLeft = vsLeftTeam[vs.leftIdx] || null;
+    rebuildVsBands(); renderHthCompare();
+  });
   modal.addEventListener('click', (e) => {
     if (e.target.closest('[data-close]')) { closeModal(); return; }
     const step = e.target.closest('.vs-step');
@@ -1357,16 +1376,12 @@ function init() {
     if (vc) { vs.rightIdx = +vc.dataset.vsidx; vsRight = vsRightTeam[vs.rightIdx] || null; highlightBossHuddle(); renderHthCompare(); return; }
     const lc = e.target.closest('[data-vsleftidx]');
     if (lc) { vs.leftIdx = +lc.dataset.vsleftidx; vsLeft = vsLeftTeam[vs.leftIdx] || null; highlightPlayerHuddle(); renderHthCompare(); return; }
-    if (e.target.closest('[data-rmmon]')) {
-      if (vsLeftTeam.length) { vsLeftTeam.splice(vs.leftIdx, 1); vs.leftIdx = Math.max(0, Math.min(vs.leftIdx, vsLeftTeam.length - 1)); vsLeft = vsLeftTeam[vs.leftIdx] || null; rebuildVsBands(); renderHthCompare(); }
-      return;
-    }
     if (e.target.closest('[data-addmon]')) { openAddPop(); return; }
     const ptab = e.target.closest('[data-pick]'); if (ptab) { vsAddMode = ptab.dataset.pick; renderAddPicker(); return; }
     const tmall = e.target.closest('[data-tmall]'); if (tmall) { ownedTMs = tmall.dataset.tmall === '1' ? new Set(Object.keys(DATA.tmMoves).map(Number)) : new Set(); saveTMs(); renderAddPicker(); return; }
     if (e.target.closest('[data-addcancel]')) { closeAddPop(); renderHthCompare(); return; }
-    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; } closeAddPop(); rebuildVsBands(); renderHthCompare(); return; }
-    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; closeAddPop(); rebuildVsBands(); renderHthCompare(); return; }
+    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; bp.classList.add('picked'); bumpAddCount(); rebuildVsBands(); } return; }
+    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; dp.classList.add('picked'); bumpAddCount(); rebuildVsBands(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
