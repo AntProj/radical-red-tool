@@ -98,7 +98,10 @@
       evs: [0, 1, 2, 3, 4, 5].map((o) => b.getUint8(E + o)),         // HP,Atk,Def,Spe,SpA,SpD
       ivs: [0, 5, 10, 15, 20, 25].map((sh) => (ivWord >>> sh) & 31), // HP,Atk,Def,Spe,SpA,SpD
       isEgg: !!((ivWord >>> 30) & 1),
-      abilityNum: (ivWord >>> 31) & 1,
+      // Radical Red / CFRU repurposes the vanilla "abilityNum" bit (IV-word bit 31)
+      // as a HIDDEN-ability flag. The regular ability1/2 choice is PID-parity (classic
+      // Gen-3), resolved in decodeMon once we have the personality value.
+      hiddenAbility: (ivWord >>> 31) & 1,
     };
   }
 
@@ -125,6 +128,11 @@
     const tid = otid & 0xFFFF, sid = (otid >>> 16) & 0xFFFF;
     f.shiny = ((tid ^ sid ^ (pv & 0xFFFF) ^ (pv >>> 16)) & 0xFFFF) < 8;
     f.nature = pv % 25;
+    f.pid = pv;
+    // ability slot into species.abilities = [hidden, ability1, ability2]:
+    //   hidden flag set -> 0, else ability1/ability2 by PID parity (Gen-3 mechanic).
+    f.ability = f.hiddenAbility ? 0 : 1 + (pv & 1);
+    f.genderByte = pv & 0xFF;  // app resolves to M/F/N with the species gender ratio
     f.nickname = decodeStr(dv, off + 0x08, 10);
     f.otName = decodeStr(dv, off + 0x14, 7);
     f.level = isParty ? dv.getUint8(off + 0x54) : levelFromExp(f.exp);

@@ -313,7 +313,11 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .modal-box.vs-modal-box .modal-x { display: none; } /* trainer sprites break into this corner; close via backdrop/ESC */
 .vs-modal { position: relative; }
 .hth-card { position: relative; background: var(--bg); border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
-.hth-compare { max-height: 60vh; overflow-y: auto; }
+.hth-compare { max-height: 74vh; overflow-y: auto; }
+.vs-gender { font: 700 12.5px system-ui; padding: 0 5px; margin-left: 4px; border: 1px solid var(--line-2); border-radius: 5px; background: var(--panel-2); color: var(--text); cursor: pointer; line-height: 1.5; vertical-align: middle; }
+.vs-gender.m { color: #5aa9ff; } .vs-gender.f { color: #ff7eb6; }
+.vs-gender.gl { color: var(--muted); cursor: default; border: none; background: none; }
+.gsym { font-weight: 800; } .gsym.m { color: #5aa9ff; } .gsym.f { color: #ff7eb6; }
 
 /* battle-scene bands */
 .hth-bands { position: relative; display: flex; }

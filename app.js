@@ -69,7 +69,7 @@ const saveBossState = () => { lsSet('rr_boss_q', bossSearch); lsSet('rr_boss_cat
 
 /* ---------------- Loading ---------------- */
 const FILES = ['species', 'sprites', 'types', 'abilities', 'moves', 'items', 'evolutions',
-  'eggGroups', 'tmMoves', 'tutorMoves', 'splits', 'natures', 'scaledLevels', 'areas', 'trainers', 'hardcore', 'area-order'];
+  'eggGroups', 'tmMoves', 'tutorMoves', 'splits', 'natures', 'scaledLevels', 'areas', 'trainers', 'hardcore', 'area-order', 'genders'];
 
 async function loadAll() {
   const results = await Promise.all(FILES.map(async (name) => {
@@ -127,11 +127,12 @@ function typeChip(typeId, small) {
 function abilityList(s) {
   if (!s.abilities) return [];
   const seen = new Set(), out = [];
-  s.abilities.forEach((pair, i) => {
-    const id = pair[0];
+  // species.abilities = [hidden, ability1, ability2]; show regulars first, hidden last.
+  [1, 2, 0].forEach((i) => {
+    const pair = s.abilities[i], id = pair && pair[0];
     if (!id || seen.has(id) || !DATA.abilities[id]) return;
     seen.add(id);
-    out.push({ name: DATA.abilities[id].names[0], desc: DATA.abilities[id].description, hidden: i === 2 });
+    out.push({ name: DATA.abilities[id].names[0], desc: DATA.abilities[id].description, hidden: i === 0 });
   });
   return out;
 }
@@ -651,25 +652,45 @@ function abilityNamesOf(sp) {
   (sp.abilities || []).forEach((a) => { const id = a && a[0]; if (id && DATA.abilities[id]) { const n = DATA.abilities[id].names[0]; if (!seen.has(n)) { seen.add(n); out.push(n); } } });
   return out;
 }
+// Resolve a slot into species.abilities = [hidden, ability1, ability2] -> ability NAME.
+// If the requested slot is empty (e.g. ability2 missing), fall back to ability1, then hidden.
 function abilityNameSlot(sp, slot) {
-  const a = sp.abilities && sp.abilities[slot], id = a && a[0];
-  return (id && DATA.abilities[id]) ? DATA.abilities[id].names[0] : (abilityNamesOf(sp)[0] || '');
+  const abils = (sp && sp.abilities) || [];
+  const at = (i) => { const a = abils[i], id = a && a[0]; return (id && DATA.abilities[id]) ? DATA.abilities[id].names[0] : ''; };
+  return at(slot) || at(1) || at(0) || '';
+}
+/* ----- gender ----- */
+// data/genders.json marks genderless species ('N'); every other species is treated as
+// the common 50/50 split. Gen-3 rule: female if (PID & 0xFF) < threshold (127 for 50/50).
+function genderFixed(speciesId) { return (DATA.genders && DATA.genders[speciesId]) || null; } // 'N' | 'M' | 'F' | null
+function genderFromPid(speciesId, pid) {
+  const fixed = genderFixed(speciesId);
+  if (fixed) return fixed;                 // genderless / single-gender species
+  if (pid == null) return null;            // unknown (no save data)
+  return ((pid & 0xFF) < 127) ? 'F' : 'M';
+}
+// Default gender for mons with no PID (bosses / dex picks): fixed gender if any, else male.
+function genderDefault(speciesId) { return genderFixed(speciesId) || 'M'; }
+// ♂/♀ glyph for save mons (empty for genderless/unknown).
+function genderSymbolHtml(speciesId, pid) {
+  const g = genderFromPid(speciesId, pid);
+  return g === 'M' ? ' <span class="gsym m">♂</span>' : g === 'F' ? ' <span class="gsym f">♀</span>' : '';
 }
 const vsExtras = () => ({ boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 }, status: '', crit: false, side: {} });
 function cfgFromBoss(m) {
   const sp = DATA.species[m.species];
-  return Object.assign({ species: m.species, level: resolveLevel(m.level), nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
+  return Object.assign({ species: m.species, level: resolveLevel(m.level), nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0), gender: genderDefault(m.species),
     item: m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || [0, 0, 0, 0, 0, 0]).slice() }, vsExtras());
 }
 function cfgFromBox(m) {
   const sp = DATA.species[m.species];
-  return Object.assign({ species: m.species, level: m.level || 50, nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0),
+  return Object.assign({ species: m.species, level: m.level || 50, nature: m.nature || 0, ability: abilityNameSlot(sp, m.ability || 0), gender: genderFromPid(m.species, m.pid) || genderDefault(m.species),
     item: m.heldItem || m.item || 0, moves: (m.moves || []).filter(Boolean).slice(0, 4), ivs: (m.IVs || m.ivs || [31, 31, 31, 31, 31, 31]).slice(), evs: (m.EVs || m.evs || [0, 0, 0, 0, 0, 0]).slice(), nickname: m.nickname }, vsExtras());
 }
 function cfgFromDex(id) {
   const sp = DATA.species[id];
   const lv = (sp.levelupMoves || []).slice().sort((a, b) => a[1] - b[1]).map((x) => x[0]);
-  return Object.assign({ species: id, level: (playerHighest && playerHighest <= 100) ? playerHighest : 50, nature: 0, ability: abilityNamesOf(sp)[0] || '',
+  return Object.assign({ species: id, level: (playerHighest && playerHighest <= 100) ? playerHighest : 50, nature: 0, ability: abilityNameSlot(sp, 1), gender: genderDefault(id),
     item: 0, moves: lv.slice(-4), ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] }, vsExtras());
 }
 
@@ -679,6 +700,7 @@ function toCalcMon(cfg) {
   const sp = DATA.species[cfg.species];
   const opts = { level: cfg.level, nature: DATA.natures[cfg.nature] || 'Hardy', ivs: vsStatsObj(cfg.ivs), evs: vsStatsObj(cfg.evs) };
   if (cfg.ability) opts.ability = cfg.ability;
+  if (cfg.gender) opts.gender = cfg.gender;
   if (cfg.item && DATA.items[cfg.item]) opts.item = DATA.items[cfg.item].name;
   if (cfg.boosts) opts.boosts = cfg.boosts;
   if (cfg.status) opts.status = cfg.status;
@@ -769,12 +791,21 @@ function hthCfgGrid(cfg, side) {
     '<details class="vs-multi" data-side="' + side + '"><summary>Cond' + (n ? ' (' + n + ')' : '') + '</summary><div class="vs-multi-panel">' + checks + '</div></details>' +
     '</div>';
 }
+// Gender chip in the mon header. Genderless = static ⚲; otherwise a click-to-toggle ♂/♀
+// (boss gender isn't in the data, so it's editable; save mons start at the detected value).
+function genderControl(cfg, sideKey) {
+  const g = cfg.gender;
+  if (g === 'N') return ' <span class="vs-gender gl" title="Genderless">⚲</span>';
+  if (g !== 'M' && g !== 'F') return '';
+  return ' <button class="vs-gender ' + (g === 'F' ? 'f' : 'm') + '" data-side="' + sideKey + '" data-gender title="Gender — click to toggle">' + (g === 'F' ? '♀' : '♂') + '</button>';
+}
 function hthHead(cfg, isBoss) {
   const side = isBoss ? 'r' : 'l';
   const sp = cfg ? DATA.species[cfg.species] : null;
   if (!sp) return '<div class="hth-head ' + side + '"><div class="hth-noteam">Add a Pokémon ↙</div></div>';
   const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name);
-  const meta = '<div class="hth-hmeta"><div class="hth-hname">' + name + '</div><div class="hth-hlv">Lv ' + cfg.level + '</div>' +
+  const meta = '<div class="hth-hmeta"><div class="hth-hname">' + name + '</div>' +
+    '<div class="hth-hlv">Lv ' + cfg.level + genderControl(cfg, isBoss ? 'right' : 'left') + '</div>' +
     '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div>';
   return '<div class="hth-head ' + side + '"><img class="hth-hsprite" src="' + spriteFor(sp) + '" alt="">' + meta + hthCfgGrid(cfg, isBoss ? 'right' : 'left') + '</div>';
 }
@@ -1159,8 +1190,7 @@ function boxMonCard(mon) {
   const speciesName = sp ? sp.name : ('#' + mon.species);
   const item = mon.heldItem && DATA.items[mon.heldItem] ? DATA.items[mon.heldItem].name : '';
   const nature = DATA.natures[mon.nature] || '';
-  const abId = sp && sp.abilities && sp.abilities[mon.abilityNum] ? sp.abilities[mon.abilityNum][0] : 0;
-  const ab = abId && DATA.abilities[abId] ? DATA.abilities[abId].names[0] : '';
+  const ab = sp ? abilityNameSlot(sp, mon.ability || 0) : '';
   const moves = mon.moves.map((id) => { const mv = DATA.moves[id]; return mv ? '<span class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></span>' : ''; }).join('');
   const ivParts = []; mon.ivs.forEach((v, i) => { if (v < 31) ivParts.push(v + ' ' + STAT_LABELS[i]); });
   const evParts = []; mon.evs.forEach((v, i) => { if (v > 0) evParts.push(v + ' ' + STAT_LABELS[i]); });
@@ -1170,6 +1200,7 @@ function boxMonCard(mon) {
   return '<div class="team-card box-card"' + (sp && !mon.isEgg ? ' data-go-mon="' + mon.species + '"' : '') + '>' +
     '<div class="tc-head">' + (mon.shiny ? '<span class="shiny" title="Shiny">★</span>' : '') +
       '<img src="' + sprite + '" alt=""><div class="tc-id"><div class="tc-name">' + esc(name) +
+      (mon.isEgg ? '' : genderSymbolHtml(mon.species, mon.pid)) +
       ' <span class="tc-lv">' + (mon.levelExact ? 'Lv ' : '~Lv ') + mon.level + '</span></div>' +
       '<div class="bx-sub">' + esc(speciesName) + ' ' + types + '</div></div></div>' +
     '<div class="tc-info"><div class="tc-ab">' + (ab ? '<b>' + esc(ab) + '</b>' : '') +
@@ -1378,6 +1409,8 @@ function init() {
     if (e.target.closest('[data-close]')) { closeModal(); return; }
     const step = e.target.closest('.vs-step');
     if (step) { const cfg = step.dataset.side === 'right' ? vsRight : vsLeft; if (cfg) { const k = step.dataset.stat; cfg.boosts[k] = Math.max(-6, Math.min(6, (cfg.boosts[k] || 0) + (+step.dataset.dir))); renderHthCompare(); } return; }
+    const gbtn = e.target.closest('[data-gender]');
+    if (gbtn) { const cfg = gbtn.dataset.side === 'right' ? vsRight : vsLeft; if (cfg && cfg.gender !== 'N') { cfg.gender = cfg.gender === 'F' ? 'M' : 'F'; renderHthCompare(); } return; }
     const vc = e.target.closest('[data-vsidx]');
     if (vc) { vs.rightIdx = +vc.dataset.vsidx; vsRight = vsRightTeam[vs.rightIdx] || null; highlightBossHuddle(); renderHthCompare(); return; }
     const lc = e.target.closest('[data-vsleftidx]');
