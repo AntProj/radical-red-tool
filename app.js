@@ -584,9 +584,65 @@ function renderVsDetail(side) {
   const m = vsTeam(side)[vs[side]];
   el.innerHTML = m ? vsMonDetail(m, side === 'right') : '';
 }
-function playerTrainerHtml() {
-  const ot = (savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You';
-  return '<div class="tr-ph">🧑‍🦱</div><div class="vs-tname">' + esc(ot) + '</div>';
+// Thematic battle scene: bigger trainer sprite (outer edge) + the team's
+// full sprites lined up, scaled to each Pokémon's real drawn size.
+function vsScene(side, boss, team) {
+  const trainer = side === 'right'
+    ? trainerSprite(boss) + '<div class="vs-tname">' + esc(boss.name) + '</div>'
+    : '<div class="tr-ph big" title="You">🧑‍🦱</div><div class="vs-tname you">' +
+      esc((savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You') + '</div>';
+  const mons = team.map((m, i) => {
+    const sp = DATA.species[m.species];
+    const uri = sp ? spriteFor(sp) : (DATA.sprites[0] || '');
+    return '<img class="vs-mon' + (i === vs[side] ? ' on' : '') + '" data-vsside="' + side + '" data-vsidx="' + i +
+      '" data-rawsrc="' + uri + '" src="' + uri + '" alt="" title="' + (sp ? esc(sp.name) : '') + '">';
+  }).join('');
+  return '<div class="vs-scene ' + side + '"><div class="vs-trainer-big">' + trainer + '</div>' +
+    '<div class="vs-lineup" id="vs-lineup-' + side + '">' + mons + '</div></div>';
+}
+// Crop a data-URI sprite to its opaque bounding box and report its real drawn
+// height (so the lineup can scale each mon to its actual size). Cached by URI.
+const _spriteBox = {};
+function cropAndSize(img) {
+  const raw = img.dataset.rawsrc;
+  if (!raw) return;
+  const apply = (box) => {
+    if (!box) return;
+    img.src = box.uri;
+    const oh = Math.max(14, Math.min(64, box.oh));
+    img.style.height = Math.round(30 + (oh - 14) / (64 - 14) * (86 - 30)) + 'px';
+    img.classList.add('sized');
+  };
+  if (_spriteBox[raw]) { apply(_spriteBox[raw]); return; }
+  const im = new Image();
+  im.onload = () => {
+    const W = im.width, H = im.height;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const ctx = c.getContext('2d'); ctx.drawImage(im, 0, 0);
+    let data;
+    try { data = ctx.getImageData(0, 0, W, H).data; } catch (e) { return; }
+    let top = H, bot = -1, left = W, right = -1;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (data[(y * W + x) * 4 + 3] > 16) { if (y < top) top = y; if (y > bot) bot = y; if (x < left) left = x; if (x > right) right = x; }
+    }
+    let out;
+    if (bot < 0) { out = { uri: raw, oh: H }; }
+    else {
+      const cw = right - left + 1, ch = bot - top + 1;
+      const oc = document.createElement('canvas'); oc.width = cw; oc.height = ch;
+      oc.getContext('2d').drawImage(c, left, top, cw, ch, 0, 0, cw, ch);
+      out = { uri: oc.toDataURL(), oh: ch };
+    }
+    _spriteBox[raw] = out; apply(out);
+  };
+  im.src = raw;
+}
+function sizeLineups() {
+  document.querySelectorAll('.vs-lineup .vs-mon').forEach(cropAndSize);
+}
+function highlightVs(s) {
+  document.querySelectorAll('#vs-team-' + s + ' .vs-circle').forEach((b, i) => b.classList.toggle('on', i === vs[s]));
+  document.querySelectorAll('#vs-lineup-' + s + ' .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs[s]));
 }
 function showVersus(tid) {
   const boss = DATA.trainers[tid];
@@ -595,20 +651,19 @@ function showVersus(tid) {
   const myTeam = (savData && savData.party) || [];
   const bossTeam = boss.hardcore || [];
   const html = '<div class="vs-modal">' +
-    '<div class="vs-trainer">' + playerTrainerHtml() + '</div>' +
-    '<div class="vs-half"><div class="vs-label you">Your Team</div>' +
+    '<div class="vs-half">' + vsScene('left', boss, myTeam) +
       (myTeam.length ? '<div class="vs-team" id="vs-team-left">' + teamCircles(myTeam, 'left') + '</div>'
         : '<div class="vs-empty">Import your save in the <b>Box</b> tab to load your team here.</div>') +
       '<div class="vs-detail" id="vs-detail-left"></div></div>' +
     '<div class="vs-center">VS</div>' +
-    '<div class="vs-half"><div class="vs-label">' + esc(boss.name) + '</div>' +
+    '<div class="vs-half">' + vsScene('right', boss, bossTeam) +
       '<div class="vs-team" id="vs-team-right">' + teamCircles(bossTeam, 'right') + '</div>' +
       '<div class="vs-detail" id="vs-detail-right"></div></div>' +
-    '<div class="vs-trainer">' + trainerSprite(boss) + '<div class="vs-tname">' + esc(boss.name) + '</div></div>' +
     '</div>';
   openModal(html, 'vs-modal-box');
   renderVsDetail('left');
   renderVsDetail('right');
+  sizeLineups();
 }
 function evIvLine(arr, label) {
   if (!arr) return '';
@@ -893,7 +948,7 @@ function init() {
   modal.addEventListener('click', (e) => {
     if (e.target.closest('[data-close]')) { closeModal(); return; }
     const vc = e.target.closest('[data-vsside]');
-    if (vc) { const s = vc.dataset.vsside; vs[s] = +vc.dataset.vsidx; document.querySelectorAll('#vs-team-' + s + ' .vs-circle').forEach((b, i) => b.classList.toggle('on', i === vs[s])); renderVsDetail(s); return; }
+    if (vc) { const s = vc.dataset.vsside; vs[s] = +vc.dataset.vsidx; highlightVs(s); renderVsDetail(s); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
