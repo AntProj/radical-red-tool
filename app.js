@@ -552,53 +552,79 @@ let vs = { tid: null, left: 0, right: 0 };
 function vsTeam(side) {
   return side === 'right' ? ((DATA.trainers[vs.tid] && DATA.trainers[vs.tid].hardcore) || []) : ((savData && savData.party) || []);
 }
-function teamCircles(team, side) {
+const PLAYER_SPRITE = 'assets/player-red.png';
+// Clickable party lineup that lives inside a band (selects the active mon).
+function vsParty(side, team) {
   return team.map((m, i) => {
-    const sp = DATA.species[m.species];
-    return '<button class="vs-circle' + (i === vs[side] ? ' on' : '') + '" data-vsside="' + side + '" data-vsidx="' + i + '" title="' +
-      (sp ? esc(sp.name) : '') + '"><img src="' + (sp ? spriteFor(sp) : (DATA.sprites[0] || '')) + '" alt=""></button>';
-  }).join('');
-}
-function vsMonDetail(m, isBoss) {
-  const sp = DATA.species[m.species];
-  if (!sp) return '<div class="vs-empty">Unknown species #' + m.species + '</div>';
-  const lvl = isBoss ? resolveLevel(m.level) : m.level;
-  const total = sp.stats.reduce((a, b) => a + b, 0);
-  const name = (!isBoss && m.nickname && !m.isEgg) ? esc(m.nickname) : esc(sp.name);
-  let h = '<div class="vsd-head"><img class="vsd-sprite" src="' + spriteFor(sp) + '" alt="">' +
-    '<div><div class="vsd-name">' + name + ' <span class="tc-lv">Lv ' + lvl + '</span></div>' +
-    '<div class="d-types">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
-  h += '<div class="vsd-stats">';
-  sp.stats.forEach((v, i) => {
-    h += '<div class="stat"><span class="stat-label">' + STAT_LABELS[i] + '</span><span class="stat-val">' + v +
-      '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
-  });
-  h += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></div>';
-  const moves = (m.moves || []).map((id) => { const mv = DATA.moves[id]; return mv ? '<div class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : ''; }).join('');
-  if (moves) h += '<div class="tc-moves vsd-moves">' + moves + '</div>';
-  return h;
-}
-function renderVsDetail(side) {
-  const el = document.getElementById('vs-detail-' + side);
-  if (!el) return;
-  const m = vsTeam(side)[vs[side]];
-  el.innerHTML = m ? vsMonDetail(m, side === 'right') : '';
-}
-// Thematic battle scene: bigger trainer sprite (outer edge) + the team's
-// full sprites lined up, scaled to each Pokémon's real drawn size.
-function vsScene(side, boss, team) {
-  const trainer = side === 'right'
-    ? trainerSprite(boss) + '<div class="vs-tname">' + esc(boss.name) + '</div>'
-    : '<div class="tr-ph big" title="You">🧑‍🦱</div><div class="vs-tname you">' +
-      esc((savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You') + '</div>';
-  const mons = team.map((m, i) => {
     const sp = DATA.species[m.species];
     const uri = sp ? spriteFor(sp) : (DATA.sprites[0] || '');
     return '<img class="vs-mon' + (i === vs[side] ? ' on' : '') + '" data-vsside="' + side + '" data-vsidx="' + i +
       '" data-rawsrc="' + uri + '" src="' + uri + '" alt="" title="' + (sp ? esc(sp.name) : '') + '">';
   }).join('');
-  return '<div class="vs-scene ' + side + '"><div class="vs-trainer-big">' + trainer + '</div>' +
-    '<div class="vs-lineup" id="vs-lineup-' + side + '">' + mons + '</div></div>';
+}
+function vsBand(side, boss, team) {
+  const isBoss = side === 'right';
+  const name = isBoss ? esc(boss.name) : esc((savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You');
+  const sub = isBoss ? ('Hardcore Boss · ' + team.length + ' Pokémon')
+    : (team.length ? ('Your Party · ' + team.length + ' Pokémon') : 'No save loaded');
+  return '<div class="hth-band ' + side + '"><div class="hth-tname">' + name + '<span>' + sub + '</span></div>' +
+    '<div class="vs-party ' + side + '" id="vs-party-' + side + '">' + vsParty(side, team) + '</div></div>';
+}
+function vsTrainerImg(side, boss) {
+  if (side === 'right') {
+    const url = bossSprite[boss.ID];
+    return url ? '<img class="hth-trainer r" src="' + esc(url) + '" referrerpolicy="no-referrer" alt="" onerror="this.style.display=\'none\'">' : '';
+  }
+  return '<img class="hth-trainer l" src="' + PLAYER_SPRITE + '" alt="">';
+}
+// ----- Head-to-Head comparison (heads + diverging stat bars + moves) -----
+function hthHead(m, isBoss) {
+  const side = isBoss ? 'r' : 'l';
+  const sp = m ? DATA.species[m.species] : null;
+  if (!sp) return '<div class="hth-head ' + side + '"><div class="hth-noteam">Import your save in the <b>Box</b> tab to load your team.</div></div>';
+  const lvl = isBoss ? resolveLevel(m.level) : m.level;
+  const name = (!isBoss && m.nickname && !m.isEgg) ? esc(m.nickname) : esc(sp.name);
+  return '<div class="hth-head ' + side + '"><img class="hth-hsprite" src="' + spriteFor(sp) + '" alt="">' +
+    '<div class="hth-hmeta"><div class="hth-hname">' + name + '</div><div class="hth-hlv">Lv ' + lvl + '</div>' +
+    '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
+}
+function hthStatRow(label, lv, rv, isBST) {
+  const max = isBST ? 720 : 150;
+  const lw = lv != null ? Math.min(100, lv / max * 100) : 0;
+  const rw = rv != null ? Math.min(100, rv / max * 100) : 0;
+  const lWin = lv != null && rv != null && lv > rv, rWin = lv != null && rv != null && rv > lv;
+  const lcol = isBST ? (lWin ? 'var(--accent)' : '#5b6472') : statColor(lv || 0);
+  const rcol = isBST ? (rWin ? 'var(--accent)' : '#5b6472') : statColor(rv || 0);
+  return '<div class="hth-row' + (isBST ? ' bst' : '') + '">' +
+    '<span class="hth-bar l"><i' + (rWin ? ' class="dim"' : '') + ' style="width:' + lw + '%;background:' + lcol + '"></i></span>' +
+    '<span class="hth-v l' + (lWin ? ' win' : rWin ? ' lose' : '') + '">' + (lv != null ? lv : '—') + '</span>' +
+    '<span class="hth-lab">' + label + '</span>' +
+    '<span class="hth-v r' + (rWin ? ' win' : lWin ? ' lose' : '') + '">' + (rv != null ? rv : '—') + '</span>' +
+    '<span class="hth-bar r"><i' + (lWin ? ' class="dim"' : '') + ' style="width:' + rw + '%;background:' + rcol + '"></i></span></div>';
+}
+function hthStats(Lm, Rm) {
+  const Ls = Lm ? DATA.species[Lm.species] : null, Rs = Rm ? DATA.species[Rm.species] : null;
+  let h = '<div class="hth-stats">';
+  STAT_LABELS.forEach((lab, i) => { h += hthStatRow(lab, Ls ? Ls.stats[i] : null, Rs ? Rs.stats[i] : null, false); });
+  h += hthStatRow('BST', Ls ? Ls.stats.reduce((a, b) => a + b, 0) : null, Rs ? Rs.stats.reduce((a, b) => a + b, 0) : null, true);
+  return h + '</div>';
+}
+function hthMoves(m, isBoss) {
+  const side = isBoss ? 'r' : 'l';
+  const sp = m ? DATA.species[m.species] : null;
+  const name = sp ? ((!isBoss && m.nickname && !m.isEgg) ? esc(m.nickname) : esc(sp.name)) : '';
+  const moves = ((m && m.moves) || []).filter(Boolean).map((id) => {
+    const mv = DATA.moves[id];
+    return mv ? '<div class="bm-move hth-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : '';
+  }).join('');
+  return '<div class="hth-mcol ' + side + '"><div class="hth-mtitle">' + (name ? name + '’s Moves' : 'Moves') + '</div>' + moves + '</div>';
+}
+function renderHthCompare() {
+  const el = document.getElementById('hth-compare');
+  if (!el) return;
+  const Lm = vsTeam('left')[vs.left], Rm = vsTeam('right')[vs.right];
+  el.innerHTML = '<div class="hth-heads">' + hthHead(Lm, false) + hthHead(Rm, true) + '</div>' +
+    hthStats(Lm, Rm) + '<div class="hth-moves">' + hthMoves(Lm, false) + hthMoves(Rm, true) + '</div>';
 }
 // Crop a data-URI sprite to its opaque bounding box and report its real drawn
 // height (so the lineup can scale each mon to its actual size). Cached by URI.
@@ -610,7 +636,7 @@ function cropAndSize(img) {
     if (!box) return;
     img.src = box.uri;
     const oh = Math.max(14, Math.min(64, box.oh));
-    img.style.height = Math.round(30 + (oh - 14) / (64 - 14) * (86 - 30)) + 'px';
+    img.style.height = Math.round(26 + (oh - 14) / (64 - 14) * (58 - 26)) + 'px';
     img.classList.add('sized');
   };
   if (_spriteBox[raw]) { apply(_spriteBox[raw]); return; }
@@ -638,11 +664,10 @@ function cropAndSize(img) {
   im.src = raw;
 }
 function sizeLineups() {
-  document.querySelectorAll('.vs-lineup .vs-mon').forEach(cropAndSize);
+  document.querySelectorAll('.vs-party .vs-mon').forEach(cropAndSize);
 }
 function highlightVs(s) {
-  document.querySelectorAll('#vs-team-' + s + ' .vs-circle').forEach((b, i) => b.classList.toggle('on', i === vs[s]));
-  document.querySelectorAll('#vs-lineup-' + s + ' .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs[s]));
+  document.querySelectorAll('#vs-party-' + s + ' .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs[s]));
 }
 function showVersus(tid) {
   const boss = DATA.trainers[tid];
@@ -651,18 +676,14 @@ function showVersus(tid) {
   const myTeam = (savData && savData.party) || [];
   const bossTeam = boss.hardcore || [];
   const html = '<div class="vs-modal">' +
-    '<div class="vs-half">' + vsScene('left', boss, myTeam) +
-      (myTeam.length ? '<div class="vs-team" id="vs-team-left">' + teamCircles(myTeam, 'left') + '</div>'
-        : '<div class="vs-empty">Import your save in the <b>Box</b> tab to load your team here.</div>') +
-      '<div class="vs-detail" id="vs-detail-left"></div></div>' +
-    '<div class="vs-center">VS</div>' +
-    '<div class="vs-half">' + vsScene('right', boss, bossTeam) +
-      '<div class="vs-team" id="vs-team-right">' + teamCircles(bossTeam, 'right') + '</div>' +
-      '<div class="vs-detail" id="vs-detail-right"></div></div>' +
-    '</div>';
+    vsTrainerImg('left', boss) + vsTrainerImg('right', boss) +
+    '<div class="hth-card">' +
+      '<div class="hth-bands">' + vsBand('left', boss, myTeam) + vsBand('right', boss, bossTeam) +
+        '<div class="hth-vs">VS</div></div>' +
+      '<div class="hth-compare" id="hth-compare"></div>' +
+    '</div></div>';
   openModal(html, 'vs-modal-box');
-  renderVsDetail('left');
-  renderVsDetail('right');
+  renderHthCompare();
   sizeLineups();
 }
 function evIvLine(arr, label) {
@@ -939,7 +960,7 @@ function init() {
       playerHighest = Math.max(1, Math.min(255, parseInt(e.target.value, 10) || 100));
       try { localStorage.setItem('rr_highest', playerHighest); } catch (_) {}
       if (hcSub === 'bosses') renderBossGrid();
-      if (!document.getElementById('modal').hidden && vs.tid != null) { renderVsDetail('left'); renderVsDetail('right'); }
+      if (!document.getElementById('modal').hidden && vs.tid != null) { renderHthCompare(); }
     }
   });
 
@@ -948,7 +969,7 @@ function init() {
   modal.addEventListener('click', (e) => {
     if (e.target.closest('[data-close]')) { closeModal(); return; }
     const vc = e.target.closest('[data-vsside]');
-    if (vc) { const s = vc.dataset.vsside; vs[s] = +vc.dataset.vsidx; highlightVs(s); renderVsDetail(s); return; }
+    if (vc) { const s = vc.dataset.vsside; vs[s] = +vc.dataset.vsidx; highlightVs(s); renderHthCompare(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
