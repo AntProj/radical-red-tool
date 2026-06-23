@@ -114,19 +114,41 @@ h1 { margin: 0; }
 
 /* Trainer Order */
 .to-list { display: flex; flex-direction: column; }
-.to-cap { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--accent); margin: 16px 0 6px; }
+.to-cap { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--accent); margin: 20px 0 6px; }
 .to-cap:first-child { margin-top: 0; }
 .to-entry { border-bottom: 1px solid var(--line); }
-.to-row { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 7px; }
+.to-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; }
 .to-entry.linkable .to-row { cursor: pointer; }
 .to-entry.linkable .to-row:hover { background: var(--panel-2); }
-.to-name { font-weight: 600; flex: 0 0 auto; min-width: 200px; }
-.to-entry.linkable .to-name { color: #7db1ff; }
-.to-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #ffce6b; border: 1px solid #6a571f; background: #2a2410; padding: 0 5px; border-radius: 5px; margin-left: 8px; }
+.to-chev { flex: 0 0 13px; font-size: 11px; color: var(--muted-2); transition: transform .12s, color .12s; }
+.to-entry.open .to-chev { transform: rotate(90deg); color: var(--accent); }
+.to-name { font: 600 14px system-ui; color: #7db1ff; flex: 0 0 auto; min-width: 210px; }
+.to-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #ffce6b; border: 1px solid #6a571f; background: #2a2410; padding: 1px 6px; border-radius: 5px; }
 .to-loc { color: var(--muted); font-size: 12.5px; flex: 1; }
-.to-team { display: none; flex-direction: column; gap: 8px; padding: 4px 10px 12px; }
-.to-entry.open .to-team { display: flex; }
-@media (min-width: 720px) { .to-team { display: none; } .to-entry.open .to-team { display: grid; grid-template-columns: 1fr 1fr; } }
+.to-team { display: none; padding: 6px 10px 16px; }
+.to-entry.open .to-team { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+
+/* trainer-order team card (handoff wireframe field order) */
+.omon { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 11px; display: flex; flex-direction: column; min-width: 0; }
+.omon-sprite { width: 58px; height: 58px; align-self: center; image-rendering: pixelated; background: var(--panel-2); border-radius: 9px; cursor: pointer; }
+.omon-name { text-align: center; font: 700 13px system-ui; color: var(--text); margin-top: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.omon-lv { text-align: center; font: 700 11px ui-monospace, monospace; color: var(--muted); margin-top: 1px; }
+.omon-types { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+.omon-div { height: 1px; background: var(--line); margin: 11px 0 2px; }
+.omon-lab { font: 700 8px ui-monospace, monospace; color: #5f6773; letter-spacing: .5px; text-transform: uppercase; margin: 10px 0 4px; }
+.omon-val { font: 600 12px system-ui; color: var(--text); overflow-wrap: anywhere; }
+.omon-item { display: flex; align-items: center; gap: 6px; }
+.omon-idot { width: 14px; height: 14px; flex: 0 0 14px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); }
+.omon .tc-moves { gap: 5px; }
+.omon .bm-move .type-chip { flex: 0 0 52px; font-size: 9px; padding: 2px 0; letter-spacing: .2px; }
+.omon .bm-mname { font-size: 11px; }
+.omon-stats { display: flex; flex-direction: column; gap: 3px; }
+.omon-stat { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 6px; }
+.omon-slab { font: 700 9px ui-monospace, monospace; color: var(--muted); text-transform: uppercase; }
+.omon-sbar { height: 4px; background: #0f1115; border-radius: 3px; overflow: hidden; }
+.omon-sbar i { display: block; height: 100%; border-radius: 3px; }
+@media (max-width: 860px) { .to-entry.open .to-team { grid-template-columns: repeat(3, 1fr); } .to-name { min-width: 150px; } }
+@media (max-width: 560px) { .to-entry.open .to-team { grid-template-columns: repeat(2, 1fr); } }
 
 /* ---------- Shared components ---------- */
 .d-head { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }

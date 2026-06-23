@@ -465,13 +465,17 @@ function trainerOrderHtml() {
   let lastCap = null;
   for (const e of order) {
     if (e.cap !== lastCap) { rows += '<div class="to-cap">Level Cap ' + esc(e.cap) + '</div>'; lastCap = e.cap; }
-    rows += '<div class="to-entry' + (e.trainerId ? ' linkable' : '') + '"' + (e.trainerId ? ' data-boss="' + e.trainerId + '"' : '') + '>' +
-      '<div class="to-row"><span class="to-name">' + esc(e.name) + (e.optional ? '<span class="to-opt">optional</span>' : '') + '</span>' +
-      '<span class="to-loc">' + esc(e.location || '') + '</span>' +
-      (e.trainerId ? '<button class="vs-btn sm" data-vs="' + e.trainerId + '">⚔ VS</button>' : '') + '</div>' +
-      '<div class="to-team"></div></div>';
+    const link = !!e.trainerId;
+    rows += '<div class="to-entry' + (link ? ' linkable' : '') + '"' + (link ? ' data-boss="' + e.trainerId + '"' : '') + '>' +
+      '<div class="to-row">' +
+        '<span class="to-chev">' + (link ? '▸' : '') + '</span>' +
+        '<span class="to-name">' + esc(e.name) + '</span>' +
+        (e.optional ? '<span class="to-opt">optional</span>' : '') +
+        '<span class="to-loc">' + esc(e.location || '') + '</span>' +
+        (link ? '<button class="vs-btn sm" data-vs="' + e.trainerId + '">⚔ VS</button>' : '') +
+      '</div><div class="to-team"></div></div>';
   }
-  return '<div class="page-head"><h1>Trainer Order</h1><p class="page-sub">Story-order fights with their level caps. Click a trainer to see their team, or ⚔ Versus to compare against your party.</p></div>' +
+  return '<div class="page-head"><h1>Trainer Order</h1><p class="page-sub">Story-order fights with their level caps. Click a trainer to expand their team, or ⚔ VS to compare against your party.</p></div>' +
     '<div class="to-list">' + rows + '</div>';
 }
 function bossCatList() { return (DATA.hardcore.categories || []).map((c) => ({ key: c.name, label: c.name })); }
@@ -535,15 +539,16 @@ function trainerSprite(t) {
     : '<div class="tr-ph" title="' + esc(t.name) + '">🧑‍🎤</div>';
 }
 // Inline collapsible team (shown under a boss card / trainer-order row).
-function bossTeamHtml(id) {
+function bossTeamHtml(id, cardFn) {
   const t = DATA.trainers[id];
-  return t && t.hardcore ? t.hardcore.map(bossMonCard).join('') : '';
+  const fn = cardFn || bossMonCard;
+  return t && t.hardcore ? t.hardcore.map(fn).join('') : '';
 }
-function toggleInlineTeam(el, id, panelSel) {
+function toggleInlineTeam(el, id, panelSel, cardFn) {
   const panel = el.querySelector(panelSel);
   if (!panel) return;
   if (el.classList.contains('open')) { el.classList.remove('open'); return; }
-  if (!panel.dataset.filled) { panel.innerHTML = bossTeamHtml(id); panel.dataset.filled = '1'; }
+  if (!panel.dataset.filled) { panel.innerHTML = bossTeamHtml(id, cardFn); panel.dataset.filled = '1'; }
   el.classList.add('open');
 }
 
@@ -755,6 +760,34 @@ function bossMonCard(m) {
     '<div class="tc-info"><div class="tc-ab"><b>' + esc(ab) + '</b>' + (meta ? ' · ' + meta : '') + '</div><div class="tc-moves">' + moves + '</div>' +
     (ev ? '<div class="tc-ev">' + ev + '</div>' : '') + (iv ? '<div class="tc-ev">' + iv + '</div>' : '') + '</div></div>';
 }
+// Detailed vertical team card for the Trainer Order 6-up grid (handoff wireframe
+// field order: sprite, name, level, types | nature, ability, item, moves, stats).
+function orderMonCard(m) {
+  const sp = DATA.species[m.species];
+  if (!sp) return '<div class="omon"></div>';
+  const slot = sp.abilities && sp.abilities[m.ability] && sp.abilities[m.ability][0];
+  const ab = slot && DATA.abilities[slot] ? DATA.abilities[slot].names[0] : '—';
+  const item = (m.item && DATA.items[m.item]) ? DATA.items[m.item].name : '—';
+  const nature = DATA.natures[m.nature] || '—';
+  const moves = (m.moves || []).filter(Boolean).map((id) => {
+    const mv = DATA.moves[id];
+    return mv ? '<div class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : '';
+  }).join('');
+  const stats = sp.stats.map((v, i) => '<div class="omon-stat"><span class="omon-slab">' + STAT_LABELS[i] +
+    '</span><span class="omon-sbar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>').join('');
+  return '<div class="omon">' +
+    '<img class="omon-sprite" src="' + spriteFor(sp) + '" alt="" data-go-mon="' + m.species + '">' +
+    '<div class="omon-name" title="' + esc(sp.name) + '">' + esc(sp.name) + '</div>' +
+    '<div class="omon-lv">Lv ' + resolveLevel(m.level) + '</div>' +
+    '<div class="omon-types">' + sp.type.map((t) => typeChip(t)).join('') + '</div>' +
+    '<div class="omon-div"></div>' +
+    '<div class="omon-lab">Nature</div><div class="omon-val">' + esc(nature) + '</div>' +
+    '<div class="omon-lab">Ability</div><div class="omon-val">' + esc(ab) + '</div>' +
+    '<div class="omon-lab">Item</div><div class="omon-val omon-item"><span class="omon-idot"></span><span>' + esc(item) + '</span></div>' +
+    '<div class="omon-lab">Moves</div><div class="tc-moves">' + moves + '</div>' +
+    '<div class="omon-lab">Stats</div><div class="omon-stats">' + stats + '</div>' +
+  '</div>';
+}
 
 /* ================= Box (save import) ================= */
 let savData = null, activeBoxTab = 'party';
@@ -941,7 +974,16 @@ function init() {
     if (e.target.closest('[data-dex]')) { openDexModal(); return; }
     const sub = e.target.closest('[data-sub]'); if (sub) { setHcSub(sub.dataset.sub); return; }
     const bc = e.target.closest('.bcard[data-boss]'); if (bc) { toggleInlineTeam(bc, Number(bc.dataset.boss), '.bcard-team'); return; }
-    const te = e.target.closest('.to-entry[data-boss]'); if (te) { toggleInlineTeam(te, Number(te.dataset.boss), '.to-team'); return; }
+    const trow = e.target.closest('.to-row');
+    if (trow) {
+      const te = trow.closest('.to-entry[data-boss]');
+      if (te) {
+        const wasOpen = te.classList.contains('open');
+        document.querySelectorAll('.to-list .to-entry.open').forEach((o) => o.classList.remove('open')); // accordion: single-open
+        if (!wasOpen) toggleInlineTeam(te, Number(te.dataset.boss), '.to-team', orderMonCard);
+      }
+      return;
+    }
     const chip = e.target.closest('.fchip'); if (chip) { const [, v] = chip.dataset.f.split(':'); bossCat.has(v) ? bossCat.delete(v) : bossCat.add(v); document.getElementById('hc-filters').innerHTML = chipRow(bossCatList(), 'b', bossCat); renderBossGrid(); }
   });
   // Box view (delegated): file picker, drag-drop, sub-tabs, mon -> dex
