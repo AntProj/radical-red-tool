@@ -553,13 +553,18 @@ function vsTeam(side) {
   return side === 'right' ? ((DATA.trainers[vs.tid] && DATA.trainers[vs.tid].hardcore) || []) : ((savData && savData.party) || []);
 }
 const PLAYER_SPRITE = 'assets/player-red.png';
-// Clickable party lineup that lives inside a band (selects the active mon).
+// Clickable party "huddle" inside a band — an overlapping team-photo cluster
+// (varied baselines via --j, mixed horizontal flips), selects the active mon.
+const VS_JITTER = [-7, -3, -11, -5, -9, -4];
 function vsParty(side, team) {
   return team.map((m, i) => {
     const sp = DATA.species[m.species];
     const uri = sp ? spriteFor(sp) : (DATA.sprites[0] || '');
-    return '<img class="vs-mon' + (i === vs[side] ? ' on' : '') + '" data-vsside="' + side + '" data-vsidx="' + i +
-      '" data-rawsrc="' + uri + '" src="' + uri + '" alt="" title="' + (sp ? esc(sp.name) : '') + '">';
+    const flip = side === 'right' ? (i % 2 === 0) : (i % 2 === 1);
+    return '<img class="vs-mon' + (flip ? ' flip' : '') + (i === vs[side] ? ' on' : '') +
+      '" style="--j:' + VS_JITTER[i % VS_JITTER.length] + 'px;z-index:' + (i + 1) + '"' +
+      ' data-vsside="' + side + '" data-vsidx="' + i + '" data-rawsrc="' + uri + '" src="' + uri +
+      '" alt="" title="' + (sp ? esc(sp.name) : '') + '">';
   }).join('');
 }
 function vsBand(side, boss, team) {
@@ -589,7 +594,7 @@ function hthHead(m, isBoss) {
     '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
 }
 function hthStatRow(label, lv, rv, isBST) {
-  const max = isBST ? 720 : 150;
+  const max = isBST ? 600 : 120;
   const lw = lv != null ? Math.min(100, lv / max * 100) : 0;
   const rw = rv != null ? Math.min(100, rv / max * 100) : 0;
   const lWin = lv != null && rv != null && lv > rv, rWin = lv != null && rv != null && rv > lv;
@@ -636,7 +641,7 @@ function cropAndSize(img) {
     if (!box) return;
     img.src = box.uri;
     const oh = Math.max(14, Math.min(64, box.oh));
-    img.style.height = Math.round(26 + (oh - 14) / (64 - 14) * (58 - 26)) + 'px';
+    img.style.height = Math.round(34 + (oh - 14) / (64 - 14) * (66 - 34)) + 'px';
     img.classList.add('sized');
   };
   if (_spriteBox[raw]) { apply(_spriteBox[raw]); return; }
