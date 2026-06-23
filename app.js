@@ -460,17 +460,18 @@ function areaMoveRow(moveId, opts) {
   const mv = DATA.moves[moveId];
   if (!mv) return '';
   opts = opts || {};
+  const stats = opts.noStats ? '' :
+    '<span class="acat-mstat">Pwr ' + (mv.power || '—') + '</span><span class="acat-mstat">Acc ' + (mv.accuracy || '—') + '</span>';
   return '<div class="acat-mrow">' +
     '<div class="acat-mtop">' + (opts.icon || '') + '<span class="acat-name">' + esc(opts.label || mv.name) + '</span>' +
     (opts.tag ? '<span class="acat-tmtag">' + esc(opts.tag) + '</span>' : '') + '</div>' +
-    '<div class="acat-mmeta">' + typeChip(mv.type, true) +
-    '<span class="acat-mstat">Pwr ' + (mv.power || '—') + '</span><span class="acat-mstat">Acc ' + (mv.accuracy || '—') + '</span></div></div>';
+    '<div class="acat-mmeta">' + typeChip(mv.type, true) + stats + '</div></div>';
 }
 function areaItemRow(id) {
   const it = DATA.items[id];
   if (!it) return '<div class="acat-row no-link"><span class="acat-iicon"></span><span class="acat-name">#' + id + '</span></div>';
   const tm = tmMove(it.name);
-  if (tm) return areaMoveRow(tm.ID, { icon: itemIcon(id, 'acat-iimg', 'acat-iicon'), label: tm.name, tag: it.name });
+  if (tm) return areaMoveRow(tm.ID, { icon: itemIcon(id, 'acat-iimg', 'acat-iicon'), label: tm.name, tag: it.name, noStats: true });
   return '<div class="acat-row no-link">' + itemIcon(id, 'acat-iimg', 'acat-iicon') + '<span class="acat-name">' + esc(it.name) + '</span></div>';
 }
 function areaCategoriesHtml(a) {
