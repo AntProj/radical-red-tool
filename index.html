@@ -16,6 +16,7 @@
       <button data-mode="areas">Areas</button>
       <button data-mode="hardcore">Hardcore</button>
       <button data-mode="calc">Calc</button>
+      <button data-mode="box">Box</button>
     </nav>
     <button id="split-btn" title="Open a second pane side-by-side">⊟ Split</button>
     <nav id="tabs-right" hidden>
@@ -24,6 +25,7 @@
       <button data-rmode="areas">Areas</button>
       <button data-rmode="hardcore">Hardcore</button>
       <button data-rmode="calc">Calc</button>
+      <button data-rmode="box">Box</button>
     </nav>
   </header>
 
@@ -55,6 +57,11 @@
     <section id="view-calc" class="view" hidden>
       <iframe id="calc-frame" title="Radical Red Damage Calculator" data-src="calc/index.html"></iframe>
     </section>
+
+    <!-- BOX: import a .sav and view your caught Pokémon -->
+    <section id="view-box" class="view fullview" hidden>
+      <div id="box-body"></div>
+    </section>
   </div>
 </div>
 
@@ -71,6 +78,7 @@
   <div id="loading-text">Loading Radical Red data…</div>
 </div>
 
+<script src="sav.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -611,8 +611,87 @@ function bossMonCard(m) {
     (ev ? '<div class="tc-ev">' + ev + '</div>' : '') + (iv ? '<div class="tc-ev">' + iv + '</div>' : '') + '</div></div>';
 }
 
+/* ================= Box (save import) ================= */
+let savData = null, activeBoxTab = 'party';
+
+function pickSave() {
+  let inp = document.getElementById('sav-input-global');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file'; inp.id = 'sav-input-global'; inp.accept = '.sav,.srm,.sa1,.bin,.dsv'; inp.hidden = true;
+    document.body.appendChild(inp);
+    inp.addEventListener('change', () => { if (inp.files && inp.files[0]) loadSaveFile(inp.files[0]); inp.value = ''; });
+  }
+  inp.click();
+}
+function loadSaveFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const res = window.RRSav ? RRSav.parse(reader.result) : { ok: false, error: 'Parser not loaded.' };
+    if (res.ok) {
+      savData = res;
+      const fb = res.boxes.findIndex((b) => b.mons.length);
+      activeBoxTab = res.party.length ? 'party' : (fb >= 0 ? String(fb) : 'party');
+    } else { savData = { error: res.error, diag: res.diag }; }
+    renderBox();
+  };
+  reader.onerror = () => { savData = { error: 'Could not read the file.' }; renderBox(); };
+  reader.readAsArrayBuffer(file);
+}
+function renderBox() {
+  const el = document.getElementById('box-body');
+  if (!el) return;
+  if (!savData || !savData.party) {
+    const err = savData && savData.error
+      ? '<div class="box-err">' + esc(savData.error) + (savData.diag ? ' <code>' + esc(JSON.stringify(savData.diag)) + '</code>' : '') + '</div>' : '';
+    el.innerHTML = '<div class="page"><div class="page-head"><h1>Box</h1>' +
+      '<p class="page-sub">Import your Radical Red <b>.sav</b> to view your party and PC boxes. The file is read entirely in your browser — nothing is uploaded.</p></div>' +
+      '<div class="box-drop" id="box-drop"><div class="box-drop-icon">📦</div>' +
+      '<button class="dex-btn" data-savpick>Choose .sav file…</button>' +
+      '<div class="box-hint">or drag &amp; drop it here</div></div>' + err + '</div>';
+    return;
+  }
+  const tabs = [];
+  if (savData.party.length) tabs.push(['party', 'Party · ' + savData.party.length]);
+  savData.boxes.forEach((b, i) => { if (b.mons.length) tabs.push([String(i), b.name + ' · ' + b.mons.length]); });
+  if (!tabs.some((t) => t[0] === String(activeBoxTab))) activeBoxTab = tabs.length ? tabs[0][0] : 'party';
+  const mons = activeBoxTab === 'party' ? savData.party : (savData.boxes[+activeBoxTab] ? savData.boxes[+activeBoxTab].mons : []);
+  const total = savData.party.length + savData.boxes.reduce((n, b) => n + b.mons.length, 0);
+  let html = '<div class="page"><div class="page-head"><h1>Box</h1>' +
+    '<p class="page-sub">' + total + ' Pokémon imported · <button class="link-btn" data-savpick>load another save</button></p></div>' +
+    '<div class="subbar"><div class="subtabs">' + tabs.map(([k, l]) =>
+      '<button class="subtab' + (String(activeBoxTab) === k ? ' active' : '') + '" data-boxtab="' + k + '">' + esc(l) + '</button>').join('') + '</div></div>' +
+    '<div class="box-grid">' + mons.map(boxMonCard).join('') + '</div></div>';
+  el.innerHTML = html;
+}
+function boxMonCard(mon) {
+  const sp = DATA.species[mon.species];
+  const sprite = sp ? spriteFor(sp) : (DATA.sprites[0] || '');
+  const name = mon.isEgg ? 'Egg' : (mon.nickname || (sp ? sp.name : 'Species #' + mon.species));
+  const speciesName = sp ? sp.name : ('#' + mon.species);
+  const item = mon.heldItem && DATA.items[mon.heldItem] ? DATA.items[mon.heldItem].name : '';
+  const nature = DATA.natures[mon.nature] || '';
+  const abId = sp && sp.abilities && sp.abilities[mon.abilityNum] ? sp.abilities[mon.abilityNum][0] : 0;
+  const ab = abId && DATA.abilities[abId] ? DATA.abilities[abId].names[0] : '';
+  const moves = mon.moves.map((id) => { const mv = DATA.moves[id]; return mv ? '<span class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></span>' : ''; }).join('');
+  const ivParts = []; mon.ivs.forEach((v, i) => { if (v < 31) ivParts.push(v + ' ' + STAT_LABELS[i]); });
+  const evParts = []; mon.evs.forEach((v, i) => { if (v > 0) evParts.push(v + ' ' + STAT_LABELS[i]); });
+  const stats = '<span class="evk">IV</span> ' + (ivParts.length ? ivParts.join(' / ') : 'all 31') +
+    (evParts.length ? '  <span class="evk">EV</span> ' + evParts.join(' / ') : '');
+  const types = sp ? sp.type.map((t) => typeChip(t, true)).join('') : '';
+  return '<div class="team-card box-card"' + (sp && !mon.isEgg ? ' data-go-mon="' + mon.species + '"' : '') + '>' +
+    '<div class="tc-head">' + (mon.shiny ? '<span class="shiny" title="Shiny">★</span>' : '') +
+      '<img src="' + sprite + '" alt=""><div class="tc-id"><div class="tc-name">' + esc(name) +
+      ' <span class="tc-lv">' + (mon.levelExact ? 'Lv ' : '~Lv ') + mon.level + '</span></div>' +
+      '<div class="bx-sub">' + esc(speciesName) + ' ' + types + '</div></div></div>' +
+    '<div class="tc-info"><div class="tc-ab">' + (ab ? '<b>' + esc(ab) + '</b>' : '') +
+      (nature ? ' · ' + esc(nature) : '') + (item ? ' · ' + esc(item) : '') + '</div>' +
+      (moves ? '<div class="tc-moves">' + moves + '</div>' : '') +
+      '<div class="tc-ev">' + stats + '</div></div></div>';
+}
+
 /* ================= Navigation ================= */
-const SECTIONS = ['pokemon', 'areas', 'hardcore', 'calc'];
+const SECTIONS = ['pokemon', 'areas', 'hardcore', 'calc', 'box'];
 function ensureCalc() {
   const f = document.getElementById('calc-frame');
   if (f && !f.src && f.dataset.src) f.src = f.dataset.src;  // lazy-load the ~8 MB calc on first open
@@ -621,6 +700,7 @@ function renderSection(sec) {
   if (sec === 'areas') { if (areaView === 'detail' && activeAreaIdx != null) showArea(activeAreaIdx); else showAreaIndex(); }
   else if (sec === 'hardcore') { renderHardcore(); if (hcSub === 'bosses') renderBossGrid(); }
   else if (sec === 'calc') ensureCalc();
+  else if (sec === 'box') renderBox();
   // pokemon view persists (list + detail already rendered)
 }
 function updateViews() {
@@ -641,7 +721,7 @@ function setMode(m, fromHash) {
   updateViews();
   renderSection(m);
   if (splitMode && rightMode) renderSection(rightMode);
-  if (!fromHash) setHash(m === 'pokemon' ? (activeId ? String(activeId) : '') : m === 'areas' ? 'areas' : m === 'calc' ? 'calc' : hcSub);
+  if (!fromHash) setHash(m === 'pokemon' ? (activeId ? String(activeId) : '') : m === 'areas' ? 'areas' : m === 'calc' ? 'calc' : m === 'box' ? 'box' : hcSub);
 }
 function setRightMode(sec) { if (sec === mode) return; rightMode = sec; updateViews(); renderSection(sec); }
 function toggleSplit() {
@@ -664,6 +744,7 @@ function applyHash() {
   if (h[0] === 'a' && /^a\d+$/.test(h)) { goArea(Number(h.slice(1))); return true; }
   if (h.startsWith('boss') && DATA.trainers[h.slice(4)]) { goBoss(Number(h.slice(4))); return true; }
   if (h === 'calc') { setMode('calc', true); return true; }
+  if (h === 'box') { setMode('box', true); return true; }
   if (h === 'order' || h === 'bosses' || h === 'info') { setMode('hardcore', true); hcSub = h; renderHardcore(); if (h === 'bosses') renderBossGrid(); return true; }
   const id = Number(h);
   if (id && DATA.species[id]) { setMode('pokemon', true); selectSpecies(id, true); return true; }
@@ -716,6 +797,21 @@ function init() {
     const boss = e.target.closest('[data-go-boss]'); if (boss) { showBoss(Number(boss.dataset.goBoss)); return; }
     const chip = e.target.closest('.fchip'); if (chip) { const [, v] = chip.dataset.f.split(':'); bossCat.has(v) ? bossCat.delete(v) : bossCat.add(v); document.getElementById('hc-filters').innerHTML = chipRow(bossCatList(), 'b', bossCat); renderBossGrid(); }
   });
+  // Box view (delegated): file picker, drag-drop, sub-tabs, mon -> dex
+  const bx = document.getElementById('box-body');
+  bx.addEventListener('click', (e) => {
+    if (e.target.closest('[data-savpick]')) { pickSave(); return; }
+    const tab = e.target.closest('[data-boxtab]'); if (tab) { activeBoxTab = tab.dataset.boxtab; renderBox(); return; }
+    onGoClick(e);
+  });
+  bx.addEventListener('dragover', (e) => { e.preventDefault(); const d = document.getElementById('box-drop'); if (d) d.classList.add('drag'); });
+  bx.addEventListener('dragleave', () => { const d = document.getElementById('box-drop'); if (d) d.classList.remove('drag'); });
+  bx.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const d = document.getElementById('box-drop'); if (d) d.classList.remove('drag');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadSaveFile(e.dataTransfer.files[0]);
+  });
+
   hc.addEventListener('input', (e) => {
     if (e.target.id === 'hc-search') { bossSearch = e.target.value; renderBossGrid(); }
     else if (e.target.id === 'hl') {
