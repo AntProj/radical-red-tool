@@ -951,6 +951,7 @@ function vsBand(side, boss) {
   }
   const ot = (savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You';
   return '<div class="hth-band left"><div class="hth-tname you">' + esc(ot) + '<span>' + (vsLeftTeam.length ? 'Your Team · ' + vsLeftTeam.length : 'No Pokémon yet — Add one ↙') + '</span></div>' +
+    (vsLeftTeam.length ? '<button class="vs-rmbtn" data-rmmon title="Remove the selected Pokémon" aria-label="Remove selected Pokémon">✕ Remove</button>' : '') +
     '<div class="vs-party left" id="vs-party-left">' + vsPlayerHuddle() + '</div></div>';
 }
 function highlightBossHuddle() { document.querySelectorAll('#vs-party-right .vs-mon').forEach((b, i) => b.classList.toggle('on', i === vs.rightIdx)); }
@@ -962,12 +963,18 @@ function bossData(tid) {
 function showVersus(tid) {
   const boss = DATA.trainers[tid];
   if (!boss) return;
-  vs = { tid, rightIdx: 0, leftIdx: 0 };
-  vsLeftTeam = []; vsLeft = null; vsAddMode = 'box'; vsDexQ = '';
-  vsRightTeam = (boss.hardcore || []).map(cfgFromBoss);
-  vsRight = vsRightTeam[0] || null;
-  const bd = bossData(tid);
-  vsField = bd && bd.field ? Object.assign({}, bd.field) : null;
+  // Fresh boss side only when opening a different boss (or first time) — otherwise
+  // resume where we left off. The player TEAM always persists across opens.
+  if (vs.tid !== tid || !vsRightTeam.length) {
+    vs.tid = tid; vs.rightIdx = 0;
+    vsRightTeam = (boss.hardcore || []).map(cfgFromBoss);
+    const bd = bossData(tid);
+    vsField = bd && bd.field ? Object.assign({}, bd.field) : null;
+  }
+  vsRight = vsRightTeam[vs.rightIdx] || null;
+  if (vs.leftIdx >= vsLeftTeam.length) vs.leftIdx = Math.max(0, vsLeftTeam.length - 1);
+  vsLeft = vsLeftTeam[vs.leftIdx] || null;
+  vsAddMode = 'box'; vsDexQ = '';
   const html = '<div class="vs-modal">' +
     vsTrainerImg('left', boss) + vsTrainerImg('right', boss) +
     '<div class="hth-card"><div class="hth-bands">' + vsBand('left', boss) + vsBand('right', boss) +
@@ -1350,6 +1357,10 @@ function init() {
     if (vc) { vs.rightIdx = +vc.dataset.vsidx; vsRight = vsRightTeam[vs.rightIdx] || null; highlightBossHuddle(); renderHthCompare(); return; }
     const lc = e.target.closest('[data-vsleftidx]');
     if (lc) { vs.leftIdx = +lc.dataset.vsleftidx; vsLeft = vsLeftTeam[vs.leftIdx] || null; highlightPlayerHuddle(); renderHthCompare(); return; }
+    if (e.target.closest('[data-rmmon]')) {
+      if (vsLeftTeam.length) { vsLeftTeam.splice(vs.leftIdx, 1); vs.leftIdx = Math.max(0, Math.min(vs.leftIdx, vsLeftTeam.length - 1)); vsLeft = vsLeftTeam[vs.leftIdx] || null; rebuildVsBands(); renderHthCompare(); }
+      return;
+    }
     if (e.target.closest('[data-addmon]')) { openAddPop(); return; }
     const ptab = e.target.closest('[data-pick]'); if (ptab) { vsAddMode = ptab.dataset.pick; renderAddPicker(); return; }
     const tmall = e.target.closest('[data-tmall]'); if (tmall) { ownedTMs = tmall.dataset.tmall === '1' ? new Set(Object.keys(DATA.tmMoves).map(Number)) : new Set(); saveTMs(); renderAddPicker(); return; }
