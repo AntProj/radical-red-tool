@@ -59,7 +59,10 @@ function loadUiState() {
     (af.cats || []).forEach((c) => areaFilters.cats.add(c));
     JSON.parse(lsGet('rr_boss_cat', '[]')).forEach((c) => bossCat.add(c));
   } catch (_) {}
+  const tms = lsGet('rr_tms', null);   // owned TM/HM indices; default = all (DATA is loaded by now)
+  try { ownedTMs = new Set(tms ? JSON.parse(tms) : Object.keys(DATA.tmMoves).map(Number)); } catch (_) { ownedTMs = new Set(Object.keys(DATA.tmMoves).map(Number)); }
 }
+const saveTMs = () => lsSet('rr_tms', JSON.stringify([...ownedTMs]));
 const savePkState = () => { lsSet('rr_pk_q', pkSearch); lsSet('rr_pk_f', JSON.stringify({ methods: [...pkFilters.methods], time: pkFilters.time })); };
 const saveAreaState = () => { lsSet('rr_area_q', areaSearch); lsSet('rr_area_f', JSON.stringify({ methods: [...areaFilters.methods], time: areaFilters.time, cats: [...areaFilters.cats] })); };
 const saveBossState = () => { lsSet('rr_boss_q', bossSearch); lsSet('rr_boss_cat', JSON.stringify([...bossCat])); };
@@ -621,6 +624,7 @@ function toggleInlineTeam(el, id, panelSel, cardFn) {
 /* ---------------- Versus (head-to-head + damage calc) ---------------- */
 let vs = { tid: null, rightIdx: 0, leftIdx: 0 };
 let vsLeftTeam = [], vsRightTeam = [];  // player team (built via Add), boss team cfgs
+let ownedTMs = new Set();               // TM/HM indices the player owns (restricts player move pools)
 let vsLeft = null;   // selected player mon cfg
 let vsRight = null;  // selected boss mon cfg
 let vsField = null;  // {label, weather, terrain, trickRoom}
@@ -731,6 +735,18 @@ function movePoolOf(sp) {
   _movePool[sp.ID] = out;
   return out;
 }
+const tmLabel = (n) => n < 120 ? 'TM' + String(n + 1).padStart(2, '0') : 'HM' + String(n - 119).padStart(2, '0');
+// Player move pool = level-up moves learnable at/below this level + owned TMs/HMs it can learn
+// (+ its current moves so imported sets stay intact). Bosses keep their full learnset.
+function movePoolFor(cfg, isBoss) {
+  const sp = DATA.species[cfg.species];
+  if (isBoss) return movePoolOf(sp);
+  const ids = new Set();
+  (sp.levelupMoves || []).forEach((x) => { if (x[1] <= cfg.level) ids.add(x[0]); });
+  (sp.tmMoves || []).forEach((n) => { if (ownedTMs.has(n)) { const m = DATA.tmMoves[n]; if (m) ids.add(m); } });
+  (cfg.moves || []).forEach((id) => { if (id) ids.add(id); });
+  return [...ids].filter((id) => DATA.moves[id]).map((id) => [id, DATA.moves[id].name]).sort((a, b) => a[1].localeCompare(b[1]));
+}
 const selOpts = (pairs, sel) => pairs.map(([v, l]) => '<option value="' + v + '"' + (String(v) === String(sel) ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
 
 /* ----- head-to-head render ----- */
@@ -790,7 +806,7 @@ function hthMoves(cfg, oppCfg, isBoss) {
   const side = isBoss ? 'r' : 'l', sideKey = isBoss ? 'right' : 'left';
   const sp = cfg ? DATA.species[cfg.species] : null;
   if (!sp) return '<div class="hth-mcol ' + side + '"><div class="hth-noteam">—</div></div>';
-  const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name), pool = movePoolOf(sp);
+  const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name), pool = movePoolFor(cfg, isBoss);
   let rows = '';
   for (let i = 0; i < 4; i++) {
     const id = cfg.moves[i] || 0, mv = DATA.moves[id], d = mv ? calcMove(cfg, oppCfg, id) : null;
@@ -822,7 +838,7 @@ function openAddPop() {
     pop = document.createElement('div'); pop.id = 'vs-pop'; pop.className = 'vs-pop';
     pop.innerHTML = '<div class="vs-pop-bd" data-addcancel></div><div class="vs-pop-box">' +
       '<div class="vs-pop-head"><b>Add your Pokémon</b><button class="vs-pick-x" data-addcancel aria-label="Close">✕</button></div>' +
-      '<div class="vs-pop-tabs"><button class="vs-pick-tab" data-pick="box">From Box</button><button class="vs-pick-tab" data-pick="dex">From Dex</button></div>' +
+      '<div class="vs-pop-tabs"><button class="vs-pick-tab" data-pick="box">PC</button><button class="vs-pick-tab" data-pick="dex">Dex</button><button class="vs-pick-tab" data-pick="tm">TM/HM</button></div>' +
       '<input id="vs-pop-q" class="vs-dexq" type="search" placeholder="Search…" autocomplete="off">' +
       '<div id="vs-pop-list" class="vs-pickgrid"></div></div>';
     (document.querySelector('.vs-modal') || document.getElementById('modal-content')).appendChild(pop);
@@ -839,15 +855,22 @@ function renderAddPicker() {
   pop.querySelectorAll('.vs-pick-tab').forEach((b) => b.classList.toggle('on', b.dataset.pick === vsAddMode));
   const q = (document.getElementById('vs-pop-q') ? document.getElementById('vs-pop-q').value : vsDexQ).trim().toLowerCase();
   const list = document.getElementById('vs-pop-list'); if (!list) return;
-  if (vsAddMode === 'box') {
+  list.className = 'vs-pickgrid' + (vsAddMode === 'tm' ? ' vs-tmlist' : '');
+  const sc = list.scrollTop;
+  if (vsAddMode === 'tm') {
+    const all = Object.keys(DATA.tmMoves).map(Number).map((n) => ({ n, mv: DATA.moves[DATA.tmMoves[n]] })).filter((x) => x.mv && (!q || tmLabel(x.n).toLowerCase().includes(q) || x.mv.name.toLowerCase().includes(q)));
+    list.innerHTML = '<div class="vs-tmctl"><button data-tmall="1">All</button><button data-tmall="0">None</button><span>' + ownedTMs.size + ' owned</span></div>' +
+      all.map(({ n, mv }) => '<label class="vs-tmrow"><input type="checkbox" data-tm="' + n + '"' + (ownedTMs.has(n) ? ' checked' : '') + '><b>' + tmLabel(n) + '</b><span class="vs-tmname">' + esc(mv.name) + '</span>' + typeChip(mv.type, true) + '</label>').join('');
+  } else if (vsAddMode === 'box') {
     const mons = allBoxMons().map((m, i) => ({ m, i, sp: DATA.species[m.species] })).filter((x) => x.sp && (!q || (x.m.nickname || x.sp.name).toLowerCase().includes(q)));
     list.innerHTML = allBoxMons().length
       ? (mons.map(({ m, i, sp }) => '<button class="vs-pickmon" data-boxpick="' + i + '"><img src="' + spriteFor(sp) + '" alt=""><span>' + esc(m.nickname || sp.name) + '</span><small>Lv ' + (m.level || '?') + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>')
-      : '<div class="hth-noteam" style="padding:18px">Import a save in the <b>Box</b> tab to pick from your boxes.</div>';
+      : '<div class="hth-noteam" style="padding:18px">Import a save in the <b>Box</b> tab to pick from your PC.</div>';
   } else {
     const ms = ENTRIES.filter((s) => !q || s.name.toLowerCase().includes(q) || pad(s.dexID).includes(q)).slice(0, 150);
     list.innerHTML = ms.map((s) => '<button class="vs-pickmon" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt=""><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>';
   }
+  list.scrollTop = sc;
 }
 function renderHthCompare() {
   const el = document.getElementById('hth-compare'); if (!el) return;
@@ -1329,7 +1352,8 @@ function init() {
     if (lc) { vs.leftIdx = +lc.dataset.vsleftidx; vsLeft = vsLeftTeam[vs.leftIdx] || null; highlightPlayerHuddle(); renderHthCompare(); return; }
     if (e.target.closest('[data-addmon]')) { openAddPop(); return; }
     const ptab = e.target.closest('[data-pick]'); if (ptab) { vsAddMode = ptab.dataset.pick; renderAddPicker(); return; }
-    if (e.target.closest('[data-addcancel]')) { closeAddPop(); return; }
+    const tmall = e.target.closest('[data-tmall]'); if (tmall) { ownedTMs = tmall.dataset.tmall === '1' ? new Set(Object.keys(DATA.tmMoves).map(Number)) : new Set(); saveTMs(); renderAddPicker(); return; }
+    if (e.target.closest('[data-addcancel]')) { closeAddPop(); renderHthCompare(); return; }
     const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; } closeAddPop(); rebuildVsBands(); renderHthCompare(); return; }
     const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; closeAddPop(); rebuildVsBands(); renderHthCompare(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
@@ -1338,6 +1362,7 @@ function init() {
   modal.addEventListener('change', (e) => {
     const t = e.target; if (!t.dataset) return;
     if (t.dataset.field) { vsField = vsField || {}; vsField[t.dataset.field] = t.value || undefined; renderHthCompare(); return; }
+    if (t.dataset.tm != null) { const n = +t.dataset.tm; if (t.checked) ownedTMs.add(n); else ownedTMs.delete(n); saveTMs(); const c = document.querySelector('#vs-pop .vs-tmctl span'); if (c) c.textContent = ownedTMs.size + ' owned'; return; }
     const cfg = t.dataset.side === 'right' ? vsRight : (t.dataset.side === 'left' ? vsLeft : null);
     if (!cfg) return;
     if (t.dataset.iv != null) { cfg.ivs[+t.dataset.iv] = Math.max(0, Math.min(31, parseInt(t.value, 10) || 0)); renderHthCompare(); return; }
