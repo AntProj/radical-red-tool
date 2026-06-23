@@ -4,7 +4,9 @@
 'use strict';
 
 const DATA = {};
-const STAT_LABELS = ['HP', 'Atk', 'Def', 'Spe', 'SpA', 'SpD'];
+const STAT_LABELS = ['HP', 'Atk', 'Def', 'Spe', 'SpA', 'SpD'];  // raw data order — Speed is index 3
+// Conventional display order (Speed LAST): [label, rawIndex into stats/ivs/evs].
+const STAT_DISPLAY = [['HP', 0], ['Atk', 1], ['Def', 2], ['SpA', 4], ['SpD', 5], ['Spe', 3]];
 const MAX_STAT = 255;
 const EFF = { 0: 1, 5: 0.5, 20: 2, 1: 0 };
 
@@ -306,8 +308,9 @@ function renderDetail(s) {
     '<div class="d-types">' + s.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
   // Stats row: Base Stats (left) | Type Defenses over Abilities (right column).
   let stats = '';
-  s.stats.forEach((v, i) => {
-    stats += '<div class="stat"><span class="stat-label">' + STAT_LABELS[i] + '</span><span class="stat-val">' + v +
+  STAT_DISPLAY.forEach(([lab, i]) => {
+    const v = s.stats[i];
+    stats += '<div class="stat"><span class="stat-label">' + lab + '</span><span class="stat-val">' + v +
       '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
   });
   stats += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div>';
@@ -1075,8 +1078,9 @@ function selectDexMon(id) {
     (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div>' +
     '<div class="d-types">' + s.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
   html += '<h3 class="dex-h">Base Stats</h3>';
-  s.stats.forEach((v, i) => {
-    html += '<div class="stat"><span class="stat-label">' + STAT_LABELS[i] + '</span><span class="stat-val">' + v +
+  STAT_DISPLAY.forEach(([lab, i]) => {
+    const v = s.stats[i];
+    html += '<div class="stat"><span class="stat-label">' + lab + '</span><span class="stat-val">' + v +
       '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
   });
   html += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></div>';
@@ -1113,8 +1117,8 @@ function orderMonCard(m) {
     const mv = DATA.moves[id];
     return mv ? '<div class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : '';
   }).join('');
-  const stats = sp.stats.map((v, i) => '<div class="omon-stat"><span class="omon-slab">' + STAT_LABELS[i] +
-    '</span><span class="omon-sbar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span><span class="omon-sval">' + v + '</span></div>').join('');
+  const stats = STAT_DISPLAY.map(([lab, i]) => { const v = sp.stats[i]; return '<div class="omon-stat"><span class="omon-slab">' + lab +
+    '</span><span class="omon-sbar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span><span class="omon-sval">' + v + '</span></div>'; }).join('');
   const bst = sp.stats.reduce((a, b) => a + b, 0);
   return '<div class="omon">' +
     '<img class="omon-sprite" src="' + spriteFor(sp) + '" alt="" data-go-mon="' + m.species + '">' +
