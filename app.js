@@ -33,7 +33,7 @@ let splitMode = false, rightMode = null;   // second side-by-side pane
 let activeId = null, pkSearch = '', activeMoveTab = 'level';
 const pkFilters = { methods: new Set(), time: null };
 // areas
-let activeAreaIdx = null, areaView = 'index', areaSearch = '';
+let activeAreaIdx = null, areaSearch = '';
 const areaFilters = { methods: new Set(), time: null, cats: new Set() };
 // hardcore
 let hcSub = 'order', activeBoss = null, bossSearch = '', bossBackTo = 'bosses';
@@ -65,6 +65,15 @@ function fail(err) {
 /* ---------------- Helpers ---------------- */
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const spriteFor = (s) => DATA.sprites[s.ID] || DATA.sprites[0] || '';
+// Item sprites from the PokeAPI sprite repo, keyed by lowercase-hyphenated name.
+const itemSlug = (name) => name.toLowerCase().replace(/[’'.]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+function itemIcon(id, imgCls, phCls) {
+  const it = id && DATA.items[id];
+  if (!it) return '<span class="' + phCls + '"></span>';
+  const url = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/' + itemSlug(it.name) + '.png';
+  return '<img class="' + imgCls + '" src="' + url + '" alt="" referrerpolicy="no-referrer" loading="lazy" ' +
+    'onerror="this.outerHTML=\'<span class=&quot;' + phCls + '&quot;></span>\'">';
+}
 const pad = (n) => '#' + String(n).padStart(4, '0');
 const lv = (min, max) => 'Lv ' + (min === max ? min : min + '–' + max);
 const teamMax = (t) => { const a = (t.hardcore || []).map((m) => m.level); return a.length ? Math.max(...a) : 0; };
@@ -370,7 +379,6 @@ function passesAreaFilter(a) {
   return true;
 }
 function showAreaIndex() {
-  areaView = 'index';
   document.getElementById('ar-body').innerHTML =
     '<div class="page"><div class="page-head"><h1>Areas</h1><p class="page-sub">Wild encounters, fishing, and items for every location. Click an area to expand its encounter tables by category.</p></div>' +
     '<input id="ar-search" class="page-search" type="search" placeholder="Search areas…" autocomplete="off" value="' + esc(areaSearch) + '">' +
@@ -413,7 +421,7 @@ function areaMonRow(id) {
 }
 function areaItemRow(id) {
   const it = DATA.items[id];
-  return '<div class="acat-row no-link"><span class="acat-iicon"></span><span class="acat-name">' + (it ? esc(it.name) : '#' + id) + '</span></div>';
+  return '<div class="acat-row no-link">' + itemIcon(id, 'acat-iimg', 'acat-iicon') + '<span class="acat-name">' + (it ? esc(it.name) : '#' + id) + '</span></div>';
 }
 function areaCategoriesHtml(a) {
   const cards = [];
@@ -451,58 +459,6 @@ function areaCategoriesHtml(a) {
   }
   return cards.join('') || '<div class="ability-desc" style="grid-column:1/-1">No encounter data for this area.</div>';
 }
-function showArea(idx) {
-  const a = AREAVIEW[idx];
-  if (!a) return;
-  activeAreaIdx = idx; areaView = 'detail';
-  document.getElementById('ar-body').innerHTML =
-    '<div class="page"><button class="back" data-back="areas">← All areas</button>' + areaDetailHtml(a) + '</div>';
-  document.getElementById('view-areas').scrollTop = 0;
-  setHash('a' + idx);
-}
-function monChip(id, extra) {
-  const s = DATA.species[id];
-  if (!s) return '';
-  const form = formName(s);
-  return '<span class="mon-chip" data-go-mon="' + id + '"><img src="' + spriteFor(s) + '" alt="" loading="lazy">' +
-    '<span class="mc-name">' + esc(s.name) + (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</span>' +
-    (extra ? '<span class="mc-lv">' + esc(extra) + '</span>' : '') + '</span>';
-}
-function areaDetailHtml(a) {
-  let html = '<div class="page-head"><h1>' + esc(a.name) + '</h1></div>';
-  let wild = '';
-  for (const key of WILD_ORDER) {
-    const list = a.wild[key]; if (!list || !list.length) continue;
-    const m = WILD_METHODS[key];
-    wild += '<div class="enc-block"><div class="enc-head">' + esc(m.time ? m.label + ' (' + m.time + ')' : m.label) + '</div><div class="mon-grid">' +
-      list.slice().sort((x, y) => x.min - y.min).map((e) => monChip(e.id, lv(e.min, e.max))).join('') + '</div></div>';
-  }
-  if (wild) html += '<section class="card"><h2>Wild Encounters</h2>' + wild + '</section>';
-  let items = '';
-  for (const key of ITEM_ORDER) {
-    const ids = a.items[key]; if (!ids || !ids.length) continue;
-    items += '<div class="kv"><div class="k">' + ITEM_CATS[key] + '</div><div class="v">' + ids.map((i) => DATA.items[i] ? esc(DATA.items[i].name) : '#' + i).join(', ') + '</div></div>';
-  }
-  if (items) html += '<section class="card"><h2>Items</h2>' + items + '<div class="ability-desc" style="margin-top:8px">Hidden items need the Dowsing Machine.</div></section>';
-  let fx = '';
-  for (const key of FIXED_ORDER) { const ids = a.fixed[key]; if (!ids || !ids.length) continue; fx += '<div class="enc-block"><div class="enc-head">' + FIXED_METHODS[key] + '</div><div class="mon-grid">' + ids.map((id) => monChip(id)).join('') + '</div></div>'; }
-  if (fx) html += '<section class="card"><h2>Special Encounters</h2>' + fx + '</section>';
-  if (Object.keys(a.raids).length) {
-    let r = '';
-    for (let star = 6; star >= 1; star--) { if (!a.raids[star] || !a.raids[star].length) continue; r += '<div class="enc-block"><div class="enc-head">' + star + '★ Raid</div><div class="mon-grid">' + a.raids[star].map((id) => monChip(id)).join('') + '</div></div>'; }
-    html += '<section class="card"><h2>Raid Dens</h2>' + r + '</section>';
-  }
-  if (a.trainers.length) {
-    const names = a.trainers.map((id) => DATA.trainers[id] ? esc(DATA.trainers[id].name) : '#' + id);
-    html += '<section class="card"><h2>Trainers <span class="h2c">' + names.length + '</span></h2><div class="trainer-list">' + names.join(' · ') + '</div></section>';
-  }
-  if (a.tutors.length) {
-    const moves = a.tutors.map((n) => DATA.tutorMoves[n]).filter(Boolean).map((mid) => DATA.moves[mid] ? esc(DATA.moves[mid].name) : '#' + mid);
-    if (moves.length) html += '<section class="card"><h2>Move Tutors</h2><div class="trainer-list">' + moves.join(' · ') + '</div></section>';
-  }
-  return html;
-}
-
 /* ================= HARDCORE (full width) ================= */
 function renderHardcore() {
   const tabs = [['order', 'Trainer Order'], ['bosses', 'Bosses'], ['info', 'Info']].map(([k, l]) =>
@@ -842,7 +798,7 @@ function orderMonCard(m) {
     '<div class="omon-div"></div>' +
     '<div class="omon-lab">Nature</div><div class="omon-val">' + esc(nature) + '</div>' +
     '<div class="omon-lab">Ability</div><div class="omon-val">' + esc(ab) + '</div>' +
-    '<div class="omon-lab">Item</div><div class="omon-val omon-item"><span class="omon-idot"></span><span>' + esc(item) + '</span></div>' +
+    '<div class="omon-lab">Item</div><div class="omon-val omon-item">' + itemIcon(m.item, 'omon-iimg', 'omon-idot') + '<span>' + esc(item) + '</span></div>' +
     '<div class="omon-lab">Moves</div><div class="tc-moves">' + moves + '</div>' +
     '<div class="omon-lab">Stats</div><div class="omon-stats">' + stats + '<div class="omon-bst"><span>BST</span><span>' + bst + '</span></div></div>' +
   '</div>';

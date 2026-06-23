@@ -77,31 +77,6 @@ h1 { margin: 0; }
 .page-sub { color: var(--muted); margin: 6px 0 0; font-size: 13.5px; }
 .page-search { max-width: 420px; margin-bottom: 12px; }
 .page .fchips { margin-bottom: 8px; }
-.back { background: var(--panel-2); border: 1px solid var(--line-2); color: var(--text); font-weight: 600; font-size: 13px; padding: 7px 13px; border-radius: 8px; cursor: pointer; margin-bottom: 16px; }
-.back:hover { background: #2a2f38; }
-
-.card-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-.card-grid.wide { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.acard { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 12px 14px; cursor: pointer; }
-.acard:hover { border-color: var(--line-2); background: var(--panel-2); }
-.acard-name { font-weight: 700; }
-.acard-sub { color: var(--muted); font-size: 12px; margin-top: 3px; }
-
-/* Boss cards */
-.bcard { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; }
-.bcard:hover { border-color: var(--accent); }
-.bcard-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.bcard-cat { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); }
-.bcard-lv { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.bcard-name { font-weight: 800; font-size: 16px; margin-top: 4px; }
-.bcard-where { color: var(--muted); font-size: 12px; margin-top: 1px; }
-.bcard-sprites { display: flex; gap: 2px; margin-top: 8px; }
-.bcard-sprites img { width: 34px; height: 34px; image-rendering: pixelated; }
-.bcard-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 9px; }
-.expand-hint { color: var(--muted); font-size: 11px; font-weight: 600; }
-.bcard.open .expand-hint { color: var(--accent); }
-.bcard-team { display: none; flex-direction: column; gap: 8px; margin-top: 10px; }
-.bcard.open .bcard-team { display: flex; }
 .vs-btn { background: var(--accent-dim); border: 1px solid var(--accent); color: #fff; font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 7px; cursor: pointer; }
 .vs-btn:hover { background: var(--accent); }
 .vs-btn.sm { padding: 2px 8px; font-size: 10.5px; margin-left: 10px; }
@@ -140,6 +115,7 @@ h1 { margin: 0; }
 .omon-val { font: 600 12px system-ui; color: var(--text); overflow-wrap: anywhere; }
 .omon-item { display: flex; align-items: center; gap: 6px; }
 .omon-idot { width: 14px; height: 14px; flex: 0 0 14px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); }
+.omon-iimg { width: 20px; height: 20px; flex: 0 0 20px; object-fit: contain; image-rendering: pixelated; }
 .omon .tc-moves { gap: 5px; }
 .omon .bm-move .type-chip { flex: 0 0 52px; font-size: 9px; padding: 2px 0; letter-spacing: .2px; }
 .omon .bm-mname { font-size: 11px; }
@@ -166,6 +142,7 @@ h1 { margin: 0; }
 .acat-row[data-go-mon]:hover .acat-name { color: #fff; }
 .acat-sprite { width: 26px; height: 26px; flex: 0 0 26px; image-rendering: pixelated; background: var(--panel-2); border-radius: 6px; }
 .acat-iicon { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); }
+.acat-iimg { width: 24px; height: 24px; flex: 0 0 24px; object-fit: contain; image-rendering: pixelated; }
 .acat-name { font: 600 12px system-ui; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 860px) { .to-entry.open .to-team { grid-template-columns: repeat(3, 1fr); } .to-name { min-width: 150px; } }
 @media (max-width: 560px) { .to-entry.open .to-team { grid-template-columns: repeat(2, 1fr); } }
@@ -236,19 +213,6 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .cat-icon { height: 15px; vertical-align: middle; image-rendering: pixelated; }
 .mv-empty { color: var(--muted); padding: 14px 2px; }
 
-.enc-block { margin: 10px 0; }
-.enc-block:first-child { margin-top: 0; }
-.enc-head { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
-.mon-grid { display: flex; flex-wrap: wrap; gap: 7px; }
-.mon-chip { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px 3px 4px; }
-.mon-chip:hover { border-color: var(--line-2); background: #2a2f38; }
-.mon-chip img { width: 30px; height: 30px; image-rendering: pixelated; }
-.mc-name { font-size: 12.5px; font-weight: 600; }
-.mc-lv { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.trainer-list { font-size: 13px; line-height: 1.7; }
-
-.team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-@media (max-width: 900px) { .team-grid { grid-template-columns: 1fr; } }
 .team-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
 .tc-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .tc-head:hover .tc-name { color: #fff; }
