@@ -372,9 +372,9 @@ function passesAreaFilter(a) {
 function showAreaIndex() {
   areaView = 'index';
   document.getElementById('ar-body').innerHTML =
-    '<div class="page"><div class="page-head"><h1>Areas</h1></div>' +
+    '<div class="page"><div class="page-head"><h1>Areas</h1><p class="page-sub">Wild encounters, fishing, and items for every location. Click an area to expand its encounter tables by category.</p></div>' +
     '<input id="ar-search" class="page-search" type="search" placeholder="Search areas…" autocomplete="off" value="' + esc(areaSearch) + '">' +
-    '<div id="ar-filters"></div><div id="ar-count" class="count"></div><div id="ar-grid" class="card-grid"></div></div>';
+    '<div id="ar-filters"></div><div id="ar-count" class="count"></div><div id="ar-grid" class="to-list"></div></div>';
   renderAreaFilters(); renderAreaGrid();
 }
 function renderAreaFilters() {
@@ -389,10 +389,67 @@ function renderAreaGrid() {
   // When browsing wild areas, list them in the Locations file's order (Grass & Caves).
   const wildContext = areaFilters.cats.has('wild') || encActive(areaFilters);
   if (wildContext) list = list.slice().sort((a, b) => ((areaRank[a.idx] ?? (1e6 + a.idx)) - (areaRank[b.idx] ?? (1e6 + b.idx))));
-  const html = list.map((a) => '<div class="acard" data-go-area="' + a.idx + '"><div class="acard-name">' +
-    esc(a.name) + '</div><div class="acard-sub">' + esc(areaSummary(a)) + '</div></div>').join('');
+  const html = list.map((a) => {
+    const open = a.idx === activeAreaIdx;
+    return '<div class="to-entry linkable' + (open ? ' open' : '') + '" data-area="' + a.idx + '">' +
+      '<div class="to-row"><span class="to-chev">▸</span><span class="to-name">' + esc(a.name) + '</span>' +
+      '<span class="to-loc">' + esc(areaSummary(a)) + '</span></div>' +
+      '<div class="area-panel"' + (open ? ' data-filled="1"' : '') + '>' + (open ? areaCategoriesHtml(a) : '') + '</div></div>';
+  }).join('');
   document.getElementById('ar-grid').innerHTML = html || '<div class="ability-desc">No areas match the filters.</div>';
   document.getElementById('ar-count').textContent = list.length + ' of ' + AREAVIEW.length + ' areas' + (wildContext ? ' · locations-file order' : '');
+}
+// Expanded area = a responsive grid of vertical category cards (handoff Areas spec).
+const AREA_DOT = { grass: '#62A13D', surf: '#6390F0', fish: '#65A19E', smash: '#B6A136', items: '#ffce6b', special: '#8571BE', raid: '#e3413a', trainers: '#7db1ff', tutors: '#65A19E' };
+function areaCatCard(color, label, lvChip, rows) {
+  return '<div class="acat"><div class="acat-head"><span class="acat-dot" style="background:' + color + '"></span>' +
+    '<span class="acat-label">' + esc(label) + '</span>' + (lvChip ? '<span class="acat-lv">' + esc(lvChip) + '</span>' : '') +
+    '</div><div class="acat-rows">' + rows + '</div></div>';
+}
+function areaMonRow(id) {
+  const s = DATA.species[id];
+  if (!s) return '';
+  return '<div class="acat-row" data-go-mon="' + id + '"><img class="acat-sprite" src="' + spriteFor(s) + '" alt="" loading="lazy"><span class="acat-name">' + esc(s.name) + '</span></div>';
+}
+function areaItemRow(id) {
+  const it = DATA.items[id];
+  return '<div class="acat-row no-link"><span class="acat-iicon"></span><span class="acat-name">' + (it ? esc(it.name) : '#' + id) + '</span></div>';
+}
+function areaCategoriesHtml(a) {
+  const cards = [];
+  for (const key of WILD_ORDER) {
+    const list = a.wild[key];
+    if (!list || !list.length) continue;
+    const m = WILD_METHODS[key];
+    const label = m.time ? m.label + ' (' + m.time + ')' : m.label;
+    const min = Math.min(...list.map((e) => e.min)), max = Math.max(...list.map((e) => e.max));
+    const rows = list.slice().sort((x, y) => x.min - y.min).map((e) => areaMonRow(e.id)).join('');
+    cards.push(areaCatCard(AREA_DOT[m.group], label, 'Lv ' + (min === max ? min : min + '–' + max), rows));
+  }
+  for (const key of ITEM_ORDER) {
+    const ids = a.items[key];
+    if (!ids || !ids.length) continue;
+    cards.push(areaCatCard(AREA_DOT.items, ITEM_CATS[key] + ' Items', '', ids.map(areaItemRow).join('')));
+  }
+  for (const key of FIXED_ORDER) {
+    const ids = a.fixed[key];
+    if (!ids || !ids.length) continue;
+    cards.push(areaCatCard(AREA_DOT.special, FIXED_METHODS[key], '', ids.map(areaMonRow).join('')));
+  }
+  for (let star = 6; star >= 1; star--) {
+    const ids = a.raids[star];
+    if (!ids || !ids.length) continue;
+    cards.push(areaCatCard(AREA_DOT.raid, star + '★ Raid', '', ids.map(areaMonRow).join('')));
+  }
+  if (a.trainers.length) {
+    const rows = a.trainers.map((id) => '<div class="acat-row no-link"><span class="acat-name">' + (DATA.trainers[id] ? esc(DATA.trainers[id].name) : '#' + id) + '</span></div>').join('');
+    cards.push(areaCatCard(AREA_DOT.trainers, 'Trainers', '', rows));
+  }
+  if (a.tutors.length) {
+    const moves = a.tutors.map((n) => DATA.tutorMoves[n]).filter(Boolean).map((mid) => DATA.moves[mid] ? DATA.moves[mid].name : '#' + mid);
+    if (moves.length) cards.push(areaCatCard(AREA_DOT.tutors, 'Move Tutors', '', moves.map((n) => '<div class="acat-row no-link"><span class="acat-name">' + esc(n) + '</span></div>').join('')));
+  }
+  return cards.join('') || '<div class="ability-desc" style="grid-column:1/-1">No encounter data for this area.</div>';
 }
 function showArea(idx) {
   const a = AREAVIEW[idx];
@@ -480,29 +537,30 @@ function trainerOrderHtml() {
 }
 function bossCatList() { return (DATA.hardcore.categories || []).map((c) => ({ key: c.name, label: c.name })); }
 function bossesHtml() {
-  return '<div class="page-head"><h1>Hardcore Bosses</h1></div>' +
+  return '<div class="page-head"><h1>Hardcore Bosses</h1><p class="page-sub">Major battles grouped by region and arc. Click a boss to expand their team, or ⚔ VS to compare against your party.</p></div>' +
     '<input id="hc-search" class="page-search" type="search" placeholder="Search bosses…" autocomplete="off" value="' + esc(bossSearch) + '">' +
     '<div id="hc-filters" class="fchips">' + chipRow(bossCatList(), 'b', bossCat) + '</div>' +
-    '<div id="hc-grid" class="card-grid wide"></div>';
+    '<div id="hc-grid" class="to-list"></div>';
 }
 function renderBossGrid() {
   const q = bossSearch.trim().toLowerCase();
-  let html = '', shown = 0;
+  let html = '';
   for (const cat of (DATA.hardcore.categories || [])) {
     if (bossCat.size && !bossCat.has(cat.name)) continue;
-    for (const b of cat.bosses) {
-      if (q && !b.name.toLowerCase().includes(q) && !b.trainerName.toLowerCase().includes(q)) continue;
-      shown++;
-      const t = DATA.trainers[b.trainerId];
-      const sprites = (t && t.hardcore || []).slice(0, 6).map((m) => { const sp = DATA.species[m.species]; return sp ? '<img src="' + spriteFor(sp) + '" alt="">' : ''; }).join('');
+    const bosses = cat.bosses.filter((b) => !q || b.name.toLowerCase().includes(q) || b.trainerName.toLowerCase().includes(q));
+    if (!bosses.length) continue;
+    html += '<div class="to-cap">' + esc(cat.name) + '</div>';
+    for (const b of bosses) {
       const lo = Math.min(resolveLevel(b.minLevel), resolveLevel(b.maxLevel));
       const hi = Math.max(resolveLevel(b.minLevel), resolveLevel(b.maxLevel));
-      html += '<div class="bcard" data-boss="' + b.trainerId + '"><div class="bcard-top"><span class="bcard-cat">' + esc(cat.name) + '</span>' +
-        '<span class="bcard-lv">Lv ' + (lo === hi ? lo : lo + '–' + hi) + '</span></div>' +
-        '<div class="bcard-name">' + esc(b.trainerName) + '</div><div class="bcard-where">' + esc(b.name) + '</div>' +
-        '<div class="bcard-sprites">' + sprites + '</div>' +
-        '<div class="bcard-actions"><span class="expand-hint">▸ team</span><button class="vs-btn" data-vs="' + b.trainerId + '">⚔ Versus</button></div>' +
-        '<div class="bcard-team"></div></div>';
+      html += '<div class="to-entry linkable" data-boss="' + b.trainerId + '">' +
+        '<div class="to-row">' +
+          '<span class="to-chev">▸</span>' +
+          '<span class="to-name">' + esc(b.trainerName) + '</span>' +
+          '<span class="to-loc">' + esc(b.name) + '</span>' +
+          '<span class="to-lv">Lv ' + (lo === hi ? lo : lo + '–' + hi) + '</span>' +
+          '<button class="vs-btn sm" data-vs="' + b.trainerId + '">⚔ VS</button>' +
+        '</div><div class="to-team"></div></div>';
     }
   }
   document.getElementById('hc-grid').innerHTML = html || '<div class="ability-desc">No bosses match.</div>';
@@ -774,7 +832,8 @@ function orderMonCard(m) {
     return mv ? '<div class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : '';
   }).join('');
   const stats = sp.stats.map((v, i) => '<div class="omon-stat"><span class="omon-slab">' + STAT_LABELS[i] +
-    '</span><span class="omon-sbar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>').join('');
+    '</span><span class="omon-sbar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span><span class="omon-sval">' + v + '</span></div>').join('');
+  const bst = sp.stats.reduce((a, b) => a + b, 0);
   return '<div class="omon">' +
     '<img class="omon-sprite" src="' + spriteFor(sp) + '" alt="" data-go-mon="' + m.species + '">' +
     '<div class="omon-name" title="' + esc(sp.name) + '">' + esc(sp.name) + '</div>' +
@@ -785,7 +844,7 @@ function orderMonCard(m) {
     '<div class="omon-lab">Ability</div><div class="omon-val">' + esc(ab) + '</div>' +
     '<div class="omon-lab">Item</div><div class="omon-val omon-item"><span class="omon-idot"></span><span>' + esc(item) + '</span></div>' +
     '<div class="omon-lab">Moves</div><div class="tc-moves">' + moves + '</div>' +
-    '<div class="omon-lab">Stats</div><div class="omon-stats">' + stats + '</div>' +
+    '<div class="omon-lab">Stats</div><div class="omon-stats">' + stats + '<div class="omon-bst"><span>BST</span><span>' + bst + '</span></div></div>' +
   '</div>';
 }
 
@@ -875,7 +934,7 @@ function ensureCalc() {
   if (f && !f.src && f.dataset.src) f.src = f.dataset.src;  // lazy-load the ~8 MB calc on first open
 }
 function renderSection(sec) {
-  if (sec === 'areas') { if (areaView === 'detail' && activeAreaIdx != null) showArea(activeAreaIdx); else showAreaIndex(); }
+  if (sec === 'areas') showAreaIndex();
   else if (sec === 'hardcore') { renderHardcore(); if (hcSub === 'bosses') renderBossGrid(); }
   else if (sec === 'calc') ensureCalc();
   else if (sec === 'box') renderBox();
@@ -909,7 +968,15 @@ function toggleSplit() {
   if (splitMode && rightMode) renderSection(rightMode);
 }
 function goMon(id) { if (mode !== 'pokemon') setMode('pokemon', true); selectSpecies(id); }
-function goArea(idx) { if (mode !== 'areas') setMode('areas', true); showArea(idx); }
+function goArea(idx) {
+  if (mode !== 'areas') setMode('areas', true);
+  areaSearch = ''; areaFilters.methods.clear(); areaFilters.time = null; areaFilters.cats.clear();
+  activeAreaIdx = idx;
+  showAreaIndex();                                              // renders the list with this area expanded
+  const ae = document.querySelector('#ar-grid .to-entry[data-area="' + idx + '"]');
+  if (ae) ae.scrollIntoView({ block: 'start' });
+  setHash('a' + idx);
+}
 function goBoss(id) { if (mode !== 'hardcore') setMode('hardcore', true); hcSub = 'bosses'; renderHardcore(); renderBossGrid(); }
 function setHcSub(sub) { hcSub = sub; activeBoss = null; renderHardcore(); if (sub === 'bosses') renderBossGrid(); setHash(sub); }
 
@@ -960,9 +1027,24 @@ function init() {
   const ar = document.getElementById('ar-body');
   ar.addEventListener('click', (e) => {
     if (onGoClick(e)) return;
-    const back = e.target.closest('[data-back]'); if (back) { showAreaIndex(); setHash('areas'); return; }
-    const card = e.target.closest('[data-go-area]'); if (card) { showArea(Number(card.dataset.goArea)); return; }
-    const chip = e.target.closest('.fchip'); if (chip) { const [p, v] = chip.dataset.f.split(':'); onFilterToggle(p, v, areaFilters); renderAreaFilters(); renderAreaGrid(); }
+    if (onGoClick(e)) return;                                   // mon chip inside an expanded area -> dex
+    const chip = e.target.closest('.fchip'); if (chip) { const [p, v] = chip.dataset.f.split(':'); onFilterToggle(p, v, areaFilters); renderAreaFilters(); renderAreaGrid(); return; }
+    const arow = e.target.closest('.to-row');
+    if (arow) {
+      const ae = arow.closest('.to-entry[data-area]');
+      if (ae) {
+        const idx = Number(ae.dataset.area);
+        const wasOpen = ae.classList.contains('open');
+        document.querySelectorAll('#ar-grid .to-entry.open').forEach((o) => o.classList.remove('open')); // single-open accordion
+        if (wasOpen) { activeAreaIdx = null; setHash('areas'); }
+        else {
+          const panel = ae.querySelector('.area-panel');
+          if (!panel.dataset.filled) { panel.innerHTML = areaCategoriesHtml(AREAVIEW[idx]); panel.dataset.filled = '1'; }
+          ae.classList.add('open'); activeAreaIdx = idx; setHash('a' + idx);
+        }
+      }
+      return;
+    }
   });
   ar.addEventListener('input', (e) => { if (e.target.id === 'ar-search') { areaSearch = e.target.value; renderAreaGrid(); } });
 
@@ -973,7 +1055,6 @@ function init() {
     if (onGoClick(e)) return;                                   // team-mon click -> dex (inside expanded teams)
     if (e.target.closest('[data-dex]')) { openDexModal(); return; }
     const sub = e.target.closest('[data-sub]'); if (sub) { setHcSub(sub.dataset.sub); return; }
-    const bc = e.target.closest('.bcard[data-boss]'); if (bc) { toggleInlineTeam(bc, Number(bc.dataset.boss), '.bcard-team'); return; }
     const trow = e.target.closest('.to-row');
     if (trow) {
       const te = trow.closest('.to-entry[data-boss]');

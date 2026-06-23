@@ -125,6 +125,7 @@ h1 { margin: 0; }
 .to-name { font: 600 14px system-ui; color: #7db1ff; flex: 0 0 auto; min-width: 210px; }
 .to-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #ffce6b; border: 1px solid #6a571f; background: #2a2410; padding: 1px 6px; border-radius: 5px; }
 .to-loc { color: var(--muted); font-size: 12.5px; flex: 1; }
+.to-lv { font: 700 11px ui-monospace, monospace; color: var(--muted-2); white-space: nowrap; }
 .to-team { display: none; padding: 6px 10px 16px; }
 .to-entry.open .to-team { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
 
@@ -143,10 +144,29 @@ h1 { margin: 0; }
 .omon .bm-move .type-chip { flex: 0 0 52px; font-size: 9px; padding: 2px 0; letter-spacing: .2px; }
 .omon .bm-mname { font-size: 11px; }
 .omon-stats { display: flex; flex-direction: column; gap: 3px; }
-.omon-stat { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 6px; }
+.omon-stat { display: grid; grid-template-columns: 24px 1fr 22px; align-items: center; gap: 6px; }
 .omon-slab { font: 700 9px ui-monospace, monospace; color: var(--muted); text-transform: uppercase; }
-.omon-sbar { height: 4px; background: #0f1115; border-radius: 3px; overflow: hidden; }
+.omon-sbar { height: 5px; background: #0f1115; border-radius: 3px; overflow: hidden; }
 .omon-sbar i { display: block; height: 100%; border-radius: 3px; }
+.omon-sval { font: 700 10px ui-monospace, monospace; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+.omon-bst { display: flex; justify-content: space-between; margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--line); font: 800 10px ui-monospace, monospace; color: var(--text); text-transform: uppercase; }
+.omon-bst span:first-child { color: var(--muted); }
+
+/* Areas — expanded category-card grid (handoff Areas spec) */
+.area-panel { display: none; }
+.to-entry.open .area-panel { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 10px; align-items: start; padding: 6px 10px 18px; }
+.acat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; display: flex; flex-direction: column; min-width: 0; }
+.acat-head { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.acat-dot { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 2px; }
+.acat-label { font: 700 10px system-ui; text-transform: uppercase; letter-spacing: .4px; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acat-lv { font: 700 9px ui-monospace, monospace; color: var(--muted-2); white-space: nowrap; }
+.acat-rows { display: flex; flex-direction: column; gap: 6px; }
+.acat-row { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 6px; min-width: 0; }
+.acat-row.no-link { cursor: default; }
+.acat-row[data-go-mon]:hover .acat-name { color: #fff; }
+.acat-sprite { width: 26px; height: 26px; flex: 0 0 26px; image-rendering: pixelated; background: var(--panel-2); border-radius: 6px; }
+.acat-iicon { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); }
+.acat-name { font: 600 12px system-ui; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 860px) { .to-entry.open .to-team { grid-template-columns: repeat(3, 1fr); } .to-name { min-width: 150px; } }
 @media (max-width: 560px) { .to-entry.open .to-team { grid-template-columns: repeat(2, 1fr); } }
 
