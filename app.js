@@ -1120,7 +1120,7 @@ function selectDexMon(id) {
   if (!s) return;
   dexSel = Number(id);
   const total = s.stats.reduce((a, b) => a + b, 0), form = formName(s);
-  let html = '<div class="dex-d-top"><div class="dex-d-head"><img src="' + spriteFor(s) + '" alt="' + esc(s.name) + '">' +
+  let html = '<div class="dex-d-left"><div class="dex-d-top"><div class="dex-d-head"><img src="' + spriteFor(s) + '" alt="' + esc(s.name) + '">' +
     '<div><div class="d-num">' + pad(s.dexID) + '</div><div class="dex-d-name">' + esc(s.name) +
     (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div>' +
     '<div class="d-types">' + s.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
@@ -1131,7 +1131,7 @@ function selectDexMon(id) {
       '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
   });
   html += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></div>';
-  html += dexEvoLine(s);
+  html += dexEvoLine(s) + '</div>';  // close .dex-d-left (stats + evolution)
   html += '<div class="dex-moves"><h3 class="dex-h">Level-Up Moves</h3><div class="dex-moves-scroll">' + movesTable(s, 'level') + '</div></div>';
   const el = document.getElementById('dex-detail');
   if (el) { el.innerHTML = html; el.scrollTop = 0; }

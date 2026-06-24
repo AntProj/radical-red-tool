@@ -496,12 +496,12 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
   .hth-srow { grid-template-columns: 30px 1fr 46px 26px 34px 26px 46px 1fr 30px; gap: 3px; }
 }
 
-.modal-box.dex-modal-box { width: min(960px, 95vw); }
+.modal-box.dex-modal-box { width: min(1120px, 97vw); max-height: 94vh; }
 .dex-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
 .dex-head h2 { margin: 0; font-size: 18px; }
 .dex-head input { flex: 1; padding: 8px 12px; background: var(--bg); border: 1px solid var(--line-2); border-radius: 8px; color: var(--text); }
 .dex-body { display: grid; grid-template-columns: 232px 1fr; gap: 14px; min-height: 0; }
-.dex-list { list-style: none; margin: 0; padding: 0; max-height: 64vh; overflow-y: auto; }
+.dex-list { list-style: none; margin: 0; padding: 0; max-height: 82vh; overflow-y: auto; }
 .dex-row { display: flex; align-items: center; gap: 8px; padding: 4px 7px; border-radius: 7px; cursor: pointer; content-visibility: auto; contain-intrinsic-size: 0 42px; }
 .dex-row:hover { background: var(--panel-2); }
 .dex-row.active { background: var(--accent-dim); }
@@ -509,9 +509,12 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .dex-rn { flex: 1; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dex-rnum { color: var(--muted-2); font-size: 11px; font-variant-numeric: tabular-nums; }
 .dex-empty { color: var(--muted); padding: 10px; }
-.dex-detail { max-height: 64vh; display: flex; flex-direction: column; overflow: hidden; padding-right: 6px; }
+/* Two columns: stats + evolution on the left, the full level-up list on the right (its own
+   tall scroll area) so the moves get the whole modal height instead of the leftover sliver. */
+.dex-detail { height: 82vh; display: flex; gap: 16px; overflow: hidden; }
+.dex-d-left { flex: 0 0 290px; min-width: 0; min-height: 0; overflow-y: auto; padding-right: 4px; }
 .dex-d-top { flex: 0 0 auto; }
-.dex-moves { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.dex-moves { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .dex-moves-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 .dex-d-head { display: flex; gap: 14px; align-items: center; }
 .dex-d-head img { width: 80px; height: 80px; image-rendering: pixelated; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
@@ -553,5 +556,6 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
   .d-name { font-size: 23px; }
   .dex-body { grid-template-columns: 1fr; }
   .dex-list { max-height: 26vh; }
-  .dex-detail { max-height: none; }
+  .dex-detail { height: auto; max-height: none; flex-direction: column; }
+  .dex-d-left { flex: none; overflow: visible; }
 }
