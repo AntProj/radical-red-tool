@@ -41,6 +41,7 @@ const areaFilters = { methods: new Set(), time: null, cats: new Set() };
 let hcSub = 'order', activeBoss = null, bossSearch = '', bossBackTo = 'bosses';
 const bossCat = new Set();
 let playerHighest = 100;   // resolves scaled boss levels (codes 101–104) relative to your top mon
+let rivalStarter = 'Fire'; // starter the rival CHOSE (Grass/Fire/Water) — swaps rival teams in Trainer Order
 let bossSprite = {};       // trainerId -> trainer sprite URL (from the Hardcore sheet's =IMAGE cells)
 
 /* ---------- Persisted UI state (search / filters / tabs survive reloads) ---------- */
@@ -51,6 +52,7 @@ function loadUiState() {
   areaSearch = lsGet('rr_area_q', '');
   bossSearch = lsGet('rr_boss_q', '');
   hcSub = lsGet('rr_hcsub', 'order');
+  rivalStarter = lsGet('rr_rival', 'Fire');
   sidebarOpen = lsGet('rr_pk_side', '1') !== '0';
   filtersOpen = lsGet('rr_pk_filt', '1') !== '0';
   try {
@@ -531,6 +533,29 @@ function renderHardcore() {
   document.getElementById('hc-body').innerHTML = '<div class="page">' + nav + body + '</div>';
   document.getElementById('view-hardcore').scrollTop = 0;
 }
+// Rival ("Rival Blue") fights have 3 starter-dependent teams. Map every rival variant trainerId ->
+// { Grass, Fire, Water } (keyed by the rival's OWN starter, detected from its team) so Trainer Order
+// can show whichever one matches the player's run. Only the 3-variant fights are included.
+let _rivalVar = null;
+function rivalVariants() {
+  if (_rivalVar) return _rivalVar;
+  _rivalVar = {};
+  const ST = { 1: 'Grass', 2: 'Grass', 3: 'Grass', 4: 'Fire', 5: 'Fire', 6: 'Fire', 7: 'Water', 8: 'Water', 9: 'Water' };
+  const starterOf = (tid) => { const t = DATA.trainers[tid]; if (!t || !t.hardcore) return null; for (const m of t.hardcore) if (ST[m.species]) return ST[m.species]; return null; };
+  const cat = (DATA.hardcore.categories || []).find((c) => c.name === 'Rivals');
+  if (!cat) return _rivalVar;
+  const groups = []; let cur = null;
+  for (const b of cat.bosses) { if (!cur || cur.name !== b.name) { cur = { name: b.name, tids: [] }; groups.push(cur); } cur.tids.push(b.trainerId); }
+  for (const g of groups) {
+    const byType = {};
+    for (const tid of g.tids) { const st = starterOf(tid); if (st && !byType[st]) byType[st] = tid; }
+    if (Object.keys(byType).length >= 2) for (const tid of g.tids) _rivalVar[tid] = byType;
+  }
+  return _rivalVar;
+}
+const rivalTid = (tid) => { const v = rivalVariants()[tid]; return (v && v[rivalStarter]) || tid; };
+const STARTER_TYPES = ['Grass', 'Fire', 'Water'];
+const starterTypeChip = (name) => { const t = Object.values(DATA.types).find((x) => x.name === name); return t ? typeChip(t.ID, true) : esc(name); };
 function trainerOrderHtml() {
   const order = DATA.hardcore.trainerOrder || [];
   let rows = '';
@@ -538,17 +563,24 @@ function trainerOrderHtml() {
   for (const e of order) {
     if (e.cap !== lastCap) { rows += '<div class="to-cap">Level Cap ' + esc(e.cap) + '</div>'; lastCap = e.cap; }
     const link = !!e.trainerId;
-    rows += '<div class="to-entry' + (link ? ' linkable' : '') + '"' + (link ? ' data-boss="' + e.trainerId + '"' : '') + '>' +
+    const isRival = link && !!rivalVariants()[e.trainerId];
+    const tid = link ? rivalTid(e.trainerId) : 0;
+    rows += '<div class="to-entry' + (link ? ' linkable' : '') + '"' + (link ? ' data-boss="' + tid + '"' : '') + '>' +
       '<div class="to-row">' +
         '<span class="to-chev">' + (link ? '▸' : '') + '</span>' +
         '<span class="to-name">' + esc(e.name) + '</span>' +
+        (isRival ? '<span class="to-rstarter" title="Rival’s starter">' + starterTypeChip(rivalStarter) + '</span>' : '') +
         (e.optional ? '<span class="to-opt">optional</span>' : '') +
         '<span class="to-loc">' + esc(e.location || '') + '</span>' +
-        (link ? '<button class="vs-btn sm" data-vs="' + e.trainerId + '">⚔ VS</button>' : '') +
+        (link ? '<button class="vs-btn sm" data-vs="' + tid + '">⚔ VS</button>' : '') +
       '</div><div class="to-team"></div></div>';
   }
-  return '<div class="page-head"><h1>Trainer Order</h1><p class="page-sub">Story-order fights with their level caps. Click a trainer to expand their team, or ⚔ VS to compare against your party.</p></div>' +
-    '<div class="to-list">' + rows + '</div>';
+  const picker = '<div class="rival-pick-row"><span class="rival-pick-lbl">Rival’s starter</span>' +
+    STARTER_TYPES.map((n) => { const t = Object.values(DATA.types).find((x) => x.name === n); const on = n === rivalStarter;
+      return '<button class="rival-pick' + (on ? ' on' : '') + '" data-rival="' + n + '" style="background:' + (on && t ? t.color : 'var(--panel-2)') + '">' + esc(n) + '</button>'; }).join('') +
+    '<span class="rival-pick-note">changes the 5 rival fights’ teams</span></div>';
+  return '<div class="page-head"><h1>Trainer Order</h1><p class="page-sub">Story-order fights with their level caps. Click a trainer to expand their team, or ⚔ VS to compare against your party.</p>' +
+    picker + '</div><div class="to-list">' + rows + '</div>';
 }
 function bossCatList() { return (DATA.hardcore.categories || []).map((c) => ({ key: c.name, label: c.name })); }
 function bossesHtml() {
@@ -1372,6 +1404,7 @@ function init() {
     if (onGoClick(e)) return;                                   // team-mon click -> dex (inside expanded teams)
     if (e.target.closest('[data-dex]')) { openDexModal(); return; }
     const sub = e.target.closest('[data-sub]'); if (sub) { setHcSub(sub.dataset.sub); return; }
+    const rp = e.target.closest('[data-rival]'); if (rp) { rivalStarter = rp.dataset.rival; lsSet('rr_rival', rivalStarter); renderHardcore(); return; }
     const trow = e.target.closest('.to-row');
     if (trow) {
       const te = trow.closest('.to-entry[data-boss]');
