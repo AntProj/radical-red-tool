@@ -944,7 +944,7 @@ function openAddPop() {
   if (!pop) {
     pop = document.createElement('div'); pop.id = 'vs-pop'; pop.className = 'vs-pop';
     pop.innerHTML = '<div class="vs-pop-bd" data-addcancel></div><div class="vs-pop-box">' +
-      '<div class="vs-pop-head"><b>Add your Pokémon</b><div class="vs-pop-actions"><span id="vs-add-n" class="vs-add-n"></span><button class="vs-pop-done" data-addcancel>Done</button><button class="vs-pick-x" data-addcancel aria-label="Close">✕</button></div></div>' +
+      '<div class="vs-pop-head"><b>Add your Pokémon</b><div class="vs-pop-actions"><span id="vs-add-n" class="vs-add-n"></span><button class="vs-pop-clear" data-clearteam>Clear team</button><button class="vs-pop-done" data-addcancel>Done</button><button class="vs-pick-x" data-addcancel aria-label="Close">✕</button></div></div>' +
       '<div class="vs-pop-tabs"><button class="vs-pick-tab" data-pick="box">PC</button><button class="vs-pick-tab" data-pick="dex">Dex</button><button class="vs-pick-tab" data-pick="tm">TM/HM</button></div>' +
       '<input id="vs-pop-q" class="vs-dexq" type="search" placeholder="Search…" autocomplete="off">' +
       '<div id="vs-pop-list" class="vs-pickgrid"></div></div>';
@@ -959,11 +959,21 @@ function openAddPop() {
 }
 function bumpAddCount() { const el = document.getElementById('vs-add-n'); if (el) el.textContent = vsLeftTeam.length ? 'Team: ' + vsLeftTeam.length : ''; }
 function closeAddPop() { const p = document.getElementById('vs-pop'); if (p) p.classList.remove('on'); }
+// Add or remove a mon from the player team by pick-key ('b'+boxIdx / 'd'+speciesId); clicking an
+// already-picked mon deselects it. Keeps vs.leftIdx valid and refreshes the picker + huddle.
+function toggleTeamPick(key, makeCfg) {
+  const idx = vsLeftTeam.findIndex((c) => c._pick === key);
+  if (idx >= 0) { vsLeftTeam.splice(idx, 1); if (vs.leftIdx >= vsLeftTeam.length) vs.leftIdx = Math.max(0, vsLeftTeam.length - 1); }
+  else { const cfg = makeCfg(); if (!cfg) return; cfg._pick = key; vsLeftTeam.push(cfg); vs.leftIdx = vsLeftTeam.length - 1; }
+  vsLeft = vsLeftTeam[vs.leftIdx] || null;
+  bumpAddCount(); renderAddPicker(); rebuildVsBands();
+}
 function renderAddPicker() {
   const pop = document.getElementById('vs-pop'); if (!pop) return;
   pop.querySelectorAll('.vs-pick-tab').forEach((b) => b.classList.toggle('on', b.dataset.pick === vsAddMode));
   const q = (document.getElementById('vs-pop-q') ? document.getElementById('vs-pop-q').value : vsDexQ).trim().toLowerCase();
   const list = document.getElementById('vs-pop-list'); if (!list) return;
+  const picked = new Set(vsLeftTeam.map((c) => c._pick).filter(Boolean));   // ✓ + deselect state
   list.className = 'vs-pickgrid' + (vsAddMode === 'tm' ? ' vs-tmlist' : '');
   const sc = list.scrollTop;
   if (vsAddMode === 'tm') {
@@ -973,11 +983,11 @@ function renderAddPicker() {
   } else if (vsAddMode === 'box') {
     const mons = allBoxMons().map((m, i) => ({ m, i, sp: DATA.species[m.species] })).filter((x) => x.sp && (!q || (x.m.nickname || x.sp.name).toLowerCase().includes(q)));
     list.innerHTML = allBoxMons().length
-      ? (mons.map(({ m, i, sp }) => '<button class="vs-pickmon" data-boxpick="' + i + '"><img src="' + spriteFor(sp) + '" alt=""><span>' + esc(m.nickname || sp.name) + '</span><small>Lv ' + (m.level || '?') + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>')
+      ? (mons.map(({ m, i, sp }) => '<button class="vs-pickmon' + (picked.has('b' + i) ? ' picked' : '') + '" data-boxpick="' + i + '"><img src="' + spriteFor(sp) + '" alt=""><span>' + esc(m.nickname || sp.name) + '</span><small>Lv ' + (m.level || '?') + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>')
       : '<div class="hth-noteam" style="padding:18px">Import a save in the <b>Box</b> tab to pick from your PC.</div>';
   } else {
     const ms = ENTRIES.filter((s) => !q || s.name.toLowerCase().includes(q) || pad(s.dexID).includes(q));
-    list.innerHTML = ms.map((s) => '<button class="vs-pickmon" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt="" loading="lazy"><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>';
+    list.innerHTML = ms.map((s) => '<button class="vs-pickmon' + (picked.has('d' + s.ID) ? ' picked' : '') + '" data-dexpick="' + s.ID + '"><img src="' + spriteFor(s) + '" alt="" loading="lazy"><span>' + esc(s.name) + '</span><small>' + pad(s.dexID) + '</small></button>').join('') || '<div class="hth-noteam">No matches</div>';
   }
   list.scrollTop = sc;
 }
@@ -1059,7 +1069,7 @@ function vsBand(side, boss) {
       '<div class="vs-party right" id="vs-party-right">' + vsBossHuddle(team) + '</div></div>';
   }
   const ot = (savData && savData.party && savData.party[0] && savData.party[0].otName) || 'You';
-  const sub = vsLeftTeam.length ? 'Your Team · ' + vsLeftTeam.length + ' · right-click to remove' : 'No Pokémon yet — Add one ↙';
+  const sub = vsLeftTeam.length ? 'Your Team · ' + vsLeftTeam.length + ' · right-click to remove · <button class="vs-clearlink" data-clearteam>clear all</button>' : 'No Pokémon yet — Add one ↙';
   return '<div class="hth-band left"><div class="hth-tname you">' + esc(ot) + '<span>' + sub + '</span></div>' +
     '<div class="vs-party left" id="vs-party-left">' + vsPlayerHuddle() + '</div></div>';
 }
@@ -1210,6 +1220,11 @@ function loadSaveFile(file) {
     const res = window.RRSav ? RRSav.parse(reader.result, (id) => !!DATA.species[id], DATA.growth) : { ok: false, error: 'Parser not loaded.' };
     if (res.ok) {
       savData = res;
+      if (res.party && res.party.length) {        // auto-load the party as the (still editable) battle-modal team
+        vsLeftTeam = res.party.map((m, i) => { const c = cfgFromBox(m); c._pick = 'b' + i; return c; });
+        vs.leftIdx = 0; vsLeft = vsLeftTeam[0] || null;
+        if (!document.getElementById('modal').hidden && vs.tid != null) { rebuildVsBands(); renderHthCompare(); }
+      }
       const fb = res.boxes.findIndex((b) => b.mons.length);
       activeBoxTab = res.party.length ? 'party' : (fb >= 0 ? String(fb) : 'party');
     } else { savData = { error: res.error, diag: res.diag }; }
@@ -1466,8 +1481,9 @@ function init() {
     const ptab = e.target.closest('[data-pick]'); if (ptab) { vsAddMode = ptab.dataset.pick; renderAddPicker(); return; }
     const tmall = e.target.closest('[data-tmall]'); if (tmall) { ownedTMs = tmall.dataset.tmall === '1' ? new Set(Object.keys(DATA.tmMoves).map(Number)) : new Set(); saveTMs(); renderAddPicker(); return; }
     if (e.target.closest('[data-addcancel]')) { closeAddPop(); renderHthCompare(); return; }
-    const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; bp.classList.add('picked'); bumpAddCount(); rebuildVsBands(); } return; }
-    const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; dp.classList.add('picked'); bumpAddCount(); rebuildVsBands(); return; }
+    if (e.target.closest('[data-clearteam]')) { vsLeftTeam = []; vs.leftIdx = 0; vsLeft = null; bumpAddCount(); renderAddPicker(); rebuildVsBands(); return; }
+    const bp = e.target.closest('[data-boxpick]'); if (bp) { const i = +bp.dataset.boxpick; toggleTeamPick('b' + i, () => { const m = allBoxMons()[i]; return m ? cfgFromBox(m) : null; }); return; }
+    const dp = e.target.closest('[data-dexpick]'); if (dp) { const id = +dp.dataset.dexpick; toggleTeamPick('d' + id, () => cfgFromDex(id)); return; }
     const dfc = e.target.closest('#dex-filters .fchip'); if (dfc) { const [p, v] = dfc.dataset.f.split(':'); onFilterToggle(p, v, pkFilters); savePkState(); renderDexFilters(); renderDexList(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const garea = e.target.closest('[data-go-area]'); if (garea) { closeModal(); goArea(Number(garea.dataset.goArea)); return; }

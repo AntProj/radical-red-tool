@@ -481,6 +481,10 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-add-n { font: 700 11px system-ui; color: var(--muted); }
 .vs-pop-done { background: var(--accent); border: none; color: #fff; font: 700 12px system-ui; padding: 5px 14px; border-radius: 7px; cursor: pointer; }
 .vs-pop-done:hover { filter: brightness(1.1); }
+.vs-pop-clear { background: var(--panel-2); border: 1px solid var(--line-2); color: var(--muted); font: 700 12px system-ui; padding: 5px 12px; border-radius: 7px; cursor: pointer; }
+.vs-pop-clear:hover { border-color: var(--accent); color: var(--text); }
+.vs-clearlink { background: none; border: 0; padding: 0; margin: 0; font: inherit; color: #ff9b95; text-decoration: underline; cursor: pointer; }
+.vs-clearlink:hover { color: var(--accent); }
 .vs-pickmon.picked { border-color: var(--accent); }
 .vs-pickmon.picked::after { content: "✓"; position: absolute; top: 2px; right: 4px; font: 800 11px system-ui; color: var(--accent); }
 .vs-pickmon { position: relative; content-visibility: auto; contain-intrinsic-size: 0 78px; }
