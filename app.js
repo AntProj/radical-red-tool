@@ -71,7 +71,7 @@ const saveBossState = () => { lsSet('rr_boss_q', bossSearch); lsSet('rr_boss_cat
 
 /* ---------------- Loading ---------------- */
 const FILES = ['species', 'sprites', 'types', 'abilities', 'moves', 'items', 'evolutions',
-  'eggGroups', 'tmMoves', 'tutorMoves', 'splits', 'natures', 'scaledLevels', 'areas', 'trainers', 'hardcore', 'area-order', 'genders'];
+  'eggGroups', 'tmMoves', 'tutorMoves', 'splits', 'natures', 'scaledLevels', 'areas', 'trainers', 'hardcore', 'area-order', 'genders', 'growth'];
 
 async function loadAll() {
   const results = await Promise.all(FILES.map(async (name) => {
@@ -1166,7 +1166,7 @@ function pickSave() {
 function loadSaveFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
-    const res = window.RRSav ? RRSav.parse(reader.result, (id) => !!DATA.species[id]) : { ok: false, error: 'Parser not loaded.' };
+    const res = window.RRSav ? RRSav.parse(reader.result, (id) => !!DATA.species[id], DATA.growth) : { ok: false, error: 'Parser not loaded.' };
     if (res.ok) {
       savData = res;
       const fb = res.boxes.findIndex((b) => b.mons.length);
@@ -1203,30 +1203,30 @@ function renderBox() {
     '<div class="box-grid">' + mons.map(boxMonCard).join('') + '</div></div>';
   el.innerHTML = html;
 }
+// Compact VERTICAL box card (matches the Trainer Order .omon style): name+gender, sprite,
+// types, then labelled ability / nature / moves.
 function boxMonCard(mon) {
   const sp = DATA.species[mon.species];
   const sprite = sp ? spriteFor(sp) : (DATA.sprites[0] || '');
-  const name = mon.isEgg ? 'Egg' : (mon.nickname || (sp ? sp.name : 'Species #' + mon.species));
   const speciesName = sp ? sp.name : ('#' + mon.species);
-  const item = mon.heldItem && DATA.items[mon.heldItem] ? DATA.items[mon.heldItem].name : '';
-  const nature = DATA.natures[mon.nature] || '';
+  const nick = mon.isEgg ? 'Egg' : (mon.nickname || speciesName);
+  const gender = mon.isEgg ? '' : genderSymbolHtml(mon.species, mon.pid);
+  const sub = (!mon.isEgg && mon.nickname && mon.nickname !== speciesName) ? esc(speciesName) + ' · ' : '';
   const ab = sp ? abilityNameSlot(sp, mon.ability || 0) : '';
-  const moves = mon.moves.map((id) => { const mv = DATA.moves[id]; return mv ? '<span class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></span>' : ''; }).join('');
-  const ivParts = []; mon.ivs.forEach((v, i) => { if (v < 31) ivParts.push(v + ' ' + STAT_LABELS[i]); });
-  const evParts = []; mon.evs.forEach((v, i) => { if (v > 0) evParts.push(v + ' ' + STAT_LABELS[i]); });
-  const stats = '<span class="evk">IV</span> ' + (ivParts.length ? ivParts.join(' / ') : 'all 31') +
-    (evParts.length ? '  <span class="evk">EV</span> ' + evParts.join(' / ') : '');
+  const nature = DATA.natures[mon.nature] || '';
   const types = sp ? sp.type.map((t) => typeChip(t, true)).join('') : '';
-  return '<div class="team-card box-card"' + (sp && !mon.isEgg ? ' data-go-mon="' + mon.species + '"' : '') + '>' +
-    '<div class="tc-head">' + (mon.shiny ? '<span class="shiny" title="Shiny">★</span>' : '') +
-      '<img src="' + sprite + '" alt=""><div class="tc-id"><div class="tc-name">' + esc(name) +
-      (mon.isEgg ? '' : genderSymbolHtml(mon.species, mon.pid)) +
-      ' <span class="tc-lv">' + (mon.levelExact ? 'Lv ' : '~Lv ') + mon.level + '</span></div>' +
-      '<div class="bx-sub">' + esc(speciesName) + ' ' + types + '</div></div></div>' +
-    '<div class="tc-info"><div class="tc-ab">' + (ab ? '<b>' + esc(ab) + '</b>' : '') +
-      (nature ? ' · ' + esc(nature) : '') + (item ? ' · ' + esc(item) : '') + '</div>' +
-      (moves ? '<div class="tc-moves">' + moves + '</div>' : '') +
-      '<div class="tc-ev">' + stats + '</div></div></div>';
+  const moves = mon.moves.map((id) => { const mv = DATA.moves[id]; return mv ? '<div class="bm-move">' + typeChip(mv.type, true) + '<span class="bm-mname">' + esc(mv.name) + '</span></div>' : ''; }).join('');
+  return '<div class="omon bx-card"' + (sp && !mon.isEgg ? ' data-go-mon="' + mon.species + '"' : '') + '>' +
+    (mon.shiny ? '<span class="shiny" title="Shiny">★</span>' : '') +
+    '<div class="omon-name">' + esc(nick) + gender + '</div>' +
+    '<div class="omon-lv">' + sub + (mon.levelExact ? 'Lv ' : '~Lv ') + mon.level + '</div>' +
+    '<img class="omon-sprite" src="' + sprite + '" alt="">' +
+    '<div class="omon-types">' + types + '</div>' +
+    '<div class="omon-div"></div>' +
+    '<div class="omon-lab">Ability</div><div class="omon-val">' + (ab ? esc(ab) : '—') + '</div>' +
+    '<div class="omon-lab">Nature</div><div class="omon-val">' + (nature ? esc(nature) : '—') + '</div>' +
+    '<div class="omon-lab">Moves</div><div class="tc-moves">' + (moves || '<span class="omon-val">—</span>') + '</div>' +
+    '</div>';
 }
 
 /* ================= Navigation ================= */

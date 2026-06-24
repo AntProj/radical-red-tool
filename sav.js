@@ -3,7 +3,8 @@
  *
  * Notes / known limits for romhacks:
  *  - Species numbers are the game's INTERNAL ids; we map them straight to species.json ids.
- *  - Box Pokémon store EXP not level; level is ESTIMATED via the Medium-Fast curve (party levels are exact).
+ *  - Box Pokémon store EXP not level; level is computed from EXP via the species' growth rate when the
+ *    app passes a growth map (else a Medium-Fast cube-root estimate). Party levels are read exact.
  *  - Boxes use Radical Red / CFRU's compressed 58-byte record (sectionIDs 5-13), reverse-engineered
  *    from the YARRE save editor (decodeBoxMon). Boxes 0-18 are read; later boxes use a more
  *    intricate cross-section layout that isn't decoded yet.
@@ -39,6 +40,33 @@
   }
 
   const levelFromExp = (exp) => Math.max(1, Math.min(100, Math.round(Math.cbrt(exp || 1)))); // Medium-Fast estimate
+  // Exact level from EXP using the species' growth rate (0=Medium Fast, 1=Erratic, 2=Fluctuating,
+  // 3=Medium Slow, 4=Fast, 5=Slow). cumExp(n) = total EXP to REACH level n (standard Gen formulas).
+  function cumExp(n, rate) {
+    if (n <= 1) return 0;
+    const c = n * n * n;
+    switch (rate) {
+      case 4: return Math.floor(4 * c / 5);                                            // Fast
+      case 5: return Math.floor(5 * c / 4);                                            // Slow
+      case 3: return Math.max(0, Math.floor(6 * c / 5 - 15 * n * n + 100 * n - 140));  // Medium Slow
+      case 1:                                                                          // Erratic
+        if (n < 50) return Math.floor(c * (100 - n) / 50);
+        if (n < 68) return Math.floor(c * (150 - n) / 100);
+        if (n < 98) return Math.floor(c * Math.floor((1911 - 10 * n) / 3) / 500);
+        return Math.floor(c * (160 - n) / 100);
+      case 2:                                                                          // Fluctuating
+        if (n < 15) return Math.floor(c * (Math.floor((n + 1) / 3) + 24) / 50);
+        if (n < 36) return Math.floor(c * (n + 14) / 50);
+        return Math.floor(c * (Math.floor(n / 2) + 32) / 50);
+      default: return c;                                                               // Medium Fast
+    }
+  }
+  // Matches YARRE's xV: smallest level L (1..100) whose "exp to reach L+1" exceeds the stored EXP.
+  function levelFromExpRate(exp, rate) {
+    for (let L = 1; L < 100; L++) if (exp < cumExp(L + 1, rate)) return L;
+    return 100;
+  }
+  let growthMap = null; // optional { speciesId: rateIndex } supplied by the app -> exact box levels
 
   function checksumOk(dv, off, id) {
     const n = DATA_SIZE[id] || 3968;
@@ -172,8 +200,8 @@
       genderByte: pv & 0xFF,
       nickname: decodeStr(dv, off + 8, 10),
       otName: decodeStr(dv, off + 20, 7),
-      level: levelFromExp(exp),
-      levelExact: false,
+      level: (growthMap && growthMap[species] != null) ? levelFromExpRate(exp, growthMap[species]) : levelFromExp(exp),
+      levelExact: !!(growthMap && growthMap[species] != null),
     };
   }
 
@@ -192,8 +220,9 @@
     return new DataView(out.buffer);
   }
 
-  function parse(buffer, validSpecies) {
+  function parse(buffer, validSpecies, growth) {
     isValidSpecies = (typeof validSpecies === 'function') ? validSpecies : null;
+    growthMap = (growth && typeof growth === 'object') ? growth : null;
     const diag = {};
     try {
       const dv = new DataView(buffer);
