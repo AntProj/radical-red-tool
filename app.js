@@ -775,11 +775,13 @@ function sideObj(side) {
 const battleStats = (cfg) => { try { return toCalcMon(cfg).stats; } catch (e) { return null; } };
 // Hidden Power's type comes from the mon's IVs (Gen 3-7 mechanic that RR keeps) — the data/calc
 // store it as Normal, so derive it here. IV order is HP,Atk,Def,Spe,SpA,SpD.
-const HP_TYPES = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
+// NOTE: must NOT be named HP_TYPES — the calc engine's stats.js declares a global `var HP_TYPES`,
+// and these classic scripts share one global scope, so a same-named const crashes the calc on load.
+const HIDDEN_POWER_TYPES = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 function hiddenPowerType(ivs) {
   const b = (i) => ((ivs && ivs[i] != null ? ivs[i] : 31) & 1);
   const n = b(0) + 2 * b(1) + 4 * b(2) + 8 * b(3) + 16 * b(4) + 32 * b(5);
-  return HP_TYPES[Math.floor(n * 15 / 63)];
+  return HIDDEN_POWER_TYPES[Math.floor(n * 15 / 63)];
 }
 let _typeIdByName = null;
 function typeIdByName(name) {
