@@ -773,6 +773,25 @@ function sideObj(side) {
   return o;
 }
 const battleStats = (cfg) => { try { return toCalcMon(cfg).stats; } catch (e) { return null; } };
+// Hidden Power's type comes from the mon's IVs (Gen 3-7 mechanic that RR keeps) — the data/calc
+// store it as Normal, so derive it here. IV order is HP,Atk,Def,Spe,SpA,SpD.
+const HP_TYPES = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
+function hiddenPowerType(ivs) {
+  const b = (i) => ((ivs && ivs[i] != null ? ivs[i] : 31) & 1);
+  const n = b(0) + 2 * b(1) + 4 * b(2) + 8 * b(3) + 16 * b(4) + 32 * b(5);
+  return HP_TYPES[Math.floor(n * 15 / 63)];
+}
+let _typeIdByName = null;
+function typeIdByName(name) {
+  if (!_typeIdByName) { _typeIdByName = {}; Object.values(DATA.types).forEach((t) => { if (t && t.name) _typeIdByName[t.name] = t.ID; }); }
+  return _typeIdByName[name];
+}
+// Effective type for a move given the attacker's IVs (Hidden Power → IV-based, else the move's own).
+function effectiveMoveType(moveId, ivs) {
+  const mv = DATA.moves[moveId];
+  if (!mv) return null;
+  return mv.name === 'Hidden Power' ? hiddenPowerType(ivs) : null;  // null = use mv.type as-is
+}
 function calcMove(atkCfg, defCfg, moveId) {
   if (!RRC || !atkCfg || !defCfg) return null;
   const mv = DATA.moves[moveId];
@@ -780,7 +799,11 @@ function calcMove(atkCfg, defCfg, moveId) {
   try {
     const def = toCalcMon(defCfg);
     const field = new RRC.Field({ weather: (vsField && vsField.weather) || undefined, terrain: (vsField && vsField.terrain) || undefined, attackerSide: sideObj(atkCfg.side), defenderSide: sideObj(defCfg.side) });
-    const r = RRC.calculate(RRC._gen, toCalcMon(atkCfg), def, new RRC.Move(RRC._gen, mv.name, { isCrit: !!atkCfg.crit }), field);
+    const ovType = effectiveMoveType(moveId, atkCfg.ivs);  // Hidden Power → IV-derived type
+    const moveOpts = { isCrit: !!atkCfg.crit };
+    if (ovType) moveOpts.overrides = { type: ovType };      // mutating move.type is ignored by calculate()
+    const move = new RRC.Move(RRC._gen, mv.name, moveOpts);
+    const r = RRC.calculate(RRC._gen, toCalcMon(atkCfg), def, move, field);
     const range = r.range(), maxHP = (def.stats && def.stats.hp) || 1;
     const ko = r.kochance ? r.kochance() : null;
     return { pctLo: +(range[0] / maxHP * 100).toFixed(1), pctHi: +(range[1] / maxHP * 100).toFixed(1), ko: ko && ko.text };
@@ -915,7 +938,8 @@ function hthMoves(cfg, oppCfg, isBoss) {
   for (let i = 0; i < 4; i++) {
     const id = cfg.moves[i] || 0, mv = DATA.moves[id], d = mv ? calcMove(cfg, oppCfg, id) : null;
     const dmg = '<span class="hth-dmg' + (d ? '' : ' none') + '" title="' + (d ? esc(d.ko || '') : '') + '">' + (d ? d.pctLo + '–' + d.pctHi + '%' : (mv ? '—' : '')) + '</span>';
-    const chip = mv ? typeChip(mv.type, true) : '<span class="hth-notype">·</span>';
+    const ovType = mv ? effectiveMoveType(id, cfg.ivs) : null;   // Hidden Power → IV-based type chip
+    const chip = mv ? typeChip(ovType != null ? typeIdByName(ovType) : mv.type, true) : '<span class="hth-notype">·</span>';
     const sel = '<select class="vs-sel vs-mv" data-side="' + sideKey + '" data-slot="' + i + '"><option value="0">—</option>' + selOpts(pool, id) + '</select>';
     rows += '<div class="hth-move ' + side + '">' + (isBoss ? (dmg + chip + sel) : (sel + chip + dmg)) + '</div>';
   }
