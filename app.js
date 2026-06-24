@@ -739,7 +739,10 @@ function toCalcMon(cfg) {
   if (cfg.item && DATA.items[cfg.item]) opts.item = DATA.items[cfg.item].name;
   if (cfg.boosts) opts.boosts = cfg.boosts;
   if (cfg.status) opts.status = cfg.status;
-  return new RRC.Pokemon(RRC._gen, sp.name, opts);
+  // Use the form-aware calc key (e.g. "Wooper-Paldea", "Linoone-Galar") so regional forms get the
+  // correct types/stats/STAB; plain name resolves the base form (wrong types). Fall back if unknown.
+  try { return new RRC.Pokemon(RRC._gen, sp.key || sp.name, opts); }
+  catch (e) { return new RRC.Pokemon(RRC._gen, sp.name, opts); }
 }
 const SIDE_FLAGS = ['isSR', 'isReflect', 'isLightScreen', 'isAuroraVeil', 'isSeeded', 'isHelpingHand', 'isTailwind', 'isFriendGuard'];
 function sideObj(side) {
