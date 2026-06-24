@@ -712,10 +712,28 @@ function toCalcMon(cfg) {
   if (cfg.item && DATA.items[cfg.item]) opts.item = DATA.items[cfg.item].name;
   if (cfg.boosts) opts.boosts = cfg.boosts;
   if (cfg.status) opts.status = cfg.status;
+  if (cfg.curHP != null) opts.curHP = cfg.curHP;
+  const tov = monTypesOverride(cfg);                 // user Pokémon-type override → calc overrides.types
+  if (tov) opts.overrides = { types: tov };
   // Use the form-aware calc key (e.g. "Wooper-Paldea", "Linoone-Galar") so regional forms get the
   // correct types/stats/STAB; plain name resolves the base form (wrong types). Fall back if unknown.
   try { return new RRC.Pokemon(RRC._gen, sp.key || sp.name, opts); }
   catch (e) { return new RRC.Pokemon(RRC._gen, sp.name, opts); }
+}
+// Pokémon TYPE override (parallels the move-type picker): cfg.typeOv[slot] = type id, or null.
+function monTypeId(cfg, slot) {
+  if (cfg.typeOv && cfg.typeOv[slot] != null) return cfg.typeOv[slot];
+  return DATA.species[cfg.species].type[slot];
+}
+function monTypesOverride(cfg) {
+  if (!cfg.typeOv || !cfg.typeOv.some((x) => x != null)) return null;
+  return DATA.species[cfg.species].type.map((t, i) => DATA.types[cfg.typeOv[i] != null ? cfg.typeOv[i] : t].name);
+}
+function monTypeOpts(cfg, slot) {
+  const cur = (cfg.typeOv && cfg.typeOv[slot] != null) ? cfg.typeOv[slot] : -1;
+  let html = '<option value="-1"' + (cur === -1 ? ' selected' : '') + '>Default</option>';
+  for (const id of TYPE_IDS) html += '<option value="' + id + '"' + (cur === id ? ' selected' : '') + '>' + esc(DATA.types[id].name) + '</option>';
+  return html;
 }
 const SIDE_FLAGS = ['isSR', 'isReflect', 'isLightScreen', 'isAuroraVeil', 'isSeeded', 'isHelpingHand', 'isTailwind', 'isFriendGuard'];
 function sideObj(side) {
@@ -857,13 +875,13 @@ function genderControl(cfg, sideKey) {
   return ' <button class="vs-gender ' + (g === 'F' ? 'f' : 'm') + '" data-side="' + sideKey + '" data-gender title="Gender — click to toggle">' + (g === 'F' ? '♀' : '♂') + '</button>';
 }
 function hthHead(cfg, isBoss) {
-  const side = isBoss ? 'r' : 'l';
+  const side = isBoss ? 'r' : 'l', sideKey = isBoss ? 'right' : 'left';
   const sp = cfg ? DATA.species[cfg.species] : null;
   if (!sp) return '<div class="hth-head ' + side + '"><div class="hth-noteam">Add a Pokémon ↙</div></div>';
   const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name);
   const meta = '<div class="hth-hmeta"><div class="hth-hname">' + name + '</div>' +
     '<div class="hth-hlv">Lv ' + cfg.level + genderControl(cfg, isBoss ? 'right' : 'left') + '</div>' +
-    '<div class="hth-htypes">' + sp.type.map((t) => typeChip(t)).join('') + '</div></div>';
+    '<div class="hth-htypes">' + sp.type.map((t, i) => '<span class="hth-type" title="Click to override this Pokémon’s type">' + typeChip(monTypeId(cfg, i)) + '<select class="hth-monsel" data-side="' + sideKey + '" data-slot="' + i + '" aria-label="Pokémon type">' + monTypeOpts(cfg, i) + '</select></span>').join('') + '</div></div>';
   return '<div class="hth-head ' + side + '"><img class="hth-hsprite" src="' + spriteFor(sp) + '" alt="">' + meta + hthCfgGrid(cfg, isBoss ? 'right' : 'left') + '</div>';
 }
 // Stage multiplier on a raw stat (battle stat) — Gen-style.
@@ -922,8 +940,16 @@ function hthMoves(cfg, oppCfg, isBoss) {
     const sel = '<select class="vs-sel vs-mv" data-side="' + sideKey + '" data-slot="' + i + '"><option value="0">—</option>' + selOpts(pool, id) + '</select>';
     rows += '<div class="hth-move ' + side + '">' + (isBoss ? (dmg + chip + sel) : (sel + chip + dmg)) + '</div>';
   }
+  const maxHP = (battleStats(cfg) || {}).hp || 0;          // HP battle stat (≠ base stat)
+  const curHP = (cfg.curHP != null) ? Math.max(0, Math.min(cfg.curHP, maxHP)) : maxHP;
+  const hpPct = maxHP ? Math.round(curHP / maxHP * 100) : 0;
+  const hpColor = hpPct > 50 ? '#5fc46a' : (hpPct > 20 ? '#e8c14a' : '#e0584f');
+  const hp = maxHP ? ('<div class="vs-hp" title="Current HP / max (HP battle stat)">' +
+    '<span class="vs-hpbar"><i style="width:' + hpPct + '%;background:' + hpColor + '"></i></span>' +
+    '<input class="vs-hpcur" type="number" min="0" max="' + maxHP + '" value="' + curHP + '" data-side="' + sideKey + '" data-edit="hp" aria-label="Current HP">' +
+    '<span class="vs-hpmax">/ ' + maxHP + '</span><span class="vs-hppct">' + hpPct + '%</span></div>') : '';
   const head = '<div class="hth-mhead"><label class="vs-fld">Status<select class="vs-sel" data-side="' + sideKey + '" data-edit="status">' + selOpts(STATUS_OPTS, cfg.status || '') + '</select></label>' +
-    '<label class="vs-fld vs-crit"><input type="checkbox" data-side="' + sideKey + '" data-edit="crit"' + (cfg.crit ? ' checked' : '') + '> Crit</label></div>';
+    '<label class="vs-fld vs-crit"><input type="checkbox" data-side="' + sideKey + '" data-edit="crit"' + (cfg.crit ? ' checked' : '') + '> Crit</label>' + hp + '</div>';
   return '<div class="hth-mcol ' + side + '"><div class="hth-mtitle">' + name + '’s Moves</div>' + head + rows + '</div>';
 }
 const WEATHERS = [['', '— none —'], ['Sand', 'Sandstorm'], ['Rain', 'Rain'], ['Sun', 'Sun'], ['Snow', 'Snow'], ['Hail', 'Hail'], ['Harsh Sunshine', 'Desolate Land'], ['Heavy Rain', 'Primordial Sea'], ['Strong Winds', 'Delta Stream']];
@@ -1499,6 +1525,8 @@ function init() {
     if (t.dataset.edit === 'crit') { cfg.crit = t.checked; renderHthCompare(); return; }
     if (t.dataset.cond) { if (t.dataset.cond === 'spikes') cfg.side.spikes = t.checked ? 3 : 0; else cfg.side[t.dataset.cond] = t.checked; renderMovesOnly(); return; }
     if (t.classList.contains('hth-typesel')) { const s = +t.dataset.slot, v = +t.value; cfg.moveTypes = cfg.moveTypes || [null, null, null, null]; cfg.moveTypes[s] = v < 0 ? null : v; renderMovesOnly(); return; }
+    if (t.classList.contains('hth-monsel')) { const s = +t.dataset.slot, v = +t.value; cfg.typeOv = cfg.typeOv || []; cfg.typeOv[s] = v < 0 ? null : v; renderHthCompare(); return; }
+    if (t.dataset.edit === 'hp') { const mx = (battleStats(cfg) || {}).hp || 0; cfg.curHP = Math.max(0, Math.min(parseInt(t.value, 10) || 0, mx)); renderMovesOnly(); return; }
     if (t.dataset.edit === 'nature') cfg.nature = +t.value;
     else if (t.dataset.edit === 'ability') cfg.ability = t.value;
     else if (t.dataset.edit === 'item') cfg.item = +t.value;
