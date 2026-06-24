@@ -746,14 +746,35 @@ function effectiveMoveType(moveId, ivs) {
   if (!mv) return null;
   return mv.name === 'Hidden Power' ? hiddenPowerType(ivs) : null;  // null = use mv.type as-is
 }
-function calcMove(atkCfg, defCfg, moveId) {
+// DISPLAY type id for a move slot: user override (cfg.moveTypes[slot]) wins, else Hidden Power's
+// IV-derived type, else the move's own type. Drives the type chip.
+function moveTypeId(cfg, slot, moveId) {
+  if (cfg && cfg.moveTypes && cfg.moveTypes[slot] != null) return cfg.moveTypes[slot];
+  const hp = effectiveMoveType(moveId, cfg && cfg.ivs);
+  if (hp != null) return typeIdByName(hp);
+  const mv = DATA.moves[moveId];
+  return mv ? mv.type : null;
+}
+// Type NAME to feed the calc as an override (or null = leave the move's natural type).
+function moveOverrideName(cfg, slot, moveId) {
+  if (cfg && cfg.moveTypes && cfg.moveTypes[slot] != null) { const t = DATA.types[cfg.moveTypes[slot]]; return t ? t.name : null; }
+  return effectiveMoveType(moveId, cfg && cfg.ivs);  // Hidden Power, else null
+}
+// <select> options for the per-move type override: "Default" (clear) + every real type.
+function typeOpts(cfg, slot) {
+  const cur = (cfg && cfg.moveTypes && cfg.moveTypes[slot] != null) ? cfg.moveTypes[slot] : -1;
+  let html = '<option value="-1"' + (cur === -1 ? ' selected' : '') + '>Default</option>';
+  for (const id of TYPE_IDS) html += '<option value="' + id + '"' + (cur === id ? ' selected' : '') + '>' + esc(DATA.types[id].name) + '</option>';
+  return html;
+}
+function calcMove(atkCfg, defCfg, moveId, slot) {
   if (!RRC || !atkCfg || !defCfg) return null;
   const mv = DATA.moves[moveId];
   if (!mv || !mv.power) return null;  // status / no base power -> no damage
   try {
     const def = toCalcMon(defCfg);
     const field = new RRC.Field({ weather: (vsField && vsField.weather) || undefined, terrain: (vsField && vsField.terrain) || undefined, attackerSide: sideObj(atkCfg.side), defenderSide: sideObj(defCfg.side) });
-    const ovType = effectiveMoveType(moveId, atkCfg.ivs);  // Hidden Power → IV-derived type
+    const ovType = moveOverrideName(atkCfg, slot, moveId);  // user override, else Hidden Power IV-type
     const moveOpts = { isCrit: !!atkCfg.crit };
     if (ovType) moveOpts.overrides = { type: ovType };      // mutating move.type is ignored by calculate()
     const move = new RRC.Move(RRC._gen, mv.name, moveOpts);
@@ -890,10 +911,14 @@ function hthMoves(cfg, oppCfg, isBoss) {
   const name = (!isBoss && cfg.nickname) ? esc(cfg.nickname) : esc(sp.name), pool = movePoolFor(cfg, isBoss);
   let rows = '';
   for (let i = 0; i < 4; i++) {
-    const id = cfg.moves[i] || 0, mv = DATA.moves[id], d = mv ? calcMove(cfg, oppCfg, id) : null;
+    const id = cfg.moves[i] || 0, mv = DATA.moves[id], d = mv ? calcMove(cfg, oppCfg, id, i) : null;
     const dmg = '<span class="hth-dmg' + (d ? '' : ' none') + '" title="' + (d ? esc(d.ko || '') : '') + '">' + (d ? d.pctLo + '–' + d.pctHi + '%' : (mv ? '—' : '')) + '</span>';
-    const ovType = mv ? effectiveMoveType(id, cfg.ivs) : null;   // Hidden Power → IV-based type chip
-    const chip = mv ? typeChip(ovType != null ? typeIdByName(ovType) : mv.type, true) : '<span class="hth-notype">·</span>';
+    // The type chip doubles as a picker: a transparent <select> overlays it so the user can override
+    // the move's type for the calc (Hidden Power's IV-type is the default until overridden).
+    const chip = mv
+      ? '<span class="hth-type" title="Click to override this move’s type">' + typeChip(moveTypeId(cfg, i, id), true) +
+        '<select class="hth-typesel" data-side="' + sideKey + '" data-slot="' + i + '" aria-label="Move type">' + typeOpts(cfg, i) + '</select></span>'
+      : '<span class="hth-notype">·</span>';
     const sel = '<select class="vs-sel vs-mv" data-side="' + sideKey + '" data-slot="' + i + '"><option value="0">—</option>' + selOpts(pool, id) + '</select>';
     rows += '<div class="hth-move ' + side + '">' + (isBoss ? (dmg + chip + sel) : (sel + chip + dmg)) + '</div>';
   }
@@ -1457,6 +1482,7 @@ function init() {
     if (t.dataset.iv != null) { cfg.ivs[+t.dataset.iv] = Math.max(0, Math.min(31, parseInt(t.value, 10) || 0)); renderHthCompare(); return; }
     if (t.dataset.edit === 'crit') { cfg.crit = t.checked; renderHthCompare(); return; }
     if (t.dataset.cond) { if (t.dataset.cond === 'spikes') cfg.side.spikes = t.checked ? 3 : 0; else cfg.side[t.dataset.cond] = t.checked; renderMovesOnly(); return; }
+    if (t.classList.contains('hth-typesel')) { const s = +t.dataset.slot, v = +t.value; cfg.moveTypes = cfg.moveTypes || [null, null, null, null]; cfg.moveTypes[s] = v < 0 ? null : v; renderMovesOnly(); return; }
     if (t.dataset.edit === 'nature') cfg.nature = +t.value;
     else if (t.dataset.edit === 'ability') cfg.ability = t.value;
     else if (t.dataset.edit === 'item') cfg.item = +t.value;
