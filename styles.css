@@ -226,6 +226,18 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .evo-card .en { font-weight: 600; font-size: 12.5px; }
 .evo-card .ec { color: var(--muted); font-size: 10.5px; line-height: 1.2; }
 .evo-sep { align-self: center; color: var(--muted-2); padding: 0 4px; }
+/* Full evolution tree: stage columns (vertical stacks for branches) joined by arrows. */
+.evo-tree { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.evo-stage { display: flex; flex-direction: column; gap: 8px; }
+.evo-arr { color: var(--muted-2); font-size: 18px; flex: 0 0 auto; }
+.evo-card.cur { border-color: var(--accent); background: var(--accent-dim); }
+/* compact tree inside the mini-Pokédex left column */
+.dex-d-left .evo-tree { gap: 5px; }
+.dex-d-left .evo-card { width: 76px; padding: 6px 3px; }
+.dex-d-left .evo-card img { width: 40px; height: 40px; }
+.dex-d-left .evo-card .en { font-size: 10.5px; }
+.dex-d-left .evo-card .ec { font-size: 9px; line-height: 1.15; }
+.dex-d-left .evo-arr { font-size: 13px; }
 
 .loc-row { display: flex; gap: 10px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--line); }
 .loc-row:last-child { border-bottom: none; }

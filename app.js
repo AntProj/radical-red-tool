@@ -338,19 +338,40 @@ function defenseGroup(label, arr) {
   return '<div class="def-group"><div class="lbl">' + label + '</div><div class="def-list">' +
     arr.map(([t, m]) => '<span class="def-chip">' + typeChip(t, true) + '<span class="mult">' + (MULT_LABEL[m] || (m + '×')) + '</span></span>').join('') + '</div></div>';
 }
-function evolutionSection(s) {
-  const froms = evolvesFromMap[s.ID] || [], intos = s.evolutions || [];
-  if (!froms.length && !intos.length) return '';
-  let html = '<section class="card"><h2>Evolution</h2><div class="evo-row">';
-  for (const f of froms) { const p = DATA.species[f.from]; if (p) html += evoCard(p, '← ' + (evoCondition(f.evo) || 'evolves into this')); }
-  if (froms.length && intos.length) html += '<div class="evo-sep">·</div>';
-  for (const evo of intos) { const t = DATA.species[evo[2]]; if (t) html += evoCard(t, '→ ' + (evoCondition(evo) || '')); }
-  return html + '</div></section>';
+// Build the WHOLE evolution family tree (climb to the root, then BFS every descendant incl. branches
+// & megas) and render it for ANY member, with the current mon highlighted. dataAttr = 'data-go-mon'
+// (main dex → navigate) or 'data-dexid' (mini-dex modal → select in place).
+function evoTree(s, dataAttr) {
+  let rootId = s.ID; const climbed = new Set();
+  while (evolvesFromMap[rootId] && evolvesFromMap[rootId][0] && !climbed.has(rootId)) { climbed.add(rootId); rootId = evolvesFromMap[rootId][0].from; }
+  const stages = []; let frontier = [{ id: rootId, cond: '' }]; const seen = new Set([rootId]);
+  while (frontier.length) {
+    stages.push(frontier);
+    const next = [];
+    for (const node of frontier) {
+      for (const evo of (DATA.species[node.id] && DATA.species[node.id].evolutions) || []) {
+        const tid = evo[2];
+        if (tid && DATA.species[tid] && !seen.has(tid)) { seen.add(tid); next.push({ id: tid, cond: evoCondition(evo) || '' }); }
+      }
+    }
+    frontier = next;
+    if (stages.length > 8) break;   // safety against bad data cycles
+  }
+  if (stages.length < 2) return '';  // lone species, nothing to show
+  const attr = dataAttr || 'data-go-mon';
+  const cols = stages.map((stage) =>
+    '<div class="evo-stage">' + stage.map((n) => evoTreeCard(DATA.species[n.id], n.cond, n.id === s.ID, attr)).join('') + '</div>');
+  return '<div class="evo-tree">' + cols.join('<div class="evo-arr">→</div>') + '</div>';
 }
-function evoCard(s, cond) {
-  const form = formName(s);
-  return '<div class="evo-card" data-go-mon="' + s.ID + '"><img src="' + spriteFor(s) + '" alt="' + esc(s.name) + '">' +
-    '<div class="en">' + esc(s.name) + (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div><div class="ec">' + esc(cond) + '</div></div>';
+function evoTreeCard(sp, cond, current, attr) {
+  const form = formName(sp);
+  return '<div class="evo-card' + (current ? ' cur' : '') + '" ' + attr + '="' + sp.ID + '"><img src="' + spriteFor(sp) + '" alt="' + esc(sp.name) + '">' +
+    '<div class="en">' + esc(sp.name) + (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div>' +
+    (cond ? '<div class="ec">' + esc(cond) + '</div>' : '') + '</div>';
+}
+function evolutionSection(s) {
+  const tree = evoTree(s, 'data-go-mon');
+  return tree ? '<section class="card"><h2>Evolution</h2>' + tree + '</section>' : '';
 }
 function locationsSection(s) {
   const link = (idx, meta) => '<div class="loc-row"><span class="loc-area" data-go-area="' + idx + '">' + esc(AREAVIEW[idx].name) + '</span><span class="loc-meta">' + esc(meta) + '</span></div>';
@@ -1106,17 +1127,8 @@ function renderDexList() {
 // Compact evolution line for the mini-Pokédex modal; clicking a card selects it in-modal
 // (the modal click handler routes [data-dexid] -> selectDexMon).
 function dexEvoLine(s) {
-  const froms = evolvesFromMap[s.ID] || [], intos = s.evolutions || [];
-  if (!froms.length && !intos.length) return '';
-  const card = (sp, cond) => { const fm = formName(sp);
-    return '<div class="evo-card" data-dexid="' + sp.ID + '"><img src="' + spriteFor(sp) + '" alt="' + esc(sp.name) + '">' +
-    '<div class="en">' + esc(sp.name) + (fm ? ' <span class="row-form">' + esc(fm) + '</span>' : '') + '</div>' +
-    (cond ? '<div class="ec">' + esc(cond) + '</div>' : '') + '</div>'; };
-  let h = '<h3 class="dex-h">Evolution</h3><div class="evo-row dex-evo">';
-  for (const f of froms) { const p = DATA.species[f.from]; if (p) h += card(p, '← ' + (evoCondition(f.evo) || '')); }
-  if (froms.length && intos.length) h += '<div class="evo-sep">·</div>';
-  for (const evo of intos) { const t = DATA.species[evo[2]]; if (t) h += card(t, '→ ' + (evoCondition(evo) || '')); }
-  return h + '</div>';
+  const tree = evoTree(s, 'data-dexid');  // full family tree; cards select in-modal via [data-dexid]
+  return tree ? '<h3 class="dex-h">Evolution</h3>' + tree : '';
 }
 function selectDexMon(id) {
   const s = DATA.species[id];
@@ -1304,9 +1316,12 @@ function toggleSplit() {
   updateViews();
   if (splitMode && rightMode) renderSection(rightMode);
 }
-function goMon(id) { if (mode !== 'pokemon') setMode('pokemon', true); selectSpecies(id); }
+// Show section m in the primary pane — UNLESS it's already visible in either split pane, so that
+// clicking a mon/area/boss while that section is on the RIGHT updates it in place (no pane snap).
+function ensureMode(m) { if (mode !== m && !(splitMode && rightMode === m)) setMode(m, true); }
+function goMon(id) { ensureMode('pokemon'); selectSpecies(id); }
 function goArea(idx) {
-  if (mode !== 'areas') setMode('areas', true);
+  ensureMode('areas');
   // Only drop the (persisted) search/filters if they'd hide the target area.
   const a = AREAVIEW[idx], q = areaSearch.trim().toLowerCase();
   if (a && ((q && !a.name.toLowerCase().includes(q)) || !passesAreaFilter(a))) {
@@ -1318,7 +1333,7 @@ function goArea(idx) {
   if (ae) ae.scrollIntoView({ block: 'start' });
   setHash('a' + idx);
 }
-function goBoss(id) { if (mode !== 'hardcore') setMode('hardcore', true); hcSub = 'bosses'; renderHardcore(); renderBossGrid(); }
+function goBoss(id) { ensureMode('hardcore'); hcSub = 'bosses'; renderHardcore(); renderBossGrid(); }
 function setHcSub(sub) { hcSub = sub; lsSet('rr_hcsub', sub); activeBoss = null; renderHardcore(); if (sub === 'bosses') renderBossGrid(); setHash(sub); }
 
 /* ================= Hash routing ================= */
