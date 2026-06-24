@@ -5,23 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radical Red Pokédex</title>
 <meta name="description" content="A Pokédex, location guide, and Hardcore boss reference for the Pokémon Radical Red romhack.">
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 <div id="app" hidden>
   <header id="topbar">
     <div class="brand">Radical Red<span>Pokédex</span></div>
     <nav id="tabs">
-      <button data-mode="pokemon" class="active">Pokémon</button>
       <button data-mode="areas">Areas</button>
-      <button data-mode="hardcore">Hardcore</button>
+      <button data-mode="hardcore" class="active">Hardcore</button>
       <button data-mode="calc">Calc</button>
       <button data-mode="box">Box</button>
     </nav>
     <button id="split-btn" title="Open a second pane side-by-side">⊟ Split</button>
     <nav id="tabs-right" hidden>
       <span class="tabs-label">▕ right:</span>
-      <button data-rmode="pokemon">Pokémon</button>
       <button data-rmode="areas">Areas</button>
       <button data-rmode="hardcore">Hardcore</button>
       <button data-rmode="calc">Calc</button>
@@ -30,26 +28,6 @@
   </header>
 
   <div id="views">
-    <!-- POKÉMON: two-pane (list + detail) -->
-    <section id="view-pokemon" class="view">
-      <aside id="pk-sidebar">
-        <button id="pk-expand" class="pk-railbtn" title="Expand Pokédex panel">⟩<span class="pk-rail-label">Pokédex</span></button>
-        <div class="pk-panel">
-          <div class="side-head">
-            <div class="pk-side-title"><span class="pk-side-name">Pokédex</span><button id="pk-collapse" class="pk-iconbtn" title="Collapse panel">⟨</button></div>
-            <button id="pk-filt-toggle" class="pk-filt-toggle">Search &amp; Filters <span id="pk-filt-state">▾ hide</span></button>
-            <div id="pk-filt-wrap">
-              <input id="pk-search" type="search" placeholder="Search name, #number, or type…" autocomplete="off" spellcheck="false">
-              <div id="pk-filters"></div>
-            </div>
-            <div id="pk-count" class="count"></div>
-          </div>
-          <ul id="pk-list" role="listbox" aria-label="Pokémon list"></ul>
-        </div>
-      </aside>
-      <main id="pk-detail" tabindex="0"><div id="pk-detail-content"></div></main>
-    </section>
-
     <!-- AREAS: full width -->
     <section id="view-areas" class="view fullview" hidden>
       <div id="ar-body"></div>
@@ -85,7 +63,7 @@
   <div id="loading-text">Loading Radical Red data…</div>
 </div>
 
-<script src="sav.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="sav.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

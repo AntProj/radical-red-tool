@@ -29,7 +29,7 @@ const AREA_CATS = [{ key: 'wild', label: 'Wild' }, { key: 'items', label: 'Items
 
 let ENTRIES = [], TYPE_IDS = [], evolvesFromMap = {};
 let AREAVIEW = [], monWild = {}, monFixed = {}, monRaid = {}, areaRank = {};
-let mode = 'pokemon';
+let mode = 'hardcore';
 let splitMode = false, rightMode = null;   // second side-by-side pane
 // pokemon
 let activeId = null, pkSearch = '', activeMoveTab = 'level', sidebarOpen = true, filtersOpen = true;
@@ -243,63 +243,17 @@ function chipRow(items, prefix, activeSet, single) {
   }).join('');
 }
 
-/* ================= POKÉMON ================= */
-function renderPkFilters() {
-  document.getElementById('pk-filters').innerHTML =
-    '<div class="fchips">' + chipRow(METHOD_GROUPS, 'm', pkFilters.methods) + '</div>' +
-    '<div class="fchips">' + chipRow([{ key: 'Day', label: '☀ Day' }, { key: 'Night', label: '☾ Night' }], 't', pkFilters.time, true) + '</div>';
-}
+/* ===== Shared species search/filter helpers (used by the Pokédex modal) ===== */
 function pkMatchesText(s, q) {
   if (!q) return true;
   if (s.name.toLowerCase().includes(q) || (s.key && s.key.toLowerCase().includes(q))) return true;
   if (pad(s.dexID).includes(q) || String(s.dexID) === q) return true;
   return s.type.some((t) => DATA.types[t] && DATA.types[t].name.toLowerCase() === q);
 }
-function pkPassesFilter(s) {
-  if (!encActive(pkFilters)) return true;
-  return (monWild[s.ID] || []).some((w) => encMatch(WILD_METHODS[w.key], pkFilters));
-}
-let pkImgObs;
-function renderPkList() {
-  const list = document.getElementById('pk-list');
-  list.innerHTML = '';
-  const q = pkSearch.trim().toLowerCase();
-  const frag = document.createDocumentFragment();
-  let shown = 0;
-  for (const s of ENTRIES) {
-    if (!pkMatchesText(s, q) || !pkPassesFilter(s)) continue;
-    shown++;
-    const li = document.createElement('li');
-    li.className = 'row' + (s.ID === activeId ? ' active' : '');
-    li.dataset.id = s.ID;
-    const form = formName(s);
-    li.innerHTML = '<img class="row-img" alt="" data-sprite="' + s.ID + '">' +
-      '<div class="row-main"><div class="row-name">' + esc(s.name) +
-      (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div>' +
-      '<div class="row-sub"><span class="row-num">' + pad(s.dexID) + '</span>' +
-      s.type.map((t) => typeTag(t)).join('') +
-      '</div></div>';
-    frag.appendChild(li);
-  }
-  list.appendChild(frag);
-  document.getElementById('pk-count').textContent = shown + (q || encActive(pkFilters) ? ' of ' + ENTRIES.length : '') + ' Pokémon';
-  if (pkImgObs) pkImgObs.disconnect();
-  pkImgObs = new IntersectionObserver((es) => {
-    for (const e of es) if (e.isIntersecting) { e.target.src = DATA.sprites[e.target.dataset.sprite] || DATA.sprites[0] || ''; pkImgObs.unobserve(e.target); }
-  }, { root: list, rootMargin: '200px' });
-  list.querySelectorAll('.row-img').forEach((i) => pkImgObs.observe(i));
-}
-function selectSpecies(id, fromHash) {
-  if (!DATA.species[id]) return;
-  activeId = Number(id); activeMoveTab = 'level';
-  renderDetail(DATA.species[id]);
-  document.querySelectorAll('#pk-list .row').forEach((r) => r.classList.toggle('active', Number(r.dataset.id) === activeId));
-  const a = document.querySelector('#pk-list .row.active');
-  if (a) a.scrollIntoView({ block: 'nearest' });
-  document.getElementById('pk-detail').scrollTop = 0;
-  if (!fromHash) setHash(String(id));
-}
-function renderDetail(s) {
+// Builds the full species detail (head, stats, type defenses, abilities, evolution, moves, locations)
+// as an HTML string. Shared by the mini-Pokédex modal. evoAttr picks how evolution cards behave:
+// 'data-dexid' selects in-modal, 'data-go-mon' navigates.
+function detailHtml(s, evoAttr) {
   const total = s.stats.reduce((a, b) => a + b, 0), form = formName(s);
   const abilities = abilityList(s), def = computeDefenses(s);
   const heldItems = (s.items || []).filter((i) => i && DATA.items[i]).map((i) => esc(DATA.items[i].name));
@@ -327,11 +281,10 @@ function renderDetail(s) {
   html += '<div class="grid-2"><section class="card stats-card"><h2>Base Stats</h2>' + stats + '</section>' +
     '<div class="d-rightcol"><section class="card"><h2>Type Defenses</h2>' + defenses + '</section>' +
     '<section class="card"><h2>Abilities</h2>' + abil + '</section></div></div>';
-  const evo = evolutionSection(s);
-  if (evo) html += evo;
+  const tree = evoTree(s, evoAttr || 'data-go-mon');
+  if (tree) html += '<section class="card"><h2>Evolution</h2>' + tree + '</section>';
   html += movesSection(s) + locationsSection(s);   // Moves placed ABOVE Locations
-  document.getElementById('pk-detail-content').innerHTML = html;
-  wireMoveTabs(s);
+  return html;
 }
 function defenseGroup(label, arr) {
   if (!arr.length) return '';
@@ -414,11 +367,14 @@ function movesTable(s, tab) {
   }
   return html + '</tbody></table></div>';
 }
-function wireMoveTabs(s) {
-  document.querySelectorAll('#pk-detail .tab').forEach((tab) => tab.addEventListener('click', () => {
+function wireMoveTabs(s, root) {
+  root = root || '#pk-detail';
+  const tabs = document.querySelectorAll(root + ' .tab');
+  tabs.forEach((tab) => tab.addEventListener('click', () => {
     activeMoveTab = tab.dataset.tab;
-    document.querySelectorAll('#pk-detail .tab').forEach((t) => t.classList.toggle('active', t === tab));
-    document.getElementById('moves-body').innerHTML = movesTable(s, activeMoveTab);
+    tabs.forEach((t) => t.classList.toggle('active', t === tab));
+    const body = document.querySelector(root + ' #moves-body');
+    if (body) body.innerHTML = movesTable(s, activeMoveTab);
   }));
 }
 
@@ -1131,19 +1087,30 @@ function evIvLine(arr, label) {
 
 /* ---------------- Mini Pokédex modal ---------------- */
 let dexQuery = '', dexSel = null;
-function openDexModal() {
+function openDexModal(initialId) {
   openModal('<div class="dex-modal"><div class="dex-head"><h2>Pokédex</h2>' +
     '<input id="dex-q" type="search" placeholder="Search name, #number, or type…" autocomplete="off"></div>' +
+    '<div id="dex-filters" class="dex-filters"></div>' +
     '<div class="dex-body"><ul id="dex-list" class="dex-list"></ul><div id="dex-detail" class="dex-detail"></div></div></div>', 'dex-modal-box');
   dexQuery = '';
+  renderDexFilters();
   renderDexList();
-  selectDexMon(dexSel || activeId || ENTRIES[0].ID);
+  selectDexMon(initialId || dexSel || activeId || ENTRIES[0].ID);
+}
+// Encounter filters in the modal mirror the old standalone dex; they share the same pkFilters state.
+function renderDexFilters() {
+  const el = document.getElementById('dex-filters');
+  if (!el) return;
+  el.innerHTML =
+    '<div class="fchips">' + chipRow(METHOD_GROUPS, 'm', pkFilters.methods) + '</div>' +
+    '<div class="fchips">' + chipRow([{ key: 'Day', label: '☀ Day' }, { key: 'Night', label: '☾ Night' }], 't', pkFilters.time, true) + '</div>';
 }
 function renderDexList() {
-  const q = dexQuery.trim().toLowerCase();
+  const q = dexQuery.trim().toLowerCase(), encOn = encActive(pkFilters);
   let html = '';
   for (const s of ENTRIES) {
     if (!pkMatchesText(s, q)) continue;
+    if (encOn && !(monWild[s.ID] || []).some((w) => encMatch(WILD_METHODS[w.key], pkFilters))) continue;
     html += '<li class="dex-row' + (s.ID === dexSel ? ' active' : '') + '" data-dexid="' + s.ID + '">' +
       '<img src="' + spriteFor(s) + '" alt=""><span class="dex-rn">' + esc(s.name) + '</span><span class="dex-rnum">' + pad(s.dexID) + '</span></li>';
   }
@@ -1159,23 +1126,9 @@ function dexEvoLine(s) {
 function selectDexMon(id) {
   const s = DATA.species[id];
   if (!s) return;
-  dexSel = Number(id);
-  const total = s.stats.reduce((a, b) => a + b, 0), form = formName(s);
-  let html = '<div class="dex-d-left"><div class="dex-d-top"><div class="dex-d-head"><img src="' + spriteFor(s) + '" alt="' + esc(s.name) + '">' +
-    '<div><div class="d-num">' + pad(s.dexID) + '</div><div class="dex-d-name">' + esc(s.name) +
-    (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div>' +
-    '<div class="d-types">' + s.type.map((t) => typeChip(t)).join('') + '</div></div></div>';
-  html += '<h3 class="dex-h">Base Stats</h3>';
-  STAT_DISPLAY.forEach(([lab, i]) => {
-    const v = s.stats[i];
-    html += '<div class="stat"><span class="stat-label">' + lab + '</span><span class="stat-val">' + v +
-      '</span><span class="stat-bar"><i style="width:' + Math.min(100, v / MAX_STAT * 100) + '%;background:' + statColor(v) + '"></i></span></div>';
-  });
-  html += '<div class="stat total"><span class="stat-label">BST</span><span class="stat-val">' + total + '</span><span></span></div></div>';
-  html += dexEvoLine(s) + '</div>';  // close .dex-d-left (stats + evolution)
-  html += '<div class="dex-moves"><h3 class="dex-h">Level-Up Moves</h3><div class="dex-moves-scroll">' + movesTable(s, 'level') + '</div></div>';
+  dexSel = Number(id); activeMoveTab = 'level';
   const el = document.getElementById('dex-detail');
-  if (el) { el.innerHTML = html; el.scrollTop = 0; }
+  if (el) { el.innerHTML = detailHtml(s, 'data-dexid'); el.scrollTop = 0; wireMoveTabs(s, '#dex-detail'); }
   document.querySelectorAll('#dex-list .dex-row').forEach((r) => r.classList.toggle('active', Number(r.dataset.dexid) === dexSel));
 }
 function bossMonCard(m) {
@@ -1303,7 +1256,7 @@ function boxMonCard(mon) {
 }
 
 /* ================= Navigation ================= */
-const SECTIONS = ['pokemon', 'areas', 'hardcore', 'calc', 'box'];
+const SECTIONS = ['areas', 'hardcore', 'calc', 'box'];
 function ensureCalc() {
   const f = document.getElementById('calc-frame');
   if (f && !f.src && f.dataset.src) f.src = f.dataset.src;  // lazy-load the ~8 MB calc on first open
@@ -1333,7 +1286,7 @@ function setMode(m, fromHash) {
   updateViews();
   renderSection(m);
   if (splitMode && rightMode) renderSection(rightMode);
-  if (!fromHash) setHash(m === 'pokemon' ? (activeId ? String(activeId) : '') : m === 'areas' ? 'areas' : m === 'calc' ? 'calc' : m === 'box' ? 'box' : hcSub);
+  if (!fromHash) setHash(m === 'areas' ? 'areas' : m === 'calc' ? 'calc' : m === 'box' ? 'box' : hcSub);
 }
 function setRightMode(sec) { if (sec === mode) return; rightMode = sec; updateViews(); renderSection(sec); }
 function toggleSplit() {
@@ -1345,7 +1298,7 @@ function toggleSplit() {
 // Show section m in the primary pane — UNLESS it's already visible in either split pane, so that
 // clicking a mon/area/boss while that section is on the RIGHT updates it in place (no pane snap).
 function ensureMode(m) { if (mode !== m && !(splitMode && rightMode === m)) setMode(m, true); }
-function goMon(id) { ensureMode('pokemon'); selectSpecies(id); }
+function goMon(id) { openDexModal(id); }   // the Pokédex is a modal opened from anywhere a mon is clicked
 function goArea(idx) {
   ensureMode('areas');
   // Only drop the (persisted) search/filters if they'd hide the target area.
@@ -1374,7 +1327,7 @@ function applyHash() {
   if (h === 'box') { setMode('box', true); return true; }
   if (h === 'order' || h === 'bosses' || h === 'info') { setMode('hardcore', true); hcSub = h; renderHardcore(); if (h === 'bosses') renderBossGrid(); return true; }
   const id = Number(h);
-  if (id && DATA.species[id]) { setMode('pokemon', true); selectSpecies(id, true); return true; }
+  if (id && DATA.species[id]) { setMode('hardcore', true); goMon(id); return true; }
   return false;
 }
 
@@ -1396,25 +1349,7 @@ function init() {
   document.getElementById('split-btn').addEventListener('click', toggleSplit);
   document.querySelectorAll('#tabs-right button').forEach((b) => b.addEventListener('click', () => setRightMode(b.dataset.rmode)));
 
-  // Pokémon view
-  document.getElementById('pk-search').addEventListener('input', (e) => { pkSearch = e.target.value; savePkState(); renderPkList(); });
-  document.getElementById('pk-filters').addEventListener('click', (e) => {
-    const c = e.target.closest('.fchip'); if (!c) return;
-    const [p, v] = c.dataset.f.split(':'); onFilterToggle(p, v, pkFilters); savePkState(); renderPkFilters(); renderPkList();
-  });
-  document.getElementById('pk-list').addEventListener('click', (e) => { const r = e.target.closest('.row'); if (r) selectSpecies(Number(r.dataset.id)); });
-  document.getElementById('pk-detail-content').addEventListener('click', onGoClick);
-  // Collapsible sidebar panel + independent search/filters toggle
-  const sidebar = document.getElementById('pk-sidebar'), sideHead = sidebar.querySelector('.side-head');
-  const applyPkPanel = () => {
-    sidebar.classList.toggle('collapsed', !sidebarOpen);
-    sideHead.classList.toggle('filt-closed', !filtersOpen);
-    document.getElementById('pk-filt-state').textContent = filtersOpen ? '▾ hide' : '▸ show';
-  };
-  document.getElementById('pk-collapse').addEventListener('click', () => { sidebarOpen = false; lsSet('rr_pk_side', '0'); applyPkPanel(); });
-  document.getElementById('pk-expand').addEventListener('click', () => { sidebarOpen = true; lsSet('rr_pk_side', '1'); applyPkPanel(); });
-  document.getElementById('pk-filt-toggle').addEventListener('click', () => { filtersOpen = !filtersOpen; lsSet('rr_pk_filt', filtersOpen ? '1' : '0'); applyPkPanel(); });
-  applyPkPanel();
+  // The Pokédex is a modal (openDexModal); its search/filters are wired in the modal handlers below.
 
   // Areas view (delegated)
   const ar = document.getElementById('ar-body');
@@ -1518,7 +1453,9 @@ function init() {
     if (e.target.closest('[data-addcancel]')) { closeAddPop(); renderHthCompare(); return; }
     const bp = e.target.closest('[data-boxpick]'); if (bp) { const m = allBoxMons()[+bp.dataset.boxpick]; if (m) { vsLeftTeam.push(cfgFromBox(m)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; bp.classList.add('picked'); bumpAddCount(); rebuildVsBands(); } return; }
     const dp = e.target.closest('[data-dexpick]'); if (dp) { vsLeftTeam.push(cfgFromDex(+dp.dataset.dexpick)); vs.leftIdx = vsLeftTeam.length - 1; vsLeft = vsLeftTeam[vs.leftIdx]; dp.classList.add('picked'); bumpAddCount(); rebuildVsBands(); return; }
+    const dfc = e.target.closest('#dex-filters .fchip'); if (dfc) { const [p, v] = dfc.dataset.f.split(':'); onFilterToggle(p, v, pkFilters); savePkState(); renderDexFilters(); renderDexList(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
+    const garea = e.target.closest('[data-go-area]'); if (garea) { closeModal(); goArea(Number(garea.dataset.goArea)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
   modal.addEventListener('change', (e) => {
@@ -1559,9 +1496,8 @@ async function start() {
   buildEntries(); buildAreaIndex();
   bossSprite = {};
   for (const cat of (DATA.hardcore.categories || [])) for (const b of cat.bosses) if (b.sprite) bossSprite[b.trainerId] = b.sprite;
-  renderPkFilters(); renderPkList();
   init();
-  if (!applyHash()) { setMode('pokemon', true); selectSpecies(ENTRIES[0].ID, true); }
+  if (!applyHash()) setMode('hardcore', true);
   document.getElementById('loading').remove();
   document.getElementById('app').hidden = false;
 }
