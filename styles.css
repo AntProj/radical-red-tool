@@ -461,6 +461,12 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .vs-hpcur:focus { border-color: var(--accent); outline: none; }
 .vs-hpmax { color: var(--muted-2); }
 .vs-hppct { color: var(--muted); min-width: 30px; text-align: right; }
+/* Mirror the player (left) HP widget across the center axis so the two bars are reflections:
+   reverse the element order (bar toward center, % at the outer edge) and anchor the fill toward
+   center, matching the diverging head-to-head layout. */
+.hth-mcol.l .vs-hp { flex-direction: row-reverse; }
+.hth-mcol.l .vs-hppct { text-align: left; }
+.hth-mcol.l .vs-hpbar i { margin-left: auto; }
 .vs-crit { cursor: pointer; }
 .vs-crit input { margin: 0 4px 0 0; }
 .hth-move .vs-mv { width: 100%; max-width: none; min-width: 0; }
