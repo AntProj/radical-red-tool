@@ -4,8 +4,10 @@
  * Notes / known limits for romhacks:
  *  - Species numbers are the game's INTERNAL ids; we map them straight to species.json ids.
  *  - Box Pokémon store EXP not level; level is ESTIMATED via the Medium-Fast curve (party levels are exact).
- *  - Gender needs per-species gender ratios we don't have, so it's omitted.
- *  - Hidden abilities can't be told apart from the 2nd ability slot in the Gen-3 struct.
+ *  - Boxes use Radical Red / CFRU's compressed 58-byte record (sectionIDs 5-13), reverse-engineered
+ *    from the YARRE save editor (decodeBoxMon). Boxes 0-18 are read; later boxes use a more
+ *    intricate cross-section layout that isn't decoded yet.
+ *  - PID yields nature/gender/ability/shiny; ability maps to species.json [hidden, ability1, ability2].
  */
 (function () {
   'use strict';
@@ -140,6 +142,56 @@
     return f;
   }
 
+  // Radical Red / CFRU compressed BOX record (58 bytes). Layout reverse-engineered from the YARRE
+  // save editor: PID@0, TID@4, SID@6, nickname@8 (10), OT name@20 (7), species@28, item@30,
+  // exp@32, PP-ups@36, friendship@37, moves@39 (4 x 10-bit packed), EVs@44-49, IV word@54.
+  function decodeBoxMon(dv, off) {
+    const species = dv.getUint16(off + 28, true);
+    if (!species) return null;
+    const ok = isValidSpecies ? isValidSpecies(species) : (species >= 1 && species <= MAX_SPECIES);
+    if (!ok) return null;
+    const pv = dv.getUint32(off, true) >>> 0;
+    const tid = dv.getUint16(off + 4, true), sid = dv.getUint16(off + 6, true);
+    const u16 = (o) => dv.getUint16(off + o, true);
+    const ivWord = dv.getUint32(off + 54, true) >>> 0;
+    const exp = dv.getUint32(off + 32, true) >>> 0;
+    return {
+      species,
+      heldItem: u16(30),
+      exp,
+      // moves: four 10-bit values bit-packed starting at byte 39
+      moves: [(u16(39) >>> 0) & 0x3FF, (u16(40) >>> 2) & 0x3FF, (u16(41) >>> 4) & 0x3FF, (u16(42) >>> 6) & 0x3FF].filter(Boolean),
+      evs: [44, 45, 46, 47, 48, 49].map((o) => dv.getUint8(off + o)),   // HP,Atk,Def,Spe,SpA,SpD
+      ivs: [0, 5, 10, 15, 20, 25].map((sh) => (ivWord >>> sh) & 31),     // HP,Atk,Def,Spe,SpA,SpD
+      isEgg: !!((ivWord >>> 30) & 1),
+      hiddenAbility: (ivWord >>> 31) & 1,
+      shiny: ((tid ^ sid ^ (pv & 0xFFFF) ^ (pv >>> 16)) & 0xFFFF) < 8,
+      nature: pv % 25,
+      pid: pv,
+      ability: ((ivWord >>> 31) & 1) ? 0 : 1 + (pv & 1),  // species.json [hidden, ability1, ability2]
+      genderByte: pv & 0xFF,
+      nickname: decodeStr(dv, off + 8, 10),
+      otName: decodeStr(dv, off + 20, 7),
+      level: levelFromExp(exp),
+      levelExact: false,
+    };
+  }
+
+  // YARRE box storage: sectionIDs 5-13 concatenated in 4080-byte chunks (the last contributes 424),
+  // a 33064-byte buffer holding boxes 0-18; box b at offset 4 + b*1740, 30 slots of 58 bytes each.
+  function assembleBoxes(dv, sections) {
+    const CHUNK = 4080, LAST = 424, IDS = [5, 6, 7, 8, 9, 10, 11, 12, 13];
+    const out = new Uint8Array(CHUNK * (IDS.length - 1) + LAST);
+    for (let t = 0; t < IDS.length; t++) {
+      const off = sections[IDS[t]];
+      if (off === undefined) return null;
+      const size = (t < IDS.length - 1) ? CHUNK : LAST;
+      if (off + size > dv.buffer.byteLength) return null;
+      out.set(new Uint8Array(dv.buffer, off, size), t * CHUNK);
+    }
+    return new DataView(out.buffer);
+  }
+
   function parse(buffer, validSpecies) {
     isValidSpecies = (typeof validSpecies === 'function') ? validSpecies : null;
     const diag = {};
@@ -153,20 +205,18 @@
       diag.sectionsValid = slot.valid;
       if (!slot.found) return { ok: false, error: 'No valid save sections found (signature mismatch).', diag };
 
-      // Boxes: tries the vanilla PokemonStorage layout (sections 5-13, offset 4, 14x30x80).
-      // NOTE: Radical Red / CFRU uses a NON-vanilla expanded PC — on RR saves these sections are
-      // empty (no box mons, no vanilla box-name table), so this yields nothing. Pinning down RR's
-      // real box format needs a save WITH boxed mons. The party (plaintext, SaveBlock1) reads fine.
-      const pc = assemble(dv, slot.sections, [5, 6, 7, 8, 9, 10, 11, 12, 13]);
+      // Boxes: Radical Red / CFRU store box mons in a compressed 58-byte record (NOT vanilla 80B)
+      // across sectionIDs 5-13. assembleBoxes builds the PC buffer; 19 boxes x 30 slots are read.
+      const boxBuf = assembleBoxes(dv, slot.sections);
       const boxes = [];
-      if (pc) {
-        const NUM_BOXES = 14, PER = 30, SIZE = 80, base = 4;
+      if (boxBuf) {
+        const NUM_BOXES = 19, PER = 30, SIZE = 58, BOX = PER * SIZE, base = 4;
         for (let bx = 0; bx < NUM_BOXES; bx++) {
           const mons = [];
           for (let i = 0; i < PER; i++) {
-            const off = base + (bx * PER + i) * SIZE;
-            if (off + SIZE > pc.buffer.byteLength) break;
-            const mon = decodeMon(pc, off, false);
+            const off = base + bx * BOX + i * SIZE;
+            if (off + SIZE > boxBuf.buffer.byteLength) break;
+            const mon = decodeBoxMon(boxBuf, off);
             if (mon) { mon.box = bx; mon.slot = i; mons.push(mon); }
           }
           boxes.push({ name: 'Box ' + (bx + 1), mons });
