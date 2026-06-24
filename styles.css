@@ -454,8 +454,8 @@ section.card > h2 .h2c { color: var(--muted-2); margin-left: 6px; }
 .hth-mhead { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
 .hth-mcol.l .hth-mhead { flex-direction: row-reverse; }
 /* Current-HP widget on the Status·Crit row: bar + editable current / fixed max (HP battle stat) + %. */
-.vs-hp { display: inline-flex; align-items: center; gap: 5px; font: 700 11px system-ui; color: var(--muted); white-space: nowrap; }
-.vs-hpbar { width: 52px; height: 8px; background: var(--line); border-radius: 5px; overflow: hidden; flex: 0 0 auto; }
+.vs-hp { display: inline-flex; align-items: center; gap: 5px; font: 700 11px system-ui; color: var(--muted); white-space: nowrap; flex: 1 1 auto; min-width: 0; }
+.vs-hpbar { height: 8px; background: var(--line); border-radius: 5px; overflow: hidden; flex: 1 1 auto; min-width: 60px; }
 .vs-hpbar i { display: block; height: 100%; border-radius: 5px; }
 .vs-hpcur { width: 46px; padding: 2px 4px; background: var(--bg); border: 1px solid var(--line-2); border-radius: 5px; color: var(--text); font: 700 11px system-ui; text-align: right; }
 .vs-hpcur:focus { border-color: var(--accent); outline: none; }
