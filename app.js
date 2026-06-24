@@ -322,10 +322,6 @@ function evoTreeCard(sp, cond, current, attr) {
     '<div class="en">' + esc(sp.name) + (form ? ' <span class="row-form">' + esc(form) + '</span>' : '') + '</div>' +
     (cond ? '<div class="ec">' + esc(cond) + '</div>' : '') + '</div>';
 }
-function evolutionSection(s) {
-  const tree = evoTree(s, 'data-go-mon');
-  return tree ? '<section class="card"><h2>Evolution</h2>' + tree + '</section>' : '';
-}
 function locationsSection(s) {
   const link = (idx, meta) => '<div class="loc-row"><span class="loc-area" data-go-area="' + idx + '">' + esc(AREAVIEW[idx].name) + '</span><span class="loc-meta">' + esc(meta) + '</span></div>';
   let rows = '';
@@ -1116,12 +1112,6 @@ function renderDexList() {
   }
   const el = document.getElementById('dex-list');
   if (el) el.innerHTML = html || '<li class="dex-empty">No matches</li>';
-}
-// Compact evolution line for the mini-Pokédex modal; clicking a card selects it in-modal
-// (the modal click handler routes [data-dexid] -> selectDexMon).
-function dexEvoLine(s) {
-  const tree = evoTree(s, 'data-dexid');  // full family tree; cards select in-modal via [data-dexid]
-  return tree ? '<h3 class="dex-h">Evolution</h3>' + tree : '';
 }
 function selectDexMon(id) {
   const s = DATA.species[id];
