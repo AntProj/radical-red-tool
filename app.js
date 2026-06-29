@@ -248,11 +248,34 @@ function chipRow(items, prefix, activeSet, single) {
 }
 
 /* ===== Shared species search/filter helpers (used by the Pokédex modal) ===== */
-function pkMatchesText(s, q) {
+// Pokédex search SCOPE — what the query matches. Name = name/form/#number; Type/Ability/Move match
+// the species' types / abilities / full learnset; All = any of them.
+const DEX_SCOPES = [['all', 'All'], ['name', 'Name'], ['type', 'Type'], ['ability', 'Abilities'], ['move', 'Moves']];
+const DEX_SCOPE_PH = { all: 'Search name, type, ability, move…', name: 'Search name or #number…', type: 'Search by type…', ability: 'Search by ability…', move: 'Search by move…' };
+function dexNameHit(s, q) {
+  return s.name.toLowerCase().includes(q) || (s.key && s.key.toLowerCase().includes(q)) || pad(s.dexID).includes(q) || String(s.dexID) === q;
+}
+function dexTypeHit(s, q) { return s.type.some((t) => DATA.types[t] && DATA.types[t].name.toLowerCase().includes(q)); }
+const _dexBlob = {};   // species ID -> { mv, ab } lowercased search blobs (lazy, cached on first search)
+function dexBlobs(s) {
+  let c = _dexBlob[s.ID];
+  if (!c) {
+    const mv = [];
+    for (const lm of (s.levelupMoves || [])) { const m = DATA.moves[lm[0]]; if (m) mv.push(m.name); }
+    for (const n of (s.tmMoves || [])) { const m = DATA.moves[DATA.tmMoves[n]]; if (m) mv.push(m.name); }
+    for (const n of (s.tutorMoves || [])) { const m = DATA.moves[DATA.tutorMoves[n]]; if (m) mv.push(m.name); }
+    for (const id of (s.eggMoves || [])) { const m = DATA.moves[id]; if (m) mv.push(m.name); }
+    c = _dexBlob[s.ID] = { mv: mv.join('\n').toLowerCase(), ab: abilityList(s).map((a) => a.name).join('\n').toLowerCase() };
+  }
+  return c;
+}
+function dexMatchesScope(s, q, scope) {
   if (!q) return true;
-  if (s.name.toLowerCase().includes(q) || (s.key && s.key.toLowerCase().includes(q))) return true;
-  if (pad(s.dexID).includes(q) || String(s.dexID) === q) return true;
-  return s.type.some((t) => DATA.types[t] && DATA.types[t].name.toLowerCase() === q);
+  if (scope === 'name') return dexNameHit(s, q);
+  if (scope === 'type') return dexTypeHit(s, q);
+  if (scope === 'ability') return dexBlobs(s).ab.includes(q);
+  if (scope === 'move') return dexBlobs(s).mv.includes(q);
+  return dexNameHit(s, q) || dexTypeHit(s, q) || dexBlobs(s).ab.includes(q) || dexBlobs(s).mv.includes(q);
 }
 // Builds the full species detail (head, stats, type defenses, abilities, evolution, moves, locations)
 // as an HTML string. Shared by the mini-Pokédex modal. evoAttr picks how evolution cards behave:
@@ -1174,31 +1197,22 @@ function evIvLine(arr, label) {
 }
 
 /* ---------------- Mini Pokédex modal ---------------- */
-let dexQuery = '', dexSel = null;
+let dexQuery = '', dexSel = null, dexScope = lsGet('rr_dex_scope', 'all');
 function openDexModal(initialId) {
   openModal('<div class="dex-modal"><div class="dex-head"><h2>Pokédex</h2>' +
-    '<input id="dex-q" type="search" placeholder="Search name, #number, or type…" autocomplete="off"></div>' +
-    '<div id="dex-filters" class="dex-filters"></div>' +
+    '<select id="dex-scope" class="dex-scope" title="What to search">' +
+    DEX_SCOPES.map(([v, l]) => '<option value="' + v + '"' + (v === dexScope ? ' selected' : '') + '>' + esc(l) + '</option>').join('') + '</select>' +
+    '<input id="dex-q" type="search" placeholder="' + esc(DEX_SCOPE_PH[dexScope] || 'Search…') + '" autocomplete="off"></div>' +
     '<div class="dex-body"><ul id="dex-list" class="dex-list"></ul><div id="dex-detail" class="dex-detail"></div></div></div>', 'dex-modal-box');
   dexQuery = '';
-  renderDexFilters();
   renderDexList();
   selectDexMon(initialId || dexSel || activeId || ENTRIES[0].ID);
 }
-// Encounter filters in the modal mirror the old standalone dex; they share the same pkFilters state.
-function renderDexFilters() {
-  const el = document.getElementById('dex-filters');
-  if (!el) return;
-  el.innerHTML =
-    '<div class="fchips">' + chipRow(METHOD_GROUPS, 'm', pkFilters.methods) + '</div>' +
-    '<div class="fchips">' + chipRow([{ key: 'Day', label: '☀ Day' }, { key: 'Night', label: '☾ Night' }], 't', pkFilters.time, true) + '</div>';
-}
 function renderDexList() {
-  const q = dexQuery.trim().toLowerCase(), encOn = encActive(pkFilters);
+  const q = dexQuery.trim().toLowerCase();
   let html = '';
   for (const s of ENTRIES) {
-    if (!pkMatchesText(s, q)) continue;
-    if (encOn && !(monWild[s.ID] || []).some((w) => encMatch(WILD_METHODS[w.key], pkFilters))) continue;
+    if (!dexMatchesScope(s, q, dexScope)) continue;
     html += '<li class="dex-row' + (s.ID === dexSel ? ' active' : '') + '" data-dexid="' + s.ID + '">' +
       '<img src="' + spriteFor(s) + '" alt=""><span class="dex-rn">' + esc(s.name) + '</span><span class="dex-rnum">' + pad(s.dexID) + '</span></li>';
   }
@@ -1542,13 +1556,13 @@ function init() {
     if (e.target.closest('[data-clearteam]')) { vsLeftTeam = []; vs.leftIdx = 0; vsLeft = null; bumpAddCount(); renderAddPicker(); rebuildVsBands(); return; }
     const bp = e.target.closest('[data-boxpick]'); if (bp) { const i = +bp.dataset.boxpick; toggleTeamPick('b' + i, () => { const m = allBoxMons()[i]; return m ? cfgFromBox(m) : null; }); return; }
     const dp = e.target.closest('[data-dexpick]'); if (dp) { const id = +dp.dataset.dexpick; toggleTeamPick('d' + id, () => cfgFromDex(id)); return; }
-    const dfc = e.target.closest('#dex-filters .fchip'); if (dfc) { const [p, v] = dfc.dataset.f.split(':'); onFilterToggle(p, v, pkFilters); savePkState(); renderDexFilters(); renderDexList(); return; }
     const mon = e.target.closest('[data-go-mon]'); if (mon) { closeModal(); goMon(Number(mon.dataset.goMon)); return; }
     const garea = e.target.closest('[data-go-area]'); if (garea) { closeModal(); goArea(Number(garea.dataset.goArea)); return; }
     const row = e.target.closest('[data-dexid]'); if (row) { selectDexMon(Number(row.dataset.dexid)); }
   });
   modal.addEventListener('change', (e) => {
     const t = e.target; if (!t.dataset) return;
+    if (t.id === 'dex-scope') { dexScope = t.value; lsSet('rr_dex_scope', dexScope); const q = document.getElementById('dex-q'); if (q) q.placeholder = DEX_SCOPE_PH[dexScope] || 'Search…'; renderDexList(); return; }
     if (t.dataset.field) { vsField = vsField || {}; vsField[t.dataset.field] = t.value || undefined; renderHthCompare(); return; }
     if (t.dataset.tm != null) { const n = +t.dataset.tm; if (t.checked) ownedTMs.add(n); else ownedTMs.delete(n); saveTMs(); const c = document.querySelector('#vs-pop .vs-tmctl span'); if (c) c.textContent = ownedTMs.size + ' owned'; return; }
     const cfg = t.dataset.side === 'right' ? vsRight : (t.dataset.side === 'left' ? vsLeft : null);
