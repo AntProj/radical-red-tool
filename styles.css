@@ -89,6 +89,12 @@ h1 { margin: 0; }
 .page { max-width: 1080px; margin: 0 auto; padding: 24px 30px 70px; }
 .ar-sticky { position: sticky; top: 0; z-index: 20; background: var(--bg); padding: 10px 0 8px; }
 .ar-sticky .page-search { margin-bottom: 10px; }
+/* Area search bar: a scope <select> ("what to search") sits left of the search input. */
+.ar-searchbar { display: flex; gap: 8px; align-items: stretch; max-width: 480px; margin-bottom: 10px; }
+.ar-searchbar .page-search { flex: 1 1 auto; max-width: none; margin-bottom: 0; }
+.ar-scope { flex: 0 0 auto; background: var(--panel-2); color: var(--text); border: 1px solid var(--line-2); border-radius: 8px; padding: 0 10px; font: 600 12.5px system-ui; cursor: pointer; }
+.ar-scope:focus { outline: none; border-color: var(--accent); }
+.to-loc.ar-hit { color: #8fc7ff; }
 .page-head { margin-bottom: 14px; }
 .page-head h1 { font-size: 26px; font-weight: 800; }
 .page-sub { color: var(--muted); margin: 6px 0 0; font-size: 13.5px; }

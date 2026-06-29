@@ -26,6 +26,9 @@ const ITEM_CATS = { 'item-standard': 'Ground', 'item-hidden': 'Hidden', 'item-sh
 const ITEM_ORDER = ['item-standard', 'item-hidden', 'item-shop', 'item-cheat'];
 const METHOD_GROUPS = [{ key: 'grass', label: 'Grass' }, { key: 'surf', label: 'Surf' }, { key: 'fish', label: 'Fishing' }, { key: 'smash', label: 'Rock Smash' }];
 const AREA_CATS = [{ key: 'wild', label: 'Wild' }, { key: 'items', label: 'Items' }, { key: 'trainers', label: 'Trainers' }, { key: 'raids', label: 'Raids' }, { key: 'fixed', label: 'Special' }];
+// Area-search SCOPE — what the search box matches against (name vs. the area's contents).
+const AREA_SCOPES = [['all', 'All'], ['name', 'Area name'], ['mon', 'Pokémon'], ['item', 'Items'], ['trainer', 'Trainers'], ['move', 'Tutor moves']];
+const AREA_SCOPE_PH = { all: 'Search areas, Pokémon, items…', name: 'Search area names…', mon: 'Search for a Pokémon…', item: 'Search for an item…', trainer: 'Search for a trainer…', move: 'Search for a tutor move…' };
 
 let ENTRIES = [], TYPE_IDS = [], evolvesFromMap = {};
 let AREAVIEW = [], monWild = {}, monFixed = {}, monRaid = {}, areaRank = {};
@@ -35,7 +38,7 @@ let splitMode = false, rightMode = null;   // second side-by-side pane
 let activeId = null, pkSearch = '', activeMoveTab = 'level', sidebarOpen = true, filtersOpen = true;
 const pkFilters = { methods: new Set(), time: null };
 // areas
-let activeAreaIdx = null, areaSearch = '';
+let activeAreaIdx = null, areaSearch = '', areaScope = 'all';
 const areaFilters = { methods: new Set(), time: null, cats: new Set() };
 // hardcore
 let hcSub = 'order', activeBoss = null, bossSearch = '', bossBackTo = 'bosses';
@@ -50,6 +53,7 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
 function loadUiState() {
   pkSearch = lsGet('rr_pk_q', '');
   areaSearch = lsGet('rr_area_q', '');
+  areaScope = lsGet('rr_area_scope', 'all');
   bossSearch = lsGet('rr_boss_q', '');
   hcSub = lsGet('rr_hcsub', 'order');
   rivalStarter = lsGet('rr_rival', 'Fire');
@@ -68,7 +72,7 @@ function loadUiState() {
 }
 const saveTMs = () => lsSet('rr_tms', JSON.stringify([...ownedTMs]));
 const savePkState = () => { lsSet('rr_pk_q', pkSearch); lsSet('rr_pk_f', JSON.stringify({ methods: [...pkFilters.methods], time: pkFilters.time })); };
-const saveAreaState = () => { lsSet('rr_area_q', areaSearch); lsSet('rr_area_f', JSON.stringify({ methods: [...areaFilters.methods], time: areaFilters.time, cats: [...areaFilters.cats] })); };
+const saveAreaState = () => { lsSet('rr_area_q', areaSearch); lsSet('rr_area_scope', areaScope); lsSet('rr_area_f', JSON.stringify({ methods: [...areaFilters.methods], time: areaFilters.time, cats: [...areaFilters.cats] })); };
 const saveBossState = () => { lsSet('rr_boss_q', bossSearch); lsSet('rr_boss_cat', JSON.stringify([...bossCat])); };
 
 /* ---------------- Loading ---------------- */
@@ -395,10 +399,35 @@ function passesAreaFilter(a) {
   if (areaFilters.cats.size) { const h = catPresent(a); if (![...areaFilters.cats].some((c) => h[c])) return false; }
   return true;
 }
+// Search the area's CONTENTS (not just its name) per scope; returns matched display names for a hint.
+function areaScopeHits(a, q, scope) {
+  const hits = [], seen = new Set();
+  const push = (s) => { if (s && s.toLowerCase().includes(q)) { const k = s.toLowerCase(); if (!seen.has(k)) { seen.add(k); hits.push(s); } } };
+  if (scope === 'mon' || scope === 'all') {
+    const ids = new Set();
+    for (const k of WILD_ORDER) for (const e of (a.wild[k] || [])) ids.add(e.id);
+    for (const k of FIXED_ORDER) for (const id of (a.fixed[k] || [])) ids.add(id);
+    for (const star of Object.keys(a.raids)) for (const id of a.raids[star]) ids.add(id);
+    for (const id of ids) { const sp = DATA.species[id]; if (sp) push(sp.name); }
+  }
+  if (scope === 'item' || scope === 'all') for (const k of ITEM_ORDER) for (const id of (a.items[k] || [])) { const it = DATA.items[id]; if (it) push(it.name); }
+  if (scope === 'trainer' || scope === 'all') for (const id of a.trainers) { const t = DATA.trainers[id]; if (t && t.name) push(t.name); }
+  if (scope === 'move' || scope === 'all') for (const idx of a.tutors) { const mv = DATA.moves[DATA.tutorMoves[idx]]; if (mv) push(mv.name); }
+  return hits;
+}
+function areaMatchesScope(a, q, scope) {
+  if (!q) return true;
+  const nameHit = a.name.toLowerCase().includes(q);
+  if (scope === 'name') return nameHit;
+  if (scope === 'all' && nameHit) return true;
+  return areaScopeHits(a, q, scope).length > 0;
+}
 function showAreaIndex() {
   document.getElementById('ar-body').innerHTML =
     '<div class="page"><div class="page-head"><h1>Areas</h1><p class="page-sub">Wild encounters, fishing, and items for every location. Click an area to expand its encounter tables by category.</p></div>' +
-    '<div class="ar-sticky"><input id="ar-search" class="page-search" type="search" placeholder="Search areas…" autocomplete="off" value="' + esc(areaSearch) + '">' +
+    '<div class="ar-sticky"><div class="ar-searchbar"><select id="ar-scope" class="ar-scope" title="What to search">' +
+    AREA_SCOPES.map(([v, l]) => '<option value="' + v + '"' + (v === areaScope ? ' selected' : '') + '>' + esc(l) + '</option>').join('') + '</select>' +
+    '<input id="ar-search" class="page-search" type="search" placeholder="' + esc(AREA_SCOPE_PH[areaScope] || 'Search…') + '" autocomplete="off" value="' + esc(areaSearch) + '"></div>' +
     '<div id="ar-filters"></div><div id="ar-count" class="count"></div></div><div id="ar-grid" class="to-list"></div></div>';
   renderAreaFilters(); renderAreaGrid();
 }
@@ -410,15 +439,17 @@ function renderAreaFilters() {
 }
 function renderAreaGrid() {
   const q = areaSearch.trim().toLowerCase();
-  let list = AREAVIEW.filter((a) => (!q || a.name.toLowerCase().includes(q)) && passesAreaFilter(a));
+  let list = AREAVIEW.filter((a) => areaMatchesScope(a, q, areaScope) && passesAreaFilter(a));
   // When browsing wild areas, list them in the Locations file's order (Grass & Caves).
   const wildContext = areaFilters.cats.has('wild') || encActive(areaFilters);
   if (wildContext) list = list.slice().sort((a, b) => ((areaRank[a.idx] ?? (1e6 + a.idx)) - (areaRank[b.idx] ?? (1e6 + b.idx))));
   const html = list.map((a) => {
     const open = a.idx === activeAreaIdx;
+    const hits = (q && areaScope !== 'name') ? areaScopeHits(a, q, areaScope) : [];   // show WHAT matched
+    const loc = hits.length ? ('↳ ' + hits.slice(0, 5).map(esc).join(', ') + (hits.length > 5 ? ' +' + (hits.length - 5) + ' more' : '')) : esc(areaSummary(a));
     return '<div class="to-entry linkable' + (open ? ' open' : '') + '" data-area="' + a.idx + '">' +
       '<div class="to-row"><span class="to-chev">▸</span><span class="to-name">' + esc(a.name) + '</span>' +
-      '<span class="to-loc">' + esc(areaSummary(a)) + '</span></div>' +
+      '<span class="to-loc' + (hits.length ? ' ar-hit' : '') + '">' + loc + '</span></div>' +
       '<div class="area-panel"' + (open ? ' data-filled="1"' : '') + '>' + (open ? areaCategoriesHtml(a) : '') + '</div></div>';
   }).join('');
   document.getElementById('ar-grid').innerHTML = html || '<div class="ability-desc">No areas match the filters.</div>';
@@ -1359,7 +1390,7 @@ function goArea(idx) {
   ensureMode('areas');
   // Only drop the (persisted) search/filters if they'd hide the target area.
   const a = AREAVIEW[idx], q = areaSearch.trim().toLowerCase();
-  if (a && ((q && !a.name.toLowerCase().includes(q)) || !passesAreaFilter(a))) {
+  if (a && ((q && !areaMatchesScope(a, q, areaScope)) || !passesAreaFilter(a))) {
     areaSearch = ''; areaFilters.methods.clear(); areaFilters.time = null; areaFilters.cats.clear(); saveAreaState();
   }
   activeAreaIdx = idx;
@@ -1431,6 +1462,7 @@ function init() {
     }
   });
   ar.addEventListener('input', (e) => { if (e.target.id === 'ar-search') { areaSearch = e.target.value; saveAreaState(); renderAreaGrid(); } });
+  ar.addEventListener('change', (e) => { if (e.target.id === 'ar-scope') { areaScope = e.target.value; saveAreaState(); const inp = document.getElementById('ar-search'); if (inp) inp.placeholder = AREA_SCOPE_PH[areaScope] || 'Search…'; renderAreaGrid(); } });
 
   // Hardcore view (delegated)
   const hc = document.getElementById('hc-body');
