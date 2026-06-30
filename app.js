@@ -671,10 +671,19 @@ function trainerSprite(t) {
     : '<div class="tr-ph" title="' + esc(t.name) + '">🧑‍🎤</div>';
 }
 // Inline collapsible team (shown under a boss card / trainer-order row).
-function bossTeamHtml(id, cardFn) {
+// Some hardcore DOUBLE battles are vs TWO trainers (e.g. "Lass Ann & Gentleman Brooks"); the data
+// records one as the boss and the other as `partnerId`. partnerOf maps a boss's trainerId -> the
+// partner's trainerId (built in start), and hardcoreTeam() returns the COMBINED team so both show.
+let partnerOf = {};
+function hardcoreTeam(id) {
   const t = DATA.trainers[id];
+  if (!t || !t.hardcore) return [];
+  const p = partnerOf[id];
+  return (p && DATA.trainers[p] && DATA.trainers[p].hardcore) ? t.hardcore.concat(DATA.trainers[p].hardcore) : t.hardcore;
+}
+function bossTeamHtml(id, cardFn) {
   const fn = cardFn || bossMonCard;
-  return t && t.hardcore ? t.hardcore.map(fn).join('') : '';
+  return hardcoreTeam(id).map(fn).join('');
 }
 function toggleInlineTeam(el, id, panelSel, cardFn) {
   const panel = el.querySelector(panelSel);
@@ -1144,7 +1153,7 @@ function vsPlayerHuddle() {
 }
 function vsBand(side, boss) {
   if (side === 'right') {
-    const team = boss.hardcore || [];
+    const team = hardcoreTeam(boss.ID);
     return '<div class="hth-band right"><div class="hth-tname">' + esc(boss.name) + '<span>Hardcore Boss · ' + team.length + ' Pokémon</span></div>' +
       '<div class="vs-party right" id="vs-party-right">' + vsBossHuddle(team) + '</div></div>';
   }
@@ -1166,7 +1175,7 @@ function showVersus(tid) {
   // resume where we left off. The player TEAM always persists across opens.
   if (vs.tid !== tid || !vsRightTeam.length) {
     vs.tid = tid; vs.rightIdx = 0;
-    vsRightTeam = (boss.hardcore || []).map(cfgFromBoss);
+    vsRightTeam = hardcoreTeam(tid).map(cfgFromBoss);
     const bd = bossData(tid);
     vsField = bd && bd.field ? Object.assign({}, bd.field) : null;
   }
@@ -1520,7 +1529,7 @@ function init() {
       try { localStorage.setItem('rr_highest', playerHighest); } catch (_) {}
       if (hcSub === 'bosses') renderBossGrid();
       if (!document.getElementById('modal').hidden && vs.tid != null) {
-        vsRightTeam = ((DATA.trainers[vs.tid] || {}).hardcore || []).map(cfgFromBoss); // re-resolve scaled boss levels
+        vsRightTeam = hardcoreTeam(vs.tid).map(cfgFromBoss); // re-resolve scaled boss levels
         vsRight = vsRightTeam[vs.rightIdx] || null;
         renderHthCompare();
       }
@@ -1601,7 +1610,8 @@ async function start() {
   loadUiState();
   buildEntries(); buildAreaIndex();
   bossSprite = {};
-  for (const cat of (DATA.hardcore.categories || [])) for (const b of cat.bosses) if (b.sprite) bossSprite[b.trainerId] = b.sprite;
+  partnerOf = {};
+  for (const cat of (DATA.hardcore.categories || [])) for (const b of cat.bosses) { if (b.sprite) bossSprite[b.trainerId] = b.sprite; if (b.partnerId) partnerOf[b.trainerId] = b.partnerId; }
   init();
   if (!applyHash()) setMode('hardcore', true);
   document.getElementById('loading').remove();
